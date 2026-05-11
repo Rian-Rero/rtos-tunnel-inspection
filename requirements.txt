@@ -1,0 +1,20 @@
+# --- Simulação e GUI ---
+pygame>=2.5.2
+tk>=0.1.0
+
+# --- Comunicação MQTT ---
+paho-mqtt>=1.6.1
+
+# --- Inteligência Artificial (YOLO) ---
+ultralytics>=8.2.0
+opencv-python>=4.9.0
+
+# --- Qualidade de Código (Linting & Formatting) ---
+pre-commit>=3.7.0
+black>=24.4.2
+ruff>=0.4.4
+
+# --- Documentação Automática ---
+mkdocs>=1.5.3
+mkdocs-material>=9.5.17
+mkdocstrings[python]>=0.24.3
