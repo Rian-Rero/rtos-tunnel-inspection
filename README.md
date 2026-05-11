@@ -50,3 +50,40 @@ trabalho_atr_2026_1/
         ├── interface_operador.py    # GUI de controle e telemetria (Tkinter)
         └── yolo_mqtt_service.py     # Daemon que processa as imagens da câmera via YOLOv8
 ```
+
+⚙️ Principais Funcionalidades e Requisitos Atendidos
+Núcleo de Tempo Real (C++): Sistema multitarefa utilizando std::thread, com acesso concorrente protegido por std::mutex e sincronização orientada a eventos usando std::condition_variable.
+
+Controle de Navegação: Implementação de Controlador PID clássico para manter a velocidade do robô.
+
+Comunicação Interprocessos: Troca de dados assíncrona entre módulos isolados utilizando um Broker MQTT.
+
+🌟 Pontos Extras Implementados:
+
+Sensor IMU Simulado: Leitura da inclinação do túnel afetando o cálculo da gravidade no simulador físico.
+
+Inspeção Visual por IA: Integração do modelo YOLOv8 para inferência computacional sob demanda quando uma anomalia estrutural é detectada pelo LIDAR.
+
+🚀 Como Executar
+Pré-requisitos
+Certifique-se de que o seu ambiente de desenvolvimento possui os seguintes pacotes instalados:
+
+Compilador GCC/G++ (com suporte a C++17) e make
+
+Broker MQTT (ex: Mosquitto) rodando na máquina local (localhost:1883)
+
+Python 3.8+ com as bibliotecas:
+
+Bash
+pip install pygame paho-mqtt ultralytics opencv-python tk
+Biblioteca C++ do Paho MQTT (paho-mqtt-cpp)
+
+Inicialização Rápida
+Para facilitar a avaliação, todo o ecossistema foi encapsulado em um único arquivo de execução que compila o código e sobe todos os processos simultaneamente.
+
+Na raiz do repositório, conceda permissão de execução (apenas na primeira vez) e execute:
+
+Bash
+chmod +x run.sh
+./run.sh
+Para encerrar: Basta pressionar CTRL+C no terminal ou fechar a janela da interface gráfica. O script possui um handler (trap) que cuidará de encerrar todas as instâncias em background de forma segura.
