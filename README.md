@@ -21,7 +21,7 @@ O sistema utiliza uma arquitetura híbrida: um núcleo crítico de tempo real de
 O projeto foi organizado utilizando os princípios de separação de responsabilidades (fatias verticais) e modularidade. Abaixo está a descrição da função de cada diretório e arquivo principal:
 
 ```text
-trabalho_atr_2026_1/
+RTOS-TUNNEL-INSPECTION/
 │
 ├── Makefile                  # Automação da compilação do núcleo C++
 ├── run.sh                    # Script principal que orquestra a execução de todo o sistema
