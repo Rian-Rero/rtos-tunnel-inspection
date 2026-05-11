@@ -1,6 +1,6 @@
 /**
  * @file TerminalPrinter.cpp
- * @brief Implementacao do utilitario de impressao estilizada.
+ * @brief Implementação do utilitário de impressão estilizada.
  */
 #include "core/TerminalPrinter.hpp"
 

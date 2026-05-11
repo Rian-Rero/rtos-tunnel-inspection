@@ -1,6 +1,6 @@
 /**
  * @file CameraInspection.cpp
- * @brief Implementacao da tarefa de inspecao detalhada com camera.
+ * @brief Implementação da tarefa de inspeção detalhada com câmera.
  */
 #include "tasks/CameraInspection.hpp"
 
@@ -29,10 +29,10 @@ void CameraInspection::run() {
         if (!context_->is_running)
             break;
 
-        core::TerminalPrinter::Log(core::TerminalPrinter::Level::Info, "Camera",
-                                   "Iniciando inspecao detalhada (carga pesada)...");
+        core::TerminalPrinter::Log(core::TerminalPrinter::Level::Info, "Câmera",
+                                   "Iniciando inspeção detalhada (carga pesada)...");
 
-        // Emulação de processamento pesado (Na Etapa 2, chamará o YOLO via system() ou IPC)
+        // Emulação de processamento pesado (na Etapa 2, chamará o YOLO via system() ou IPC)
         auto start = std::chrono::high_resolution_clock::now();
         while (std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::high_resolution_clock::now() - start)
@@ -40,8 +40,8 @@ void CameraInspection::run() {
             // Busy wait simulando uso de CPU
         }
 
-        core::TerminalPrinter::Log(core::TerminalPrinter::Level::Success, "Camera",
-                                   "Inspecao concluida. Retornando ao modo normal.");
+        core::TerminalPrinter::Log(core::TerminalPrinter::Level::Success, "Câmera",
+                                   "Inspeção concluída. Retornando ao modo normal.");
         context_->resetAnomaly();
     }
 }

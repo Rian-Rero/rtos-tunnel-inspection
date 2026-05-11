@@ -1,6 +1,6 @@
 /**
  * @file main.cpp
- * @brief Ponto de entrada do sistema de inspecao ATR.
+ * @brief Ponto de entrada do sistema de inspeção ATR.
  */
 #include <csignal>
 #include <memory>
@@ -23,7 +23,7 @@ std::shared_ptr<core::SharedContext> global_context = std::make_shared<core::Sha
 
 /**
  * @brief Handler para encerramento seguro via sinal do sistema.
- * @param signum Numero do sinal recebido.
+ * @param signum Número do sinal recebido.
  */
 void signalHandler(int signum) {
     core::TerminalPrinter::Log(
@@ -34,12 +34,12 @@ void signalHandler(int signum) {
 }
 
 /**
- * @brief Funcao principal do sistema.
- * @return Codigo de status de encerramento.
+ * @brief Função principal do sistema.
+ * @return Código de status de encerramento.
  */
 int main() {
     std::signal(SIGINT, signalHandler);
-    core::TerminalPrinter::Banner("Sistema de Inspecao ATR", "Etapa 1 - Inicializacao");
+    core::TerminalPrinter::Banner("Sistema de Inspeção ATR", "Etapa 1 - Inicialização");
 
     // Instanciação dos Buffers
     auto command_buffer = std::make_shared<core::ThreadSafeQueue<core::NavigationSetpoint>>();

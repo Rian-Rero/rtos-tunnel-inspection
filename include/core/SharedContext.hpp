@@ -12,8 +12,9 @@ namespace core {
 /**
  * @class SharedContext
  * @brief Gerencia os estados globais e eventos de anomalia do sistema.
- * * Utiliza variáveis atômicas para estados simples e condition variables para
- * acordar threads que aguardam eventos (como a ativação da Câmera IA).
+ *
+ * @details Utiliza variáveis atômicas para estados simples e condition variables para
+ * acordar threads que aguardam eventos (como a ativação da câmera IA).
  */
 class SharedContext {
    private:

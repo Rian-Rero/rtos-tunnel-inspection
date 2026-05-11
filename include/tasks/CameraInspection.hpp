@@ -1,6 +1,6 @@
 /**
  * @file CameraInspection.hpp
- * @brief Declaracao da tarefa de inspecao detalhada com camera.
+ * @brief Declaração da tarefa de inspeção detalhada com câmera.
  */
 #pragma once
 #include <memory>
@@ -12,10 +12,10 @@ namespace tasks {
 
 /**
  * @class CameraInspection
- * @brief Tarefa que realiza inspecao detalhada quando uma anomalia e detectada.
+ * @brief Tarefa que realiza inspeção detalhada quando uma anomalia é detectada.
  *
- * A tarefa aguarda o sinal do contexto compartilhado e executa uma rotina
- * de processamento pesado, simulando a analise com camera/IA.
+ * @details A tarefa aguarda o sinal do contexto compartilhado e executa uma rotina
+ * de processamento pesado, simulando a análise com câmera/IA.
  */
 class CameraInspection : public ITask {
    private:

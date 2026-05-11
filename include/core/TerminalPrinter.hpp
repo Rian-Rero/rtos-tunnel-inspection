@@ -1,6 +1,6 @@
 /**
  * @file TerminalPrinter.hpp
- * @brief Utilitario para impressao padronizada e estilizada no terminal.
+ * @brief Utilitário para impressão padronizada e estilizada no terminal.
  */
 #pragma once
 
@@ -10,54 +10,54 @@ namespace core {
 
 /**
  * @class TerminalPrinter
- * @brief Centraliza logs e banners com padrao visual consistente.
+ * @brief Centraliza logs e banners com padrão visual consistente.
  *
- * Fornece niveis de severidade, carimbo de tempo e blocos de destaque
- * para facilitar a leitura durante a execucao em tempo real.
+ * @details Fornece níveis de severidade, carimbo de tempo e blocos de destaque
+ * para facilitar a leitura durante a execução em tempo real.
  */
 class TerminalPrinter {
    public:
     /**
-     * @brief Niveis de severidade para logs.
+     * @brief Níveis de severidade para logs.
      */
     enum class Level {
-        Info,    /**< Informacao geral */
-        Success, /**< Operacao concluida com sucesso */
-        Warning, /**< Aviso de atencao */
-        Error,   /**< Erro critico */
-        Debug    /**< Informacoes de depuracao */
+        Info,    /**< Informação geral */
+        Success, /**< Operação concluída com sucesso */
+        Warning, /**< Aviso de atenção */
+        Error,   /**< Erro crítico */
+        Debug    /**< Informações de depuração */
     };
 
     /**
-     * @brief Imprime um banner de abertura com titulo e subtitulo opcionais.
+     * @brief Imprime um banner de abertura com título e subtítulo opcionais.
      * @param title Texto principal do banner.
-     * @param subtitle Texto secundario abaixo do titulo (opcional).
+     * @param subtitle Texto secundário abaixo do título (opcional).
      */
     static void Banner(const std::string& title, const std::string& subtitle = "");
 
     /**
-     * @brief Imprime um divisor de secao com titulo centralizado.
-     * @param title Texto da secao.
+     * @brief Imprime um divisor de seção com título centralizado.
+     * @param title Texto da seção.
      */
     static void Section(const std::string& title);
 
     /**
-     * @brief Imprime um log formatado com nivel, escopo e mensagem.
-     * @param level Nivel de severidade.
-     * @param scope Nome curto do subsistema (ex: "Camera", "Coletor").
-     * @param message Conteudo da mensagem.
+     * @brief Imprime um log formatado com nível, escopo e mensagem.
+     * @param level Nível de severidade.
+     * @param scope Nome curto do subsistema (ex: "Câmera", "Coletor").
+     * @param message Conteúdo da mensagem.
      */
     static void Log(Level level, const std::string& scope, const std::string& message);
 
     /**
      * @brief Imprime um log formatado sem escopo.
-     * @param level Nivel de severidade.
-     * @param message Conteudo da mensagem.
+     * @param level Nível de severidade.
+     * @param message Conteúdo da mensagem.
      */
     static void Log(Level level, const std::string& message);
 
     /**
-     * @brief Imprime uma linha simples sem decoracao.
+     * @brief Imprime uma linha simples sem decoração.
      * @param message Texto a ser impresso.
      */
     static void Plain(const std::string& message);

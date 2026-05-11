@@ -1,6 +1,6 @@
 /**
  * @file DataCollector.cpp
- * @brief Implementacao da tarefa de coleta e persistencia de dados.
+ * @brief Implementação da tarefa de coleta e persistência de dados.
  */
 #include "tasks/DataCollector.hpp"
 

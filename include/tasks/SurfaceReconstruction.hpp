@@ -1,6 +1,6 @@
 /**
  * @file SurfaceReconstruction.hpp
- * @brief Declaracao da tarefa de reconstrucao da superficie do tunel.
+ * @brief Declaração da tarefa de reconstrução da superfície do túnel.
  */
 #pragma once
 #include <memory>
@@ -14,15 +14,15 @@ namespace tasks {
 
 /**
  * @class SurfaceReconstruction
- * @brief Tarefa que simula o LIDAR e publica dados da superficie.
+ * @brief Tarefa que simula o LIDAR e publica dados da superfície.
  *
- * Detecta variacoes severas (anomalias) e sinaliza o contexto
- * compartilhado para disparar inspeccao detalhada.
+ * @details Detecta variações severas (anomalias) e sinaliza o contexto
+ * compartilhado para disparar inspeção detalhada.
  */
 class SurfaceReconstruction : public ITask {
    private:
     std::shared_ptr<core::ThreadSafeQueue<core::SurfaceData>>
-        surface_buffer_;                           /**< Buffer de dados de superficie. */
+        surface_buffer_;                           /**< Buffer de dados de superfície. */
     std::shared_ptr<core::SharedContext> context_; /**< Contexto global compartilhado. */
     double threshold_anomaly_;                     /**< Limite para detectar anomalia. */
 
@@ -31,7 +31,7 @@ class SurfaceReconstruction : public ITask {
      * @brief Construtor da tarefa SurfaceReconstruction.
      * @param buffer Ponteiro compartilhado para o buffer de dados.
      * @param context Ponteiro compartilhado para o contexto global.
-     * @param threshold Limite de distancia para detectar anomalia.
+     * @param threshold Limite de distância para detectar anomalia.
      */
     SurfaceReconstruction(std::shared_ptr<core::ThreadSafeQueue<core::SurfaceData>> buffer,
                           std::shared_ptr<core::SharedContext> context, double threshold);

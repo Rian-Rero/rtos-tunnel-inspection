@@ -1,6 +1,6 @@
 /**
  * @file DataCollector.hpp
- * @brief Declaracao da tarefa de coleta e persistencia de dados.
+ * @brief Declaração da tarefa de coleta e persistência de dados.
  */
 #pragma once
 #include <fstream>
@@ -15,15 +15,15 @@ namespace tasks {
 
 /**
  * @class DataCollector
- * @brief Tarefa responsavel por persistir os dados de superficie em arquivo.
+ * @brief Tarefa responsável por persistir os dados de superfície em arquivo.
  *
- * Consome dados do buffer thread-safe, grava em CSV e emite logs
+ * @details Consome dados do buffer thread-safe, grava em CSV e emite logs
  * para acompanhamento da etapa de testes.
  */
 class DataCollector : public ITask {
    private:
     std::shared_ptr<core::ThreadSafeQueue<core::SurfaceData>>
-        surface_buffer_;                           /**< Buffer de dados de superficie. */
+        surface_buffer_;                           /**< Buffer de dados de superfície. */
     std::shared_ptr<core::SharedContext> context_; /**< Contexto global compartilhado. */
     std::ofstream log_file_;                       /**< Arquivo CSV de log. */
 

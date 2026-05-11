@@ -1,7 +1,8 @@
 /**
  * @file DataTypes.hpp
  * @brief Definição das estruturas de dados globais do sistema ATR.
- * * Este arquivo contém os pacotes de dados que trafegam pelos buffers IPC
+ *
+ * @details Este arquivo contém os pacotes de dados que trafegam pelos buffers IPC
  * (Inter-Process Communication) entre as diferentes threads do sistema.
  */
 #pragma once

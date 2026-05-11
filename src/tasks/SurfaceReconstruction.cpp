@@ -12,8 +12,8 @@
 namespace tasks {
 
 /**
- * @brief Construtor da tarefa de Reconstrução de Superfície.
- * * @param buffer Ponteiro compartilhado para a fila thread-safe onde os dados da superfície serão
+ * @brief Construtor da tarefa de reconstrução de superfície.
+ * @param buffer Ponteiro compartilhado para a fila thread-safe onde os dados da superfície serão
  * publicados.
  * @param context Ponteiro compartilhado para o contexto global para gerenciamento de estado e
  * acionamento de eventos.
@@ -28,7 +28,7 @@ SurfaceReconstruction::SurfaceReconstruction(
 /**
  * @brief Executa o loop principal da tarefa de reconstrução da superfície do teto do túnel.
  *
- * Emula a leitura dos dados do sensor LIDAR, detecta variações severas e publica os dados
+ * @details Emula a leitura dos dados do sensor LIDAR, detecta variações severas e publica os dados
  * empacotados no buffer. Utiliza sincronismo absoluto (sleep_until) para garantir a execução
  * cíclica estrita a cada 100 ms, mitigando os problemas de drift temporal causados pelo tempo de
  * execução das instruções e jitter do SO.
@@ -54,8 +54,8 @@ void SurfaceReconstruction::run() {
 
         // Lógica de detecção de anomalia
         if (simulated_lidar_y > threshold_anomaly_ && !context_->isAnomalyActive()) {
-            core::TerminalPrinter::Log(core::TerminalPrinter::Level::Warning, "Reconstrucao",
-                                       "ALERTA: Variacao severa! Disparando evento.");
+            core::TerminalPrinter::Log(core::TerminalPrinter::Level::Warning, "Reconstrução",
+                                       "ALERTA: Variação severa! Disparando evento.");
             context_->triggerAnomaly();
         }
 
