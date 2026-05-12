@@ -36,8 +36,11 @@ DataCollector::~DataCollector() {
  */
 void DataCollector::run() {
     while (context_->is_running) {
-        // Dorme na fila até ter dados
-        auto data = surface_buffer_->pop();
+        // Dorme na fila até ter dados ou até a fila ser fechada
+        core::SurfaceData data;
+        if (!surface_buffer_->pop(data)) {
+            break;
+        }
 
         if (!context_->is_running)
             break;

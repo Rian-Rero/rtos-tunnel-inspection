@@ -42,7 +42,9 @@ void NavigationCommand::run() {
         }
 
         // Operação IPC de escrita (não bloqueante se a fila não estiver cheia)
-        cmd_queue_->push(sp);
+        if (!cmd_queue_->push(sp)) {
+            break;
+        }
 
         // Suspensão da thread até o tempo exato calculado, descontando o tempo de processamento
         std::this_thread::sleep_until(next_wakeup);

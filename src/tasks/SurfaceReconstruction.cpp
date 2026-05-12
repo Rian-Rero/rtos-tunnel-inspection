@@ -66,7 +66,9 @@ void SurfaceReconstruction::run() {
             0.98  // Nível de confiança emulado da medição
         };
 
-        surface_buffer_->push(data);
+        if (!surface_buffer_->push(data)) {
+            break;
+        }
 
         simulated_x += 0.2;  // Avança a posição simulada do robô
 

@@ -37,6 +37,11 @@ run: all
 	@chmod +x run.sh
 	./run.sh
 
+part1: all
+	@echo "Iniciando o ecossistema da Parte 1..."
+	@chmod +x part1.sh
+	./part1.sh
+
 # Comando para gerar ambas as documentações (C++ e Python)
 docs:
 	@echo "========================================="

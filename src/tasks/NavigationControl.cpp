@@ -66,9 +66,10 @@ void NavigationControl::run() {
 
         core::NavigationSetpoint sp;
         // Consome a mensagem via IPC de forma segura
-        if (!cmd_queue_->empty()) {
-            sp = cmd_queue_->pop();
-        } else {
+        if (!cmd_queue_->tryPop(sp)) {
+            if (cmd_queue_->isClosed()) {
+                break;
+            }
             sp.speed_setpoint = 0;
         }
 

@@ -20,6 +20,8 @@
 #include "tasks/SurfaceReconstruction.hpp"
 
 std::shared_ptr<core::SharedContext> global_context = std::make_shared<core::SharedContext>();
+std::shared_ptr<core::ThreadSafeQueue<core::NavigationSetpoint>> global_command_buffer;
+std::shared_ptr<core::ThreadSafeQueue<core::SurfaceData>> global_surface_buffer;
 
 /**
  * @brief Handler para encerramento seguro via sinal do sistema.
@@ -31,6 +33,12 @@ void signalHandler(int signum) {
         "Encerrando o sistema ordenadamente (" + std::to_string(signum) + ")...");
     global_context->is_running = false;
     global_context->triggerAnomaly();
+    if (global_command_buffer) {
+        global_command_buffer->close();
+    }
+    if (global_surface_buffer) {
+        global_surface_buffer->close();
+    }
 }
 
 /**
@@ -44,13 +52,15 @@ int main() {
     // Instanciação dos Buffers
     auto command_buffer = std::make_shared<core::ThreadSafeQueue<core::NavigationSetpoint>>();
     auto surface_buffer = std::make_shared<core::ThreadSafeQueue<core::SurfaceData>>();
+    global_command_buffer = command_buffer;
+    global_surface_buffer = surface_buffer;
 
     // Instanciação das Tarefas
     auto task_reconstruction =
         std::make_shared<tasks::SurfaceReconstruction>(surface_buffer, global_context, 3.0);
     auto task_camera = std::make_shared<tasks::CameraInspection>(global_context);
-    auto task_nav_cmd = std::make_shared<tasks::NavigationCommand>(command_buffer, global_context);
-    auto task_nav_ctrl = std::make_shared<tasks::NavigationControl>(command_buffer, global_context);
+    auto task_nav_cmd = std::make_shared<tasks::NavigationCommand>(global_context, command_buffer);
+    auto task_nav_ctrl = std::make_shared<tasks::NavigationControl>(global_context, command_buffer);
     auto task_dist_calc = std::make_shared<tasks::DistanceCalculator>(global_context);
     auto task_collector = std::make_shared<tasks::DataCollector>(surface_buffer, global_context);
 

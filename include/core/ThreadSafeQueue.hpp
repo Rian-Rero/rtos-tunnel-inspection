@@ -23,6 +23,7 @@ class ThreadSafeQueue {
     mutable std::mutex mutex_;
     std::condition_variable cv_;
     const size_t max_capacity_;
+    bool closed_{false};
 
    public:
     /**
@@ -33,33 +34,72 @@ class ThreadSafeQueue {
 
     /**
      * @brief Insere um item na fila de forma segura.
-     * Se a fila estiver cheia, a thread produtora é suspensa até haver espaço.
+     *
+     * @details Se a fila estiver cheia, a thread produtora é suspensa até haver espaço.
      * @param item O elemento a ser inserido.
+     * @return true se inseriu o item; false se a fila foi fechada.
      */
-    void push(const T& item) {
+    bool push(const T& item) {
         std::unique_lock<std::mutex> lock(mutex_);
-        cv_.wait(lock, [this]() { return queue_.size() < max_capacity_; });
+        cv_.wait(lock, [this]() { return closed_ || queue_.size() < max_capacity_; });
+
+        if (closed_) {
+            return false;
+        }
 
         queue_.push(item);
         lock.unlock();
         cv_.notify_one();
+        return true;
     }
 
     /**
-     * @brief Remove e retorna o item mais antigo da fila.
-     * Se a fila estiver vazia, a thread consumidora é suspensa até chegar um novo dado.
-     * @return O elemento removido da fila.
+     * @brief Remove o item mais antigo da fila, aguardando se necessário.
+     *
+     * @details Se a fila estiver vazia, a thread consumidora é suspensa até chegar um novo dado
+     * ou até a fila ser fechada.
+     * @param item Referência que receberá o item removido.
+     * @return true se removeu um item; false se a fila foi fechada e ficou vazia.
      */
-    T pop() {
+    bool pop(T& item) {
         std::unique_lock<std::mutex> lock(mutex_);
-        cv_.wait(lock, [this]() { return !queue_.empty(); });
+        cv_.wait(lock, [this]() { return closed_ || !queue_.empty(); });
 
-        T item = queue_.front();
+        if (queue_.empty()) {
+            return false;
+        }
+
+        item = queue_.front();
         queue_.pop();
         lock.unlock();
         cv_.notify_all();
+        return true;
+    }
 
-        return item;
+    /**
+     * @brief Tenta remover um item da fila sem bloquear.
+     * @param item Referência que receberá o item removido.
+     * @return true se removeu um item; false se a fila estava vazia.
+     */
+    bool tryPop(T& item) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (queue_.empty()) {
+            return false;
+        }
+
+        item = queue_.front();
+        queue_.pop();
+        cv_.notify_all();
+        return true;
+    }
+
+    /**
+     * @brief Fecha a fila e libera todas as threads bloqueadas.
+     */
+    void close() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        closed_ = true;
+        cv_.notify_all();
     }
 
     /**
@@ -69,6 +109,15 @@ class ThreadSafeQueue {
     bool empty() const {
         std::lock_guard<std::mutex> lock(mutex_);
         return queue_.empty();
+    }
+
+    /**
+     * @brief Verifica se a fila foi fechada.
+     * @return true se fechada, false caso contrário.
+     */
+    bool isClosed() const {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return closed_;
     }
 };
 
