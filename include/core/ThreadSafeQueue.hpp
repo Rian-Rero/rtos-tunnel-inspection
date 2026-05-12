@@ -12,7 +12,8 @@ namespace core {
 /**
  * @class ThreadSafeQueue
  * @brief Fila sincronizada baseada em mutexes e variáveis de condição.
- * * Previne race conditions e deadlocks no modelo Produtor/Consumidor.
+ *
+ * @details Previne race conditions e deadlocks no modelo Produtor/Consumidor.
  * @tparam T Tipo de dado que será armazenado na fila.
  */
 template <typename T>

@@ -1,9 +1,8 @@
 /**
  * @file main.cpp
- * @brief Ponto de entrada do sistema de inspeção ATR - Frente de Navegação.
+ * @brief Ponto de entrada do sistema de inspeção ATR.
  */
 #include <csignal>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <thread>
@@ -11,66 +10,68 @@
 
 #include "core/DataTypes.hpp"
 #include "core/SharedContext.hpp"
+#include "core/TerminalPrinter.hpp"
 #include "core/ThreadSafeQueue.hpp"
+#include "tasks/CameraInspection.hpp"
+#include "tasks/DataCollector.hpp"
 #include "tasks/DistanceCalculator.hpp"
 #include "tasks/NavigationCommand.hpp"
 #include "tasks/NavigationControl.hpp"
+#include "tasks/SurfaceReconstruction.hpp"
 
-// Ponteiro global para o contexto compartilhado
 std::shared_ptr<core::SharedContext> global_context = std::make_shared<core::SharedContext>();
 
 /**
- * @brief Handler para encerramento seguro via sinal do sistema (Ctrl+C).
+ * @brief Handler para encerramento seguro via sinal do sistema.
+ * @param signum Número do sinal recebido.
  */
 void signalHandler(int signum) {
-    std::cout << "\n[SISTEMA] Sinal (" << signum << ") recebido. Encerrando threads...\n";
+    core::TerminalPrinter::Log(
+        core::TerminalPrinter::Level::Warning, "Sistema",
+        "Encerrando o sistema ordenadamente (" + std::to_string(signum) + ")...");
     global_context->is_running = false;
-    
-    // Acorda threads que possam estar bloqueadas em variáveis de condição
-    global_context->triggerAnomaly(); 
+    global_context->triggerAnomaly();
 }
 
+/**
+ * @brief Função principal do sistema.
+ * @return Código de status de encerramento.
+ */
 int main() {
-    // Configura o tratamento de sinal para encerramento gracioso
     std::signal(SIGINT, signalHandler);
+    core::TerminalPrinter::Banner("Sistema de Inspeção ATR", "Etapa 1 - Inicialização");
 
-    std::cout << "========================================================\n";
-    std::cout << "   SISTEMA DE INSPEÇÃO ATR - MÓDULO DE NAVEGAÇÃO\n";
-    std::cout << "========================================================\n";
+    // Instanciação dos Buffers
+    auto command_buffer = std::make_shared<core::ThreadSafeQueue<core::NavigationSetpoint>>();
+    auto surface_buffer = std::make_shared<core::ThreadSafeQueue<core::SurfaceData>>();
 
-    // 1. Instanciação dos Buffers IPC
-    // Buffer para comandos de velocidade entre NavigationCommand e NavigationControl
-    auto command_buffer = std::make_shared<core::ThreadSafeQueue<core::NavigationSetpoint>>(50);
+    // Instanciação das Tarefas
+    auto task_reconstruction =
+        std::make_shared<tasks::SurfaceReconstruction>(surface_buffer, global_context, 3.0);
+    auto task_camera = std::make_shared<tasks::CameraInspection>(global_context);
+    // auto task_nav_cmd = std::make_shared<tasks::NavigationCommand>(command_buffer,
+    // global_context); auto task_nav_ctrl =
+    // std::make_shared<tasks::NavigationControl>(command_buffer, global_context); auto
+    // task_dist_calc = std::make_shared<tasks::DistanceCalculator>(global_context);
+    auto task_collector = std::make_shared<tasks::DataCollector>(surface_buffer, global_context);
 
-    // 2. Instanciação das Tarefas da Pessoa 1
-    auto task_nav_cmd = std::make_shared<tasks::NavigationCommand>(global_context, command_buffer);
-    auto task_nav_ctrl = std::make_shared<tasks::NavigationControl>(global_context, command_buffer);
-    auto task_dist_calc = std::make_shared<tasks::DistanceCalculator>(global_context);
-
-    // 3. Lançamento das Threads
+    // Lançamento das Threads
     std::vector<std::thread> thread_pool;
+    thread_pool.emplace_back([task_reconstruction]() { task_reconstruction->run(); });
+    thread_pool.emplace_back([task_camera]() { task_camera->run(); });
+    // thread_pool.emplace_back([task_nav_cmd]() { task_nav_cmd->run(); });
+    // thread_pool.emplace_back([task_nav_ctrl]() { task_nav_ctrl->run(); });
+    // thread_pool.emplace_back([task_dist_calc]() { task_dist_calc->run(); });
+    thread_pool.emplace_back([task_collector]() { task_collector->run(); });
 
-    std::cout << "[MAIN] Iniciando thread: NavigationCommand (80ms)\n";
-    thread_pool.emplace_back([task_nav_cmd]() { task_nav_cmd->run(); });
-
-    std::cout << "[MAIN] Iniciando thread: NavigationControl (80ms)\n";
-    thread_pool.emplace_back([task_nav_ctrl]() { task_nav_ctrl->run(); });
-
-    std::cout << "[MAIN] Iniciando thread: DistanceCalculator (20ms)\n";
-    thread_pool.emplace_back([task_dist_calc]() { task_dist_calc->run(); });
-
-    std::cout << "[MAIN] Sistema em execução. Pressione Ctrl+C para parar.\n\n";
-
-    // 4. Aguardar encerramento de todas as threads (Join)
+    // Aguardar encerramento
     for (auto& t : thread_pool) {
         if (t.joinable()) {
             t.join();
         }
     }
 
-    std::cout << "========================================================\n";
-    std::cout << "        SISTEMA DE NAVEGAÇÃO ENCERRADO COM SUCESSO\n";
-    std::cout << "========================================================\n";
-
+    core::TerminalPrinter::Log(core::TerminalPrinter::Level::Success, "Sistema",
+                               "Sistema encerrado.");
     return 0;
 }

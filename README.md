@@ -51,39 +51,88 @@ RTOS-TUNNEL-INSPECTION/
         └── yolo_mqtt_service.py     # Daemon que processa as imagens da câmera via YOLOv8
 ```
 
-⚙️ Principais Funcionalidades e Requisitos Atendidos
-Núcleo de Tempo Real (C++): Sistema multitarefa utilizando std::thread, com acesso concorrente protegido por std::mutex e sincronização orientada a eventos usando std::condition_variable.
+## ⚙️ Principais Funcionalidades e Requisitos Atendidos
 
-Controle de Navegação: Implementação de Controlador PID clássico para manter a velocidade do robô.
+- Núcleo de Tempo Real (C++): Sistema multitarefa utilizando `std::thread`, com acesso concorrente protegido por `std::mutex` e sincronização orientada a eventos usando `std::condition_variable`.
 
-Comunicação Interprocessos: Troca de dados assíncrona entre módulos isolados utilizando um Broker MQTT.
+- Controle de Navegação: Implementação de Controlador PID clássico para manter a velocidade do robô.
 
-🌟 Pontos Extras Implementados:
+- Comunicação Interprocessos: Troca de dados assíncrona entre módulos isolados utilizando um Broker MQTT.
 
-Sensor IMU Simulado: Leitura da inclinação do túnel afetando o cálculo da gravidade no simulador físico.
+### 🌟 Pontos Extras Implementados:
 
-Inspeção Visual por IA: Integração do modelo YOLOv8 para inferência computacional sob demanda quando uma anomalia estrutural é detectada pelo LIDAR.
+- Sensor IMU Simulado: Leitura da inclinação do túnel afetando o cálculo da gravidade no simulador físico.
 
-🚀 Como Executar
-Pré-requisitos
-Certifique-se de que o seu ambiente de desenvolvimento possui os seguintes pacotes instalados:
+- Inspeção Visual por IA: Integração do modelo YOLOv8 para inferência computacional sob demanda quando uma anomalia estrutural é detectada pelo LIDAR.
 
-Compilador GCC/G++ (com suporte a C++17) e make
+---
 
-Broker MQTT (ex: Mosquitto) rodando na máquina local (localhost:1883)
+## 🚀 Como Executar
 
-Python 3.8+ com as bibliotecas:
+### 1. Preparação do Ambiente
 
-Bash
-pip install pygame paho-mqtt ultralytics opencv-python tk
-Biblioteca C++ do Paho MQTT (paho-mqtt-cpp)
+Certifique-se de que o Broker MQTT (ex: Mosquitto) está ativo no seu sistema. Instale todas as dependências do Python de uma só vez:
 
-Inicialização Rápida
-Para facilitar a avaliação, todo o ecossistema foi encapsulado em um único arquivo de execução que compila o código e sobe todos os processos simultaneamente.
+```bash
+pip install -r requirements.txt
+```
 
-Na raiz do repositório, conceda permissão de execução (apenas na primeira vez) e execute:
+### 2. Execução Completa
 
-Bash
-chmod +x run.sh
-./run.sh
-Para encerrar: Basta pressionar CTRL+C no terminal ou fechar a janela da interface gráfica. O script possui um handler (trap) que cuidará de encerrar todas as instâncias em background de forma segura.
+Para compilar o núcleo C++ e iniciar simultaneamente o simulador, a interface do operador e o serviço de IA, utilize o comando unificado:
+
+```bash
+make run
+```
+
+Este comando garante que o código C++ está atualizado e executa o script de orquestração `run.sh`.
+
+---
+
+## 📚 Documentação
+
+O projeto utiliza ferramentas de documentação automática para garantir a manutenibilidade do código.
+
+### Gerar Documentação Unificada
+
+Para gerar as páginas de documentação tanto do código C++ (Doxygen) quanto do código Python (MkDocs), execute:
+
+```bash
+make docs
+```
+
+- C++ (Doxygen): Disponível na pasta `html/` (abra o `index.html`).
+- Python (MkDocs): Disponível na pasta `site/`.
+
+### Visualização em Tempo Real (Python)
+
+Para visualizar a documentação Python com suporte a live-reload enquanto desenvolve:
+
+```bash
+make docs-serve
+```
+
+---
+
+## ⚙️ Funcionalidades Principais
+
+- Núcleo de Tempo Real (C++): Sistema multitarefa com sincronização via `mutex` e `condition_variable`.
+- Mitigação de Drift: Utilização de `sleep_until` com `steady_clock` para garantir periodicidade estrita.
+- Controle de Navegação: Implementação de Controlador PID para regulação de velocidade.
+
+### 🌟 Extras
+
+- Sensor IMU simulado (inclinação do túnel)
+- Inspeção Visual com YOLOv8 via MQTT
+
+---
+
+## 🛑 Encerramento
+
+Para encerrar o sistema:
+
+```bash
+CTRL + C
+```
+
+O sistema realizará um encerramento gracioso de todos os processos ativos.
