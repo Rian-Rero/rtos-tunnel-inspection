@@ -49,19 +49,18 @@ int main() {
     auto task_reconstruction =
         std::make_shared<tasks::SurfaceReconstruction>(surface_buffer, global_context, 3.0);
     auto task_camera = std::make_shared<tasks::CameraInspection>(global_context);
-    // auto task_nav_cmd = std::make_shared<tasks::NavigationCommand>(command_buffer,
-    // global_context); auto task_nav_ctrl =
-    // std::make_shared<tasks::NavigationControl>(command_buffer, global_context); auto
-    // task_dist_calc = std::make_shared<tasks::DistanceCalculator>(global_context);
+    auto task_nav_cmd = std::make_shared<tasks::NavigationCommand>(command_buffer, global_context);
+    auto task_nav_ctrl = std::make_shared<tasks::NavigationControl>(command_buffer, global_context);
+    auto task_dist_calc = std::make_shared<tasks::DistanceCalculator>(global_context);
     auto task_collector = std::make_shared<tasks::DataCollector>(surface_buffer, global_context);
 
     // Lançamento das Threads
     std::vector<std::thread> thread_pool;
     thread_pool.emplace_back([task_reconstruction]() { task_reconstruction->run(); });
     thread_pool.emplace_back([task_camera]() { task_camera->run(); });
-    // thread_pool.emplace_back([task_nav_cmd]() { task_nav_cmd->run(); });
-    // thread_pool.emplace_back([task_nav_ctrl]() { task_nav_ctrl->run(); });
-    // thread_pool.emplace_back([task_dist_calc]() { task_dist_calc->run(); });
+    thread_pool.emplace_back([task_nav_cmd]() { task_nav_cmd->run(); });
+    thread_pool.emplace_back([task_nav_ctrl]() { task_nav_ctrl->run(); });
+    thread_pool.emplace_back([task_dist_calc]() { task_dist_calc->run(); });
     thread_pool.emplace_back([task_collector]() { task_collector->run(); });
 
     // Aguardar encerramento
