@@ -44,11 +44,13 @@ class SharedContext {
     }
 
     /**
-     * @brief Suspende a thread atual até que uma anomalia seja detectada.
+     * @brief Suspende a thread atual até que uma anomalia seja detectada ou o sistema seja
+     * encerrado.
+     * @details Modificado para evitar deadlocks durante o desligamento do sistema.
      */
     void waitForAnomaly() {
         std::unique_lock<std::mutex> lock(anomaly_mutex_);
-        anomaly_cv_.wait(lock, [this]() { return anomaly_detected_; });
+        anomaly_cv_.wait(lock, [this]() { return anomaly_detected_ || !is_running; });
     }
 
     /**

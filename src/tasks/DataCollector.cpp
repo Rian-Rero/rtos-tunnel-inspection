@@ -9,15 +9,18 @@
 #include "core/TerminalPrinter.hpp"
 
 namespace tasks {
+
 /**
  * @brief Construtor da tarefa DataCollector.
  * @param buffer Ponteiro compartilhado para o buffer de dados.
  * @param context Ponteiro compartilhado para o contexto global.
+ * @param log_filename Caminho e nome do ficheiro onde os dados serão salvos.
  */
 DataCollector::DataCollector(std::shared_ptr<core::ThreadSafeQueue<core::SurfaceData>> buffer,
-                             std::shared_ptr<core::SharedContext> context)
+                             std::shared_ptr<core::SharedContext> context,
+                             const std::string& log_filename)
     : surface_buffer_(buffer), context_(context) {
-    log_file_.open("inspection_log.csv");
+    log_file_.open(log_filename);
     if (log_file_.is_open()) {
         log_file_ << "timestamp,x,y,confianca\n";
     }
@@ -50,7 +53,8 @@ void DataCollector::run() {
                       << "," << data.confidence_level << "\n";
             log_file_.flush();
         }
-        // Para visualização no console durante a Etapa 1
+
+        // Para visualização no console
         core::TerminalPrinter::Log(core::TerminalPrinter::Level::Info, "Coletor",
                                    "Log salvo - X: " + std::to_string(data.position_x) +
                                        "m | Altura (Y): " + std::to_string(data.lidar_distance_y) +

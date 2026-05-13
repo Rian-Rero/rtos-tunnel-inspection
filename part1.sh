@@ -6,7 +6,9 @@ echo "====================================================="
 
 # Passo 1: Compilar o código C++
 echo "[1/2] Compilando o código-fonte C++..."
-make clean && make
+
+# Entra na pasta build gerada pelo CMake e compila
+cd build && make
 
 # Verifica se a compilação foi bem sucedida
 if [ $? -ne 0 ]; then
@@ -23,5 +25,5 @@ echo "[2/2] Iniciando o Cérebro do Robô..."
 echo "Pressione CTRL+C a qualquer momento para encerrar."
 echo "-----------------------------------------------------"
 
-# Executa o programa em primeiro plano (foreground)
-./bin/inspection_robot
+# Executa o programa compilado pelo CMake
+./atr_inspection
