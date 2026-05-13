@@ -1,0 +1,29 @@
+<map id="include/tasks/DataCollector.hpp" name="include/tasks/DataCollector.hpp">
+<area shape="rect" id="Node000001" title="Declaração da tarefa de coleta e persistência de dados." alt="" coords="246,5,474,33"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,81,78,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="298,36,94,83,92,78,299,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="102,81,178,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="319,35,194,78,192,73,323,32"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="203,81,261,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="340,32,269,76,267,71,335,35"/>
+<area shape="rect" id="Node000005" href="$DataTypes_8hpp.html" title="Definição das estruturas de dados globais do sistema ATR." alt="" coords="286,81,435,109"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="362,31,362,67,358,64,359,36"/>
+<area shape="rect" id="Node000007" href="$SharedContext_8hpp.html" title="Contexto compartilhado para controle de estado global do robô." alt="" coords="460,81,637,109"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="394,31,503,75,498,75,393,36"/>
+<area shape="rect" id="Node000011" href="$ThreadSafeQueue_8hpp.html" title="Implementação de uma fila thread&#45;safe genérica." alt="" coords="662,81,859,109"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="432,31,676,77,671,78,432,36"/>
+<area shape="rect" id="Node000013" href="$Itask_8hpp_source.html" title=" " alt="" coords="883,81,1003,109"/>
+<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="474,30,655,50,870,80,865,81,654,55,475,35"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="328,157,393,184"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="362,107,362,143,358,139,358,111"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="468,157,535,184"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="542,108,519,146,516,141,537,111"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="647,157,788,184"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="579,107,676,150,671,150,578,112"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="559,157,622,184"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="557,107,578,144,573,142,554,112"/>
+<area shape="poly" id="edge11_Node000011_Node000009" title=" " alt="" coords="755,108,734,145,731,141,750,111"/>
+<area shape="poly" id="edge12_Node000011_Node000010" title=" " alt="" coords="733,109,635,153,634,148,727,110"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="812,157,874,184"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="776,107,819,147,814,146,774,112"/>
+</map>

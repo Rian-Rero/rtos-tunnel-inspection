@@ -1,0 +1,15 @@
+<map id="tasks::ITask" name="tasks::ITask">
+<area shape="rect" id="Node000001" title="Interface padrão que todas as tarefas do robô devem implementar." alt="" coords="5,136,103,164"/>
+<area shape="rect" id="Node000002" href="$classtasks_1_1CameraInspection.html" title="Tarefa que realiza inspeção detalhada quando uma anomalia é detectada." alt="" coords="165,5,347,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="71,122,104,81,125,61,149,44,180,32,176,35,152,48,129,65,108,85,75,125"/>
+<area shape="rect" id="Node000003" href="$classtasks_1_1DataCollector.html" title="Classe responsável por consumir os dados da superfície e gravá&#45;los em um ficheiro CSV." alt="" coords="179,57,332,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="89,125,150,95,190,84,186,87,152,100,93,130"/>
+<area shape="rect" id="Node000004" href="$classtasks_1_1DistanceCalculator.html" title="Tarefa que estima a distância percorrida via encoder simulado." alt="" coords="162,109,350,137"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="117,139,164,134,159,137,119,144"/>
+<area shape="rect" id="Node000005" href="$classtasks_1_1NavigationCommand.html" title="Tarefa que publica setpoints de navegação no buffer IPC." alt="" coords="155,161,357,189"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="118,155,157,161,152,164,119,160"/>
+<area shape="rect" id="Node000006" href="$classtasks_1_1NavigationControl.html" title="Tarefa que aplica controle PID sobre o setpoint de navegação." alt="" coords="165,213,347,241"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="92,169,152,198,191,212,186,213,150,203,91,174"/>
+<area shape="rect" id="Node000007" href="$classtasks_1_1SurfaceReconstruction.html" title="Tarefa que simula o LIDAR e publica dados da superfície." alt="" coords="151,265,361,293"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="74,174,108,214,129,234,152,250,180,265,175,265,149,255,126,238,104,218,73,179"/>
+</map>

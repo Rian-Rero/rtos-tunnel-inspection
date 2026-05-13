@@ -91,14 +91,53 @@ $(function(){initNavTree('DataCollector_8hpp_source.html','',''); });
   <div class="headertitle"><div class="title">DataCollector.hpp</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
+<a href="DataCollector_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#pragma once</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &lt;fstream&gt;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;memory&gt;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;<a class="code" href="DataTypes_8hpp.html">core/DataTypes.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &quot;<a class="code" href="SharedContext_8hpp.html">core/SharedContext.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &quot;<a class="code" href="ThreadSafeQueue_8hpp.html">core/ThreadSafeQueue.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &quot;tasks/Itask.hpp&quot;</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">namespace </span>tasks {</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span></div>
+<div class="foldopen" id="foldopen00022" data-start="{" data-end="};">
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="classtasks_1_1DataCollector.html">   22</a></span><span class="keyword">class </span><a class="code hl_function" href="classtasks_1_1DataCollector.html#a24ff2a57902a8029faa707f8b172bf08">DataCollector</a> : <span class="keyword">public</span> <a class="code hl_class" href="classtasks_1_1ITask.html">ITask</a> {</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>   <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    std::shared_ptr&lt;core::ThreadSafeQueue&lt;core::SurfaceData&gt;&gt; surface_buffer_;</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    std::shared_ptr&lt;core::SharedContext&gt; context_;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    std::ofstream log_file_;</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>   <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <a class="code hl_function" href="classtasks_1_1DataCollector.html#a24ff2a57902a8029faa707f8b172bf08">DataCollector</a>(std::shared_ptr&lt;<a class="code hl_class" href="classcore_1_1ThreadSafeQueue.html">core::ThreadSafeQueue&lt;core::SurfaceData&gt;</a>&gt; buffer,</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>                  std::shared_ptr&lt;core::SharedContext&gt; context, <span class="keyword">const</span> std::string&amp; log_filename);</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <a class="code hl_function" href="classtasks_1_1DataCollector.html#adbe0bf81e6fbbac6b017acd6bdeeadad">~DataCollector</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classtasks_1_1DataCollector.html#aa097e06f48304a3260fa814f9d5ee342">run</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>};</div>
+</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>}  <span class="comment">// namespace tasks</span></div>
+<div class="ttc" id="aDataTypes_8hpp_html"><div class="ttname"><a href="DataTypes_8hpp.html">DataTypes.hpp</a></div><div class="ttdoc">Definição das estruturas de dados globais do sistema ATR.</div></div>
+<div class="ttc" id="aSharedContext_8hpp_html"><div class="ttname"><a href="SharedContext_8hpp.html">SharedContext.hpp</a></div><div class="ttdoc">Contexto compartilhado para controle de estado global do robô.</div></div>
+<div class="ttc" id="aThreadSafeQueue_8hpp_html"><div class="ttname"><a href="ThreadSafeQueue_8hpp.html">ThreadSafeQueue.hpp</a></div><div class="ttdoc">Implementação de uma fila thread-safe genérica.</div></div>
+<div class="ttc" id="aclasscore_1_1ThreadSafeQueue_html"><div class="ttname"><a href="classcore_1_1ThreadSafeQueue.html">core::ThreadSafeQueue</a></div><div class="ttdoc">Fila sincronizada baseada em mutexes e variáveis de condição.</div><div class="ttdef"><b>Definition</b> ThreadSafeQueue.hpp:20</div></div>
+<div class="ttc" id="aclasstasks_1_1DataCollector_html_a24ff2a57902a8029faa707f8b172bf08"><div class="ttname"><a href="classtasks_1_1DataCollector.html#a24ff2a57902a8029faa707f8b172bf08">tasks::DataCollector::DataCollector</a></div><div class="ttdeci">DataCollector(std::shared_ptr&lt; core::ThreadSafeQueue&lt; core::SurfaceData &gt; &gt; buffer, std::shared_ptr&lt; core::SharedContext &gt; context, const std::string &amp;log_filename)</div><div class="ttdoc">Construtor da tarefa DataCollector com injeção de dependência do nome do ficheiro.</div><div class="ttdef"><b>Definition</b> DataCollector.cpp:19</div></div>
+<div class="ttc" id="aclasstasks_1_1DataCollector_html_aa097e06f48304a3260fa814f9d5ee342"><div class="ttname"><a href="classtasks_1_1DataCollector.html#aa097e06f48304a3260fa814f9d5ee342">tasks::DataCollector::run</a></div><div class="ttdeci">void run() override</div><div class="ttdoc">Executa o loop principal da tarefa de gravação.</div><div class="ttdef"><b>Definition</b> DataCollector.cpp:40</div></div>
+<div class="ttc" id="aclasstasks_1_1DataCollector_html_adbe0bf81e6fbbac6b017acd6bdeeadad"><div class="ttname"><a href="classtasks_1_1DataCollector.html#adbe0bf81e6fbbac6b017acd6bdeeadad">tasks::DataCollector::~DataCollector</a></div><div class="ttdeci">~DataCollector() override</div><div class="ttdoc">Destrutor. Fecha o ficheiro de log de forma segura.</div><div class="ttdef"><b>Definition</b> DataCollector.cpp:32</div></div>
+<div class="ttc" id="aclasstasks_1_1ITask_html"><div class="ttname"><a href="classtasks_1_1ITask.html">tasks::ITask</a></div><div class="ttdoc">Interface padrão que todas as tarefas do robô devem implementar.</div><div class="ttdef"><b>Definition</b> Itask.hpp:12</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><b>include</b></li><li class="navelem"><b>tasks</b></li><li class="navelem"><b>DataCollector.hpp</b></li>
+    <li class="navelem"><b>include</b></li><li class="navelem"><b>tasks</b></li><li class="navelem"><a href="DataCollector_8hpp.html">DataCollector.hpp</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
   </ul>
 </div>

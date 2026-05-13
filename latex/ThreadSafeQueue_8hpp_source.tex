@@ -1,7 +1,85 @@
 \doxysection{Thread\+Safe\+Queue.\+hpp}
 \hypertarget{ThreadSafeQueue_8hpp_source}{}\label{ThreadSafeQueue_8hpp_source}\index{include/core/ThreadSafeQueue.hpp@{include/core/ThreadSafeQueue.hpp}}
-
+\mbox{\hyperlink{ThreadSafeQueue_8hpp}{Go to the documentation of this file.}}
 \begin{DoxyCode}{0}
 \DoxyCodeLine{00001\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <condition\_variable>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <mutex>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <queue>}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }core\ \{}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00019\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00020\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classcore_1_1ThreadSafeQueue_a9182058b14d64dc93556593d2411e567}{ThreadSafeQueue}}\ \{}
+\DoxyCodeLine{00021\ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00022\ \ \ \ \ std::queue<T>\ queue\_;}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keyword}{mutable}\ std::mutex\ mutex\_;}
+\DoxyCodeLine{00024\ \ \ \ \ std::condition\_variable\ cv\_;}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ max\_capacity\_;}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keywordtype}{bool}\ closed\_\{\textcolor{keyword}{false}\};}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classcore_1_1ThreadSafeQueue_a9182058b14d64dc93556593d2411e567}{ThreadSafeQueue}}(\textcolor{keywordtype}{size\_t}\ capacity\ =\ 100)\ :\ max\_capacity\_(capacity)\ \{\}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classcore_1_1ThreadSafeQueue_ac0a19c17bf1ec690cd2fb73f686b17f0}{push}}(\textcolor{keyword}{const}\ T\&\ item)\ \{}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ std::unique\_lock<std::mutex>\ lock(mutex\_);}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ cv\_.wait(lock,\ [\textcolor{keyword}{this}]()\ \{\ \textcolor{keywordflow}{return}\ closed\_\ ||\ queue\_.size()\ <\ max\_capacity\_;\ \});}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (closed\_)\ \{}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ queue\_.push(item);}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ lock.unlock();}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ cv\_.notify\_one();}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00054\ \ \ \ \ \}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classcore_1_1ThreadSafeQueue_a64853570896e2376d3e8a0717d525157}{pop}}(T\&\ item)\ \{}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ std::unique\_lock<std::mutex>\ lock(mutex\_);}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ cv\_.wait(lock,\ [\textcolor{keyword}{this}]()\ \{\ \textcolor{keywordflow}{return}\ closed\_\ ||\ !queue\_.empty();\ \});}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (queue\_.empty())\ \{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ item\ =\ queue\_.front();}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ queue\_.pop();}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ lock.unlock();}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ cv\_.notify\_all();}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00077\ \ \ \ \ \}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classcore_1_1ThreadSafeQueue_a7ab4f8e13c28b1af8eb8896b8b3de0ea}{tryPop}}(T\&\ item)\ \{}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ std::lock\_guard<std::mutex>\ lock(mutex\_);}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (queue\_.empty())\ \{}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ item\ =\ queue\_.front();}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ queue\_.pop();}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ cv\_.notify\_all();}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00094\ \ \ \ \ \}}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classcore_1_1ThreadSafeQueue_ad8e501fc3eb62a4e2b53401aecc5e677}{close}}()\ \{}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ std::lock\_guard<std::mutex>\ lock(mutex\_);}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ closed\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ cv\_.notify\_all();}
+\DoxyCodeLine{00103\ \ \ \ \ \}}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classcore_1_1ThreadSafeQueue_a6e1f5c426719a770fb281f477bc594c4}{empty}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ std::lock\_guard<std::mutex>\ lock(mutex\_);}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ queue\_.empty();}
+\DoxyCodeLine{00112\ \ \ \ \ \}}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classcore_1_1ThreadSafeQueue_a386f1a98495aa12101f98e9073ff4e84}{isClosed}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ std::lock\_guard<std::mutex>\ lock(mutex\_);}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ closed\_;}
+\DoxyCodeLine{00121\ \ \ \ \ \}}
+\DoxyCodeLine{00122\ \};}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \}\ \ \textcolor{comment}{//\ namespace\ core}}
 
 \end{DoxyCode}

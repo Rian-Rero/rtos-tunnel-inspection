@@ -1,0 +1,5 @@
+<map id="tasks::DistanceCalculator" name="tasks::DistanceCalculator">
+<area shape="rect" id="Node000001" title="Tarefa que estima a distância percorrida via encoder simulado." alt="" coords="5,81,193,109"/>
+<area shape="rect" id="Node000002" href="$classtasks_1_1ITask.html" title="Interface padrão que todas as tarefas do robô devem implementar." alt="" coords="50,5,148,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="101,47,101,82,97,80,97,51"/>
+</map>

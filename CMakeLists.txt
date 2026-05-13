@@ -4,7 +4,7 @@ project(rtos_tunnel_inspection VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Adicionando as flags de compilação que você tinha no Makefile
+# Adicionando as flags de compilação
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O2")
 
 # Inclui os cabeçalhos
@@ -24,7 +24,6 @@ target_link_libraries(atr_inspection Threads::Threads)
 # COMANDOS DE EXECUÇÃO E DOCUMENTAÇÃO
 # ==========================================
 
-# Equivalente ao 'make run'
 add_custom_target(run
     COMMAND chmod +x ${CMAKE_SOURCE_DIR}/run.sh
     COMMAND ${CMAKE_SOURCE_DIR}/run.sh
@@ -32,7 +31,6 @@ add_custom_target(run
     COMMENT "Iniciando o ecossistema completo..."
 )
 
-# Equivalente ao 'make part1'
 add_custom_target(part1
     COMMAND chmod +x ${CMAKE_SOURCE_DIR}/part1.sh
     COMMAND ${CMAKE_SOURCE_DIR}/part1.sh
@@ -40,23 +38,21 @@ add_custom_target(part1
     COMMENT "Iniciando o ecossistema da Parte 1..."
 )
 
-# Equivalente ao 'make docs'
 add_custom_target(docs
-    COMMAND echo "========================================="
-    COMMAND echo "  Gerando Documentação C++ (Doxygen)...  "
-    COMMAND echo "========================================="
+    COMMAND ${CMAKE_COMMAND} -E echo "========================================="
+    COMMAND ${CMAKE_COMMAND} -E echo "  Gerando Documentacao C++ - Doxygen     "
+    COMMAND ${CMAKE_COMMAND} -E echo "========================================="
     COMMAND doxygen Doxyfile
-    COMMAND echo "Documentação C++ gerada na pasta 'html/'."
-    COMMAND echo ""
-    COMMAND echo "========================================="
-    COMMAND echo "  Gerando Documentação Python (MkDocs)..."
-    COMMAND echo "========================================="
+    COMMAND ${CMAKE_COMMAND} -E echo "Documentacao C++ gerada na pasta 'html/'."
+    COMMAND ${CMAKE_COMMAND} -E echo ""
+    COMMAND ${CMAKE_COMMAND} -E echo "========================================="
+    COMMAND ${CMAKE_COMMAND} -E echo "  Gerando Documentacao Python - MkDocs   "
+    COMMAND ${CMAKE_COMMAND} -E echo "========================================="
     COMMAND mkdocs build
-    COMMAND echo "Documentação Python gerada na pasta 'site/'."
+    COMMAND ${CMAKE_COMMAND} -E echo "Documentacao Python gerada na pasta 'site/'."
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-# Equivalente ao 'make docs-serve'
 add_custom_target(docs-serve
     COMMAND mkdocs serve
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}

@@ -1,0 +1,90 @@
+\doxysection{tasks\+::Navigation\+Command Class Reference}
+\hypertarget{classtasks_1_1NavigationCommand}{}\label{classtasks_1_1NavigationCommand}\index{tasks::NavigationCommand@{tasks::NavigationCommand}}
+
+
+Tarefa que publica setpoints de navegação no buffer IPC.  
+
+
+
+
+{\ttfamily \#include $<$Navigation\+Command.\+hpp$>$}
+
+
+
+Inheritance diagram for tasks\+::Navigation\+Command\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=232pt]{classtasks_1_1NavigationCommand__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for tasks\+::Navigation\+Command\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=232pt]{classtasks_1_1NavigationCommand__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtasks_1_1NavigationCommand_a0f2540bda4867ad2a6d4ec4b17714074}{Navigation\+Command}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classcore_1_1SharedContext}{core\+::\+Shared\+Context}} $>$ ctx, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classcore_1_1ThreadSafeQueue}{core\+::\+Thread\+Safe\+Queue}}$<$ \mbox{\hyperlink{structcore_1_1NavigationSetpoint}{core\+::\+Navigation\+Setpoint}} $>$ $>$ queue)
+\begin{DoxyCompactList}\small\item\em Construtor da tarefa \doxylink{classtasks_1_1NavigationCommand}{Navigation\+Command}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtasks_1_1NavigationCommand_a5044945bb228ede1de4b4fe7c0560467}{run}} () override
+\begin{DoxyCompactList}\small\item\em Executa o loop principal da tarefa. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Tarefa que publica setpoints de navegação no buffer IPC. 
+
+Ajusta o setpoint em função do estado de anomalia e publica periodicamente na fila compartilhada. 
+
+\label{doc-constructors}
+\Hypertarget{classtasks_1_1NavigationCommand_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classtasks_1_1NavigationCommand_a0f2540bda4867ad2a6d4ec4b17714074}\index{tasks::NavigationCommand@{tasks::NavigationCommand}!NavigationCommand@{NavigationCommand}}
+\index{NavigationCommand@{NavigationCommand}!tasks::NavigationCommand@{tasks::NavigationCommand}}
+\doxysubsubsection{\texorpdfstring{NavigationCommand()}{NavigationCommand()}}
+{\footnotesize\ttfamily \label{classtasks_1_1NavigationCommand_a0f2540bda4867ad2a6d4ec4b17714074} 
+tasks\+::\+Navigation\+Command\+::\+Navigation\+Command (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classcore_1_1SharedContext}{core\+::\+Shared\+Context}} $>$}]{ctx}{, }\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classcore_1_1ThreadSafeQueue}{core\+::\+Thread\+Safe\+Queue}}$<$ \mbox{\hyperlink{structcore_1_1NavigationSetpoint}{core\+::\+Navigation\+Setpoint}} $>$ $>$}]{queue}{}\end{DoxyParamCaption})}
+
+
+
+Construtor da tarefa \doxylink{classtasks_1_1NavigationCommand}{Navigation\+Command}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & Ponteiro compartilhado para o contexto global. \\
+\hline
+{\em queue} & Ponteiro compartilhado para a fila de setpoints. \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{classtasks_1_1NavigationCommand_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classtasks_1_1NavigationCommand_a5044945bb228ede1de4b4fe7c0560467}\index{tasks::NavigationCommand@{tasks::NavigationCommand}!run@{run}}
+\index{run@{run}!tasks::NavigationCommand@{tasks::NavigationCommand}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily \label{classtasks_1_1NavigationCommand_a5044945bb228ede1de4b4fe7c0560467} 
+void tasks\+::\+Navigation\+Command\+::run (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Executa o loop principal da tarefa. 
+
+
+
+Implements \mbox{\hyperlink{classtasks_1_1ITask_a196883815ac564749b678cc5734986f6}{tasks\+::\+ITask}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+include/tasks/\mbox{\hyperlink{NavigationCommand_8hpp}{Navigation\+Command.\+hpp}}\item 
+src/tasks/\mbox{\hyperlink{NavigationCommand_8cpp}{Navigation\+Command.\+cpp}}\end{DoxyCompactItemize}

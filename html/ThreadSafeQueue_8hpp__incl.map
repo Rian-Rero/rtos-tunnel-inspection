@@ -1,0 +1,9 @@
+<map id="include/core/ThreadSafeQueue.hpp" name="include/core/ThreadSafeQueue.hpp">
+<area shape="rect" id="Node000001" title="Implementação de uma fila thread&#45;safe genérica." alt="" coords="78,5,327,33"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,81,147,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,33,113,76,110,71,177,34"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="171,81,234,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="204,32,205,67,200,64,201,35"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="259,81,320,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="219,31,265,71,260,71,217,36"/>
+</map>

@@ -1,0 +1,35 @@
+<map id="src/tasks/DataCollector.cpp" name="src/tasks/DataCollector.cpp">
+<area shape="rect" id="Node000001" title="Implementação da tarefa de coleta e persistência de dados." alt="" coords="122,5,321,33"/>
+<area shape="rect" id="Node000002" href="$DataCollector_8hpp.html" title="Declaração da tarefa de coleta e persistência de dados." alt="" coords="451,81,627,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="279,31,469,76,465,78,279,36"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="66,157,124,184"/>
+<area shape="poly" id="edge16_Node000001_Node000005" title=" " alt="" coords="222,31,217,70,210,91,198,110,171,136,139,155,137,150,168,132,194,107,205,89,212,69,220,35"/>
+<area shape="rect" id="Node000015" href="$TerminalPrinter_8hpp.html" title="Utilitário para impressão padronizada e estilizada no terminal." alt="" coords="5,81,185,109"/>
+<area shape="poly" id="edge17_Node000001_Node000015" title=" " alt="" coords="197,36,132,75,129,71,201,32"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="715,157,787,184"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="577,107,703,152,697,152,577,112"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="812,157,888,184"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="597,107,799,156,794,156,596,112"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="448,107,309,128,140,159,139,154,308,122,453,105"/>
+<area shape="rect" id="Node000006" href="$DataTypes_8hpp.html" title="Definição das estruturas de dados globais do sistema ATR." alt="" coords="912,157,1062,184"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="620,107,900,154,895,155,619,112"/>
+<area shape="rect" id="Node000008" href="$SharedContext_8hpp.html" title="Contexto compartilhado para controle de estado global do robô." alt="" coords="148,157,325,184"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="482,110,306,155,305,150,487,108"/>
+<area shape="rect" id="Node000012" href="$ThreadSafeQueue_8hpp.html" title="Implementação de uma fila thread&#45;safe genérica." alt="" coords="350,157,547,184"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="525,108,478,149,475,144,520,110"/>
+<area shape="rect" id="Node000014" href="$Itask_8hpp_source.html" title=" " alt="" coords="571,157,691,184"/>
+<area shape="poly" id="edge15_Node000002_Node000014" title=" " alt="" coords="556,107,606,147,600,147,555,112"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="954,232,1020,260"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="989,183,989,218,985,215,985,187"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="118,232,184,260"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="224,184,179,224,176,220,219,186"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="208,232,350,260"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="245,183,266,220,261,218,243,187"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="374,232,437,260"/>
+<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="267,182,364,226,359,226,266,187"/>
+<area shape="poly" id="edge12_Node000012_Node000010" title=" " alt="" coords="421,184,324,228,322,223,415,185"/>
+<area shape="poly" id="edge13_Node000012_Node000011" title=" " alt="" coords="443,184,422,221,419,217,438,186"/>
+<area shape="rect" id="Node000013" title=" " alt="" coords="462,232,523,260"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="457,183,479,220,474,218,455,187"/>
+<area shape="poly" id="edge18_Node000015_Node000005" title=" " alt="" coords="96,107,98,142,92,140,94,112"/>
+</map>

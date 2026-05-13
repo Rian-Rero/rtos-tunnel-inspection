@@ -1,0 +1,78 @@
+\doxysection{core\+::Shared\+Context Class Reference}
+\hypertarget{classcore_1_1SharedContext}{}\label{classcore_1_1SharedContext}\index{core::SharedContext@{core::SharedContext}}
+
+
+Gerencia os estados globais e eventos de anomalia do sistema.  
+
+
+
+
+{\ttfamily \#include $<$Shared\+Context.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classcore_1_1SharedContext_a5d31c94fe3c4c740ae40b15ee7d1105d}\label{classcore_1_1SharedContext_a5d31c94fe3c4c740ae40b15ee7d1105d} 
+void {\bfseries trigger\+Anomaly} ()
+\begin{DoxyCompactList}\small\item\em Sinaliza a detecção de uma anomalia estrutural (buraco/saliência). Acorda todas as threads que estão aguardando esse evento. \end{DoxyCompactList}\item 
+\Hypertarget{classcore_1_1SharedContext_af44a5a2dd2ac1e28b45003c1b7b4c36d}\label{classcore_1_1SharedContext_af44a5a2dd2ac1e28b45003c1b7b4c36d} 
+void {\bfseries reset\+Anomaly} ()
+\begin{DoxyCompactList}\small\item\em Redefine o estado de anomalia para falso após a inspeção ser concluída. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classcore_1_1SharedContext_a26bd5dc53b1dc039d4754f5c6bc39061}{wait\+For\+Anomaly}} ()
+\begin{DoxyCompactList}\small\item\em Suspende a thread atual até que uma anomalia seja detectada ou o sistema seja encerrado. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classcore_1_1SharedContext_a536a38ba0c4135f9f85186e43a782556}{is\+Anomaly\+Active}} ()
+\begin{DoxyCompactList}\small\item\em Verifica ativamente se há uma anomalia ocorrendo neste momento. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::atomic$<$ bool $>$ \mbox{\hyperlink{classcore_1_1SharedContext_a3289c853b552ee48ddf6a7ed539f5d8d}{is\+\_\+running}} \{true\}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Gerencia os estados globais e eventos de anomalia do sistema. 
+
+Utiliza variáveis atômicas para estados simples e condition variables para acordar threads que aguardam eventos (como a ativação da câmera IA). 
+
+\label{doc-func-members}
+\Hypertarget{classcore_1_1SharedContext_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classcore_1_1SharedContext_a536a38ba0c4135f9f85186e43a782556}\index{core::SharedContext@{core::SharedContext}!isAnomalyActive@{isAnomalyActive}}
+\index{isAnomalyActive@{isAnomalyActive}!core::SharedContext@{core::SharedContext}}
+\doxysubsubsection{\texorpdfstring{isAnomalyActive()}{isAnomalyActive()}}
+{\footnotesize\ttfamily \label{classcore_1_1SharedContext_a536a38ba0c4135f9f85186e43a782556} 
+bool core\+::\+Shared\+Context\+::is\+Anomaly\+Active (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Verifica ativamente se há uma anomalia ocorrendo neste momento. 
+
+\begin{DoxyReturn}{Returns}
+true se houver anomalia, false caso contrário. 
+\end{DoxyReturn}
+\Hypertarget{classcore_1_1SharedContext_a26bd5dc53b1dc039d4754f5c6bc39061}\index{core::SharedContext@{core::SharedContext}!waitForAnomaly@{waitForAnomaly}}
+\index{waitForAnomaly@{waitForAnomaly}!core::SharedContext@{core::SharedContext}}
+\doxysubsubsection{\texorpdfstring{waitForAnomaly()}{waitForAnomaly()}}
+{\footnotesize\ttfamily \label{classcore_1_1SharedContext_a26bd5dc53b1dc039d4754f5c6bc39061} 
+void core\+::\+Shared\+Context\+::wait\+For\+Anomaly (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Suspende a thread atual até que uma anomalia seja detectada ou o sistema seja encerrado. 
+
+Modificado para evitar deadlocks durante o desligamento do sistema. 
+
+\label{doc-variable-members}
+\Hypertarget{classcore_1_1SharedContext_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classcore_1_1SharedContext_a3289c853b552ee48ddf6a7ed539f5d8d}\index{core::SharedContext@{core::SharedContext}!is\_running@{is\_running}}
+\index{is\_running@{is\_running}!core::SharedContext@{core::SharedContext}}
+\doxysubsubsection{\texorpdfstring{is\_running}{is\_running}}
+{\footnotesize\ttfamily \label{classcore_1_1SharedContext_a3289c853b552ee48ddf6a7ed539f5d8d} 
+std\+::atomic$<$bool$>$ core\+::\+Shared\+Context\+::is\+\_\+running \{true\}}
+
+Flag global para encerramento gracioso das threads 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/core/\mbox{\hyperlink{SharedContext_8hpp}{Shared\+Context.\+hpp}}\end{DoxyCompactItemize}

@@ -1,10 +1,10 @@
 var dir_82c971ab0d5e5ccdaf3e4293caecc069 =
 [
-    [ "CameraInspection.hpp", "CameraInspection_8hpp_source.html", null ],
-    [ "DataCollector.hpp", "DataCollector_8hpp_source.html", null ],
-    [ "DistanceCaculator.hpp", "DistanceCaculator_8hpp_source.html", null ],
+    [ "CameraInspection.hpp", "CameraInspection_8hpp.html", "CameraInspection_8hpp" ],
+    [ "DataCollector.hpp", "DataCollector_8hpp.html", "DataCollector_8hpp" ],
+    [ "DistanceCalculator.hpp", "DistanceCalculator_8hpp.html", "DistanceCalculator_8hpp" ],
     [ "Itask.hpp", "Itask_8hpp_source.html", null ],
-    [ "NavigationCommand.hpp", "NavigationCommand_8hpp_source.html", null ],
-    [ "NavigationControl.hpp", "NavigationControl_8hpp_source.html", null ],
-    [ "SurfaceReconstruction.hpp", "SurfaceReconstruction_8hpp_source.html", null ]
+    [ "NavigationCommand.hpp", "NavigationCommand_8hpp.html", "NavigationCommand_8hpp" ],
+    [ "NavigationControl.hpp", "NavigationControl_8hpp.html", "NavigationControl_8hpp" ],
+    [ "SurfaceReconstruction.hpp", "SurfaceReconstruction_8hpp.html", "SurfaceReconstruction_8hpp" ]
 ];

@@ -1,0 +1,102 @@
+\doxysection{tasks\+::Surface\+Reconstruction Class Reference}
+\hypertarget{classtasks_1_1SurfaceReconstruction}{}\label{classtasks_1_1SurfaceReconstruction}\index{tasks::SurfaceReconstruction@{tasks::SurfaceReconstruction}}
+
+
+Tarefa que simula o LIDAR e publica dados da superfície.  
+
+
+
+
+{\ttfamily \#include $<$Surface\+Reconstruction.\+hpp$>$}
+
+
+
+Inheritance diagram for tasks\+::Surface\+Reconstruction\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=238pt]{classtasks_1_1SurfaceReconstruction__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for tasks\+::Surface\+Reconstruction\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=238pt]{classtasks_1_1SurfaceReconstruction__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtasks_1_1SurfaceReconstruction_a34a76b196250af05cca33be36d316173}{Surface\+Reconstruction}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classcore_1_1ThreadSafeQueue}{core\+::\+Thread\+Safe\+Queue}}$<$ \mbox{\hyperlink{structcore_1_1SurfaceData}{core\+::\+Surface\+Data}} $>$ $>$ buffer, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classcore_1_1SharedContext}{core\+::\+Shared\+Context}} $>$ context, double threshold)
+\begin{DoxyCompactList}\small\item\em Construtor da tarefa \doxylink{classtasks_1_1SurfaceReconstruction}{Surface\+Reconstruction}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtasks_1_1SurfaceReconstruction_a307bd4bb0abd23082c5ee21102ad0385}{run}} () override
+\begin{DoxyCompactList}\small\item\em Executa o loop principal da tarefa. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Tarefa que simula o LIDAR e publica dados da superfície. 
+
+Detecta variações severas (anomalias) e sinaliza o contexto compartilhado para disparar inspeção detalhada. 
+
+\label{doc-constructors}
+\Hypertarget{classtasks_1_1SurfaceReconstruction_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classtasks_1_1SurfaceReconstruction_a34a76b196250af05cca33be36d316173}\index{tasks::SurfaceReconstruction@{tasks::SurfaceReconstruction}!SurfaceReconstruction@{SurfaceReconstruction}}
+\index{SurfaceReconstruction@{SurfaceReconstruction}!tasks::SurfaceReconstruction@{tasks::SurfaceReconstruction}}
+\doxysubsubsection{\texorpdfstring{SurfaceReconstruction()}{SurfaceReconstruction()}}
+{\footnotesize\ttfamily \label{classtasks_1_1SurfaceReconstruction_a34a76b196250af05cca33be36d316173} 
+tasks\+::\+Surface\+Reconstruction\+::\+Surface\+Reconstruction (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classcore_1_1ThreadSafeQueue}{core\+::\+Thread\+Safe\+Queue}}$<$ \mbox{\hyperlink{structcore_1_1SurfaceData}{core\+::\+Surface\+Data}} $>$ $>$}]{buffer}{, }\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classcore_1_1SharedContext}{core\+::\+Shared\+Context}} $>$}]{context}{, }\item[{double}]{threshold}{}\end{DoxyParamCaption})}
+
+
+
+Construtor da tarefa \doxylink{classtasks_1_1SurfaceReconstruction}{Surface\+Reconstruction}. 
+
+Construtor da tarefa de reconstrução de superfície.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & Ponteiro compartilhado para o buffer de dados. \\
+\hline
+{\em context} & Ponteiro compartilhado para o contexto global. \\
+\hline
+{\em threshold} & Limite de distância para detectar anomalia.\\
+\hline
+{\em buffer} & Ponteiro compartilhado para a fila thread-\/safe onde os dados da superfície serão publicados. \\
+\hline
+{\em context} & Ponteiro compartilhado para o contexto global para gerenciamento de estado e acionamento de eventos. \\
+\hline
+{\em threshold} & Valor limite de variação de distância do LIDAR (em metros) para considerar uma anomalia severa. \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{classtasks_1_1SurfaceReconstruction_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classtasks_1_1SurfaceReconstruction_a307bd4bb0abd23082c5ee21102ad0385}\index{tasks::SurfaceReconstruction@{tasks::SurfaceReconstruction}!run@{run}}
+\index{run@{run}!tasks::SurfaceReconstruction@{tasks::SurfaceReconstruction}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily \label{classtasks_1_1SurfaceReconstruction_a307bd4bb0abd23082c5ee21102ad0385} 
+void tasks\+::\+Surface\+Reconstruction\+::run (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Executa o loop principal da tarefa. 
+
+Executa o loop principal da tarefa de reconstrução da superfície do teto do túnel.
+
+Emula a leitura dos dados do sensor LIDAR em um túnel infinito. Detecta variações severas (buracos ou saliências) e publica os dados empacotados no buffer. Utiliza sincronismo absoluto (sleep\+\_\+until) para garantir a execução cíclica estrita a cada 100 ms. 
+
+Implements \mbox{\hyperlink{classtasks_1_1ITask_a196883815ac564749b678cc5734986f6}{tasks\+::\+ITask}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+include/tasks/\mbox{\hyperlink{SurfaceReconstruction_8hpp}{Surface\+Reconstruction.\+hpp}}\item 
+src/tasks/\mbox{\hyperlink{SurfaceReconstruction_8cpp}{Surface\+Reconstruction.\+cpp}}\end{DoxyCompactItemize}

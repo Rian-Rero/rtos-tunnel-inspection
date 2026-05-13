@@ -91,14 +91,56 @@ $(function(){initNavTree('NavigationControl_8hpp_source.html','',''); });
   <div class="headertitle"><div class="title">NavigationControl.hpp</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
+<a href="NavigationControl_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#pragma once</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &lt;memory&gt;</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;Itask.hpp&quot;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;<a class="code" href="DataTypes_8hpp.html">core/DataTypes.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;<a class="code" href="SharedContext_8hpp.html">core/SharedContext.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;<a class="code" href="ThreadSafeQueue_8hpp.html">core/ThreadSafeQueue.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keyword">namespace </span>tasks {</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span></div>
+<div class="foldopen" id="foldopen00022" data-start="{" data-end="};">
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="classtasks_1_1NavigationControl.html">   22</a></span><span class="keyword">class </span><a class="code hl_function" href="classtasks_1_1NavigationControl.html#ad1249e492f5d5b5b86e53dfd215eb24e">NavigationControl</a> : <span class="keyword">public</span> <a class="code hl_class" href="classtasks_1_1ITask.html">ITask</a> {</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>   <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    std::shared_ptr&lt;core::SharedContext&gt; context_; </div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    std::shared_ptr&lt;core::ThreadSafeQueue&lt;core::NavigationSetpoint&gt;&gt;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>        cmd_queue_; </div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="comment">// Ganhos do controlador</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    <span class="keywordtype">double</span> Kp_, Ki_, Kd_;</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <span class="comment">// Memória do controlador discreto</span></div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    <span class="keywordtype">double</span> integral_error_;</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <span class="keywordtype">double</span> previous_error_;</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="keywordtype">int</span> computePID(<span class="keywordtype">int</span> setpoint, <span class="keywordtype">int</span> current_speed, <span class="keywordtype">double</span> dt);</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>   <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <a class="code hl_function" href="classtasks_1_1NavigationControl.html#ad1249e492f5d5b5b86e53dfd215eb24e">NavigationControl</a>(std::shared_ptr&lt;core::SharedContext&gt; ctx,</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>                      std::shared_ptr&lt;<a class="code hl_class" href="classcore_1_1ThreadSafeQueue.html">core::ThreadSafeQueue&lt;core::NavigationSetpoint&gt;</a>&gt; queue);</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classtasks_1_1NavigationControl.html#a5be46c2ee60329b06073561fd93c87a9">run</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>};</div>
+</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>}  <span class="comment">// namespace tasks</span></div>
+<div class="ttc" id="aDataTypes_8hpp_html"><div class="ttname"><a href="DataTypes_8hpp.html">DataTypes.hpp</a></div><div class="ttdoc">Definição das estruturas de dados globais do sistema ATR.</div></div>
+<div class="ttc" id="aSharedContext_8hpp_html"><div class="ttname"><a href="SharedContext_8hpp.html">SharedContext.hpp</a></div><div class="ttdoc">Contexto compartilhado para controle de estado global do robô.</div></div>
+<div class="ttc" id="aThreadSafeQueue_8hpp_html"><div class="ttname"><a href="ThreadSafeQueue_8hpp.html">ThreadSafeQueue.hpp</a></div><div class="ttdoc">Implementação de uma fila thread-safe genérica.</div></div>
+<div class="ttc" id="aclasscore_1_1ThreadSafeQueue_html"><div class="ttname"><a href="classcore_1_1ThreadSafeQueue.html">core::ThreadSafeQueue</a></div><div class="ttdoc">Fila sincronizada baseada em mutexes e variáveis de condição.</div><div class="ttdef"><b>Definition</b> ThreadSafeQueue.hpp:20</div></div>
+<div class="ttc" id="aclasstasks_1_1ITask_html"><div class="ttname"><a href="classtasks_1_1ITask.html">tasks::ITask</a></div><div class="ttdoc">Interface padrão que todas as tarefas do robô devem implementar.</div><div class="ttdef"><b>Definition</b> Itask.hpp:12</div></div>
+<div class="ttc" id="aclasstasks_1_1NavigationControl_html_a5be46c2ee60329b06073561fd93c87a9"><div class="ttname"><a href="classtasks_1_1NavigationControl.html#a5be46c2ee60329b06073561fd93c87a9">tasks::NavigationControl::run</a></div><div class="ttdeci">void run() override</div><div class="ttdoc">Executa o loop principal da tarefa.</div><div class="ttdef"><b>Definition</b> NavigationControl.cpp:57</div></div>
+<div class="ttc" id="aclasstasks_1_1NavigationControl_html_ad1249e492f5d5b5b86e53dfd215eb24e"><div class="ttname"><a href="classtasks_1_1NavigationControl.html#ad1249e492f5d5b5b86e53dfd215eb24e">tasks::NavigationControl::NavigationControl</a></div><div class="ttdeci">NavigationControl(std::shared_ptr&lt; core::SharedContext &gt; ctx, std::shared_ptr&lt; core::ThreadSafeQueue&lt; core::NavigationSetpoint &gt; &gt; queue)</div><div class="ttdoc">Construtor da tarefa NavigationControl.</div><div class="ttdef"><b>Definition</b> NavigationControl.cpp:22</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><b>include</b></li><li class="navelem"><b>tasks</b></li><li class="navelem"><b>NavigationControl.hpp</b></li>
+    <li class="navelem"><b>include</b></li><li class="navelem"><b>tasks</b></li><li class="navelem"><a href="NavigationControl_8hpp.html">NavigationControl.hpp</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.15.0 </li>
   </ul>
 </div>

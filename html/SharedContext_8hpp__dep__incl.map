@@ -1,0 +1,35 @@
+<map id="include/core/SharedContext.hpp" name="include/core/SharedContext.hpp">
+<area shape="rect" id="Node000001" title="Contexto compartilhado para controle de estado global do robô." alt="" coords="694,5,923,33"/>
+<area shape="rect" id="Node000002" href="$CameraInspection_8hpp.html" title="Declaração da tarefa de inspeção detalhada com câmera." alt="" coords="1361,90,1618,117"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="938,31,1349,78,1407,89,1402,89,1348,84,938,36"/>
+<area shape="rect" id="Node000003" href="$main_8cpp.html" title="Ponto de entrada do sistema de inspeção ATR." alt="" coords="756,174,861,201"/>
+<area shape="poly" id="edge19_Node000001_Node000003" title=" " alt="" coords="810,47,811,175,806,172,807,50"/>
+<area shape="rect" id="Node000005" href="$DataCollector_8hpp.html" title="Declaração da tarefa de coleta e persistência de dados." alt="" coords="54,90,281,117"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="678,36,293,84,243,91,241,86,292,78,680,31"/>
+<area shape="rect" id="Node000007" href="$DistanceCalculator_8hpp.html" title="Declaração da tarefa de cálculo de distância." alt="" coords="304,90,566,117"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="731,37,496,92,494,86,736,36"/>
+<area shape="rect" id="Node000009" href="$NavigationCommand_8hpp.html" title="Declaração da tarefa de geração de comandos de navegação." alt="" coords="589,81,772,126"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="778,41,716,83,713,78,773,43"/>
+<area shape="rect" id="Node000011" href="$NavigationControl_8hpp.html" title="Declaração da tarefa de controle de navegação." alt="" coords="845,81,1028,126"/>
+<area shape="poly" id="edge13_Node000001_Node000011" title=" " alt="" coords="842,39,905,81,900,80,841,44"/>
+<area shape="rect" id="Node000013" href="$SurfaceReconstruction_8hpp.html" title="Declaração da tarefa de reconstrução da superfície do túnel." alt="" coords="1051,90,1336,117"/>
+<area shape="poly" id="edge16_Node000001_Node000013" title=" " alt="" coords="886,34,1135,89,1129,89,885,39"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1394,120,1349,128,1215,143,1110,151,1006,159,873,176,861,178,861,173,872,171,1006,154,1110,145,1214,137,1348,123,1388,120"/>
+<area shape="rect" id="Node000004" href="$CameraInspection_8cpp.html" title="Implementação da tarefa de inspeção detalhada com câmera." alt="" coords="1418,174,1647,201"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="1505,129,1528,175,1523,172,1502,133"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="255,117,293,123,420,138,519,146,618,155,745,171,758,176,753,175,744,176,617,160,518,151,419,143,292,128,256,123"/>
+<area shape="rect" id="Node000006" href="$DataCollector_8cpp.html" title="Implementação da tarefa de coleta e persistência de dados." alt="" coords="5,174,204,201"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="150,129,116,175,113,171,145,131"/>
+<area shape="poly" id="edge8_Node000007_Node000003" title=" " alt="" coords="510,118,759,174,753,175,510,124"/>
+<area shape="rect" id="Node000008" href="$DistanceCalculator_8cpp.html" title="Implementação da tarefa de cálculo de distância." alt="" coords="228,174,461,201"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="412,127,360,176,357,171,407,129"/>
+<area shape="poly" id="edge11_Node000009_Node000003" title=" " alt="" coords="728,132,791,174,785,173,726,137"/>
+<area shape="rect" id="Node000010" href="$NavigationCommand_8cpp.html" title="Implementação da tarefa de geração de comandos de navegação." alt="" coords="484,174,733,201"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="654,136,621,175,619,171,649,139"/>
+<area shape="poly" id="edge14_Node000011_Node000003" title=" " alt="" coords="893,134,830,176,828,171,887,135"/>
+<area shape="rect" id="Node000012" href="$NavigationControl_8cpp.html" title="Implementação da tarefa de controle de navegação." alt="" coords="885,174,1113,201"/>
+<area shape="poly" id="edge15_Node000011_Node000012" title=" " alt="" coords="963,136,992,174,987,172,961,140"/>
+<area shape="poly" id="edge17_Node000013_Node000003" title=" " alt="" coords="1120,121,861,178,861,172,1115,121"/>
+<area shape="rect" id="Node000014" href="$SurfaceReconstruction_8cpp.html" title="Implementação da tarefa de reconstrução da superfície do teto do túnel." alt="" coords="1138,174,1394,201"/>
+<area shape="poly" id="edge18_Node000013_Node000014" title=" " alt="" coords="1216,127,1257,174,1252,172,1214,131"/>
+</map>

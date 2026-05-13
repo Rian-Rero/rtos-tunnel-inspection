@@ -1,0 +1,31 @@
+<map id="src/tasks/NavigationCommand.cpp" name="src/tasks/NavigationCommand.cpp">
+<area shape="rect" id="Node000001" title="Implementação da tarefa de geração de comandos de navegação." alt="" coords="331,5,580,33"/>
+<area shape="rect" id="Node000002" href="$NavigationCommand_8hpp.html" title="Declaração da tarefa de geração de comandos de navegação." alt="" coords="173,81,399,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="423,35,331,77,329,72,428,32"/>
+<area shape="rect" id="Node000013" title=" " alt="" coords="423,81,488,109"/>
+<area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="457,31,458,67,453,64,454,36"/>
+<area shape="rect" id="Node000014" title=" " alt="" coords="512,81,575,109"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="472,31,519,71,514,71,471,36"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,157,82,184"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="242,112,97,156,95,151,244,107"/>
+<area shape="rect" id="Node000004" href="$Itask_8hpp_source.html" title=" " alt="" coords="106,157,187,184"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="259,111,186,152,183,147,263,108"/>
+<area shape="rect" id="Node000005" href="$DataTypes_8hpp.html" title="Definição das estruturas de dados globais do sistema ATR." alt="" coords="212,157,361,184"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="288,107,289,142,284,140,285,111"/>
+<area shape="rect" id="Node000007" href="$SharedContext_8hpp.html" title="Contexto compartilhado para controle de estado global do robô." alt="" coords="386,157,563,184"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="320,107,429,150,424,151,319,112"/>
+<area shape="rect" id="Node000011" href="$ThreadSafeQueue_8hpp.html" title="Implementação de uma fila thread&#45;safe genérica." alt="" coords="588,157,785,184"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="358,107,602,152,597,154,358,112"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="254,232,319,260"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="288,183,288,218,284,215,284,187"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="394,232,461,260"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="468,184,445,222,442,217,463,186"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="573,232,714,260"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="505,182,602,226,597,226,504,187"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="485,232,548,260"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="483,183,504,220,499,218,480,187"/>
+<area shape="poly" id="edge11_Node000011_Node000009" title=" " alt="" coords="681,184,660,221,657,217,676,186"/>
+<area shape="poly" id="edge12_Node000011_Node000010" title=" " alt="" coords="659,184,561,228,560,223,653,185"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="738,232,800,260"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="702,182,745,223,740,221,700,187"/>
+</map>

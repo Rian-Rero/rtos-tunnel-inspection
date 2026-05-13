@@ -1,0 +1,157 @@
+\doxysection{core\+::Thread\+Safe\+Queue\texorpdfstring{$<$}{<} T \texorpdfstring{$>$}{>} Class Template Reference}
+\hypertarget{classcore_1_1ThreadSafeQueue}{}\label{classcore_1_1ThreadSafeQueue}\index{core::ThreadSafeQueue$<$ T $>$@{core::ThreadSafeQueue$<$ T $>$}}
+
+
+Fila sincronizada baseada em mutexes e variáveis de condição.  
+
+
+
+
+{\ttfamily \#include $<$Thread\+Safe\+Queue.\+hpp$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classcore_1_1ThreadSafeQueue_a9182058b14d64dc93556593d2411e567}{Thread\+Safe\+Queue}} (size\+\_\+t capacity=100)
+\begin{DoxyCompactList}\small\item\em Construtor da fila segura. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classcore_1_1ThreadSafeQueue_ac0a19c17bf1ec690cd2fb73f686b17f0}{push}} (const T \&item)
+\begin{DoxyCompactList}\small\item\em Insere um item na fila de forma segura. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classcore_1_1ThreadSafeQueue_a64853570896e2376d3e8a0717d525157}{pop}} (T \&item)
+\begin{DoxyCompactList}\small\item\em Remove o item mais antigo da fila, aguardando se necessário. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classcore_1_1ThreadSafeQueue_a7ab4f8e13c28b1af8eb8896b8b3de0ea}{try\+Pop}} (T \&item)
+\begin{DoxyCompactList}\small\item\em Tenta remover um item da fila sem bloquear. \end{DoxyCompactList}\item 
+\Hypertarget{classcore_1_1ThreadSafeQueue_ad8e501fc3eb62a4e2b53401aecc5e677}\label{classcore_1_1ThreadSafeQueue_ad8e501fc3eb62a4e2b53401aecc5e677} 
+void {\bfseries close} ()
+\begin{DoxyCompactList}\small\item\em Fecha a fila e libera todas as threads bloqueadas. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classcore_1_1ThreadSafeQueue_a6e1f5c426719a770fb281f477bc594c4}{empty}} () const
+\begin{DoxyCompactList}\small\item\em Verifica se a fila está vazia (de forma segura). \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classcore_1_1ThreadSafeQueue_a386f1a98495aa12101f98e9073ff4e84}{is\+Closed}} () const
+\begin{DoxyCompactList}\small\item\em Verifica se a fila foi fechada. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename T$>$\newline
+class core\+::\+Thread\+Safe\+Queue$<$ T $>$}
+Fila sincronizada baseada em mutexes e variáveis de condição. 
+
+Previne race conditions e deadlocks no modelo Produtor/\+Consumidor. 
+\begin{DoxyTemplParams}{Template Parameters}
+{\em T} & Tipo de dado que será armazenado na fila. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\label{doc-constructors}
+\Hypertarget{classcore_1_1ThreadSafeQueue_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classcore_1_1ThreadSafeQueue_a9182058b14d64dc93556593d2411e567}\index{core::ThreadSafeQueue$<$ T $>$@{core::ThreadSafeQueue$<$ T $>$}!ThreadSafeQueue@{ThreadSafeQueue}}
+\index{ThreadSafeQueue@{ThreadSafeQueue}!core::ThreadSafeQueue$<$ T $>$@{core::ThreadSafeQueue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{ThreadSafeQueue()}{ThreadSafeQueue()}}
+{\footnotesize\ttfamily \label{classcore_1_1ThreadSafeQueue_a9182058b14d64dc93556593d2411e567} 
+template$<$typename T$>$ \\
+\mbox{\hyperlink{classcore_1_1ThreadSafeQueue}{core\+::\+Thread\+Safe\+Queue}}$<$ T $>$\+::\+Thread\+Safe\+Queue (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{capacity}{ = {\ttfamily 100}}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [explicit]}}
+
+
+
+Construtor da fila segura. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em capacity} & Capacidade máxima da fila antes de bloquear o produtor. Padrão\+: 100. \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{classcore_1_1ThreadSafeQueue_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classcore_1_1ThreadSafeQueue_a6e1f5c426719a770fb281f477bc594c4}\index{core::ThreadSafeQueue$<$ T $>$@{core::ThreadSafeQueue$<$ T $>$}!empty@{empty}}
+\index{empty@{empty}!core::ThreadSafeQueue$<$ T $>$@{core::ThreadSafeQueue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{empty()}{empty()}}
+{\footnotesize\ttfamily \label{classcore_1_1ThreadSafeQueue_a6e1f5c426719a770fb281f477bc594c4} 
+template$<$typename T$>$ \\
+bool \mbox{\hyperlink{classcore_1_1ThreadSafeQueue}{core\+::\+Thread\+Safe\+Queue}}$<$ T $>$\+::empty (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Verifica se a fila está vazia (de forma segura). 
+
+\begin{DoxyReturn}{Returns}
+true se vazia, false caso contrário. 
+\end{DoxyReturn}
+\Hypertarget{classcore_1_1ThreadSafeQueue_a386f1a98495aa12101f98e9073ff4e84}\index{core::ThreadSafeQueue$<$ T $>$@{core::ThreadSafeQueue$<$ T $>$}!isClosed@{isClosed}}
+\index{isClosed@{isClosed}!core::ThreadSafeQueue$<$ T $>$@{core::ThreadSafeQueue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{isClosed()}{isClosed()}}
+{\footnotesize\ttfamily \label{classcore_1_1ThreadSafeQueue_a386f1a98495aa12101f98e9073ff4e84} 
+template$<$typename T$>$ \\
+bool \mbox{\hyperlink{classcore_1_1ThreadSafeQueue}{core\+::\+Thread\+Safe\+Queue}}$<$ T $>$\+::is\+Closed (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Verifica se a fila foi fechada. 
+
+\begin{DoxyReturn}{Returns}
+true se fechada, false caso contrário. 
+\end{DoxyReturn}
+\Hypertarget{classcore_1_1ThreadSafeQueue_a64853570896e2376d3e8a0717d525157}\index{core::ThreadSafeQueue$<$ T $>$@{core::ThreadSafeQueue$<$ T $>$}!pop@{pop}}
+\index{pop@{pop}!core::ThreadSafeQueue$<$ T $>$@{core::ThreadSafeQueue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{pop()}{pop()}}
+{\footnotesize\ttfamily \label{classcore_1_1ThreadSafeQueue_a64853570896e2376d3e8a0717d525157} 
+template$<$typename T$>$ \\
+bool \mbox{\hyperlink{classcore_1_1ThreadSafeQueue}{core\+::\+Thread\+Safe\+Queue}}$<$ T $>$\+::pop (\begin{DoxyParamCaption}\item[{T \&}]{item}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Remove o item mais antigo da fila, aguardando se necessário. 
+
+Se a fila estiver vazia, a thread consumidora é suspensa até chegar um novo dado ou até a fila ser fechada. 
+\begin{DoxyParams}{Parameters}
+{\em item} & Referência que receberá o item removido. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true se removeu um item; false se a fila foi fechada e ficou vazia. 
+\end{DoxyReturn}
+\Hypertarget{classcore_1_1ThreadSafeQueue_ac0a19c17bf1ec690cd2fb73f686b17f0}\index{core::ThreadSafeQueue$<$ T $>$@{core::ThreadSafeQueue$<$ T $>$}!push@{push}}
+\index{push@{push}!core::ThreadSafeQueue$<$ T $>$@{core::ThreadSafeQueue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{push()}{push()}}
+{\footnotesize\ttfamily \label{classcore_1_1ThreadSafeQueue_ac0a19c17bf1ec690cd2fb73f686b17f0} 
+template$<$typename T$>$ \\
+bool \mbox{\hyperlink{classcore_1_1ThreadSafeQueue}{core\+::\+Thread\+Safe\+Queue}}$<$ T $>$\+::push (\begin{DoxyParamCaption}\item[{const T \&}]{item}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Insere um item na fila de forma segura. 
+
+Se a fila estiver cheia, a thread produtora é suspensa até haver espaço. 
+\begin{DoxyParams}{Parameters}
+{\em item} & O elemento a ser inserido. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true se inseriu o item; false se a fila foi fechada. 
+\end{DoxyReturn}
+\Hypertarget{classcore_1_1ThreadSafeQueue_a7ab4f8e13c28b1af8eb8896b8b3de0ea}\index{core::ThreadSafeQueue$<$ T $>$@{core::ThreadSafeQueue$<$ T $>$}!tryPop@{tryPop}}
+\index{tryPop@{tryPop}!core::ThreadSafeQueue$<$ T $>$@{core::ThreadSafeQueue$<$ T $>$}}
+\doxysubsubsection{\texorpdfstring{tryPop()}{tryPop()}}
+{\footnotesize\ttfamily \label{classcore_1_1ThreadSafeQueue_a7ab4f8e13c28b1af8eb8896b8b3de0ea} 
+template$<$typename T$>$ \\
+bool \mbox{\hyperlink{classcore_1_1ThreadSafeQueue}{core\+::\+Thread\+Safe\+Queue}}$<$ T $>$\+::try\+Pop (\begin{DoxyParamCaption}\item[{T \&}]{item}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Tenta remover um item da fila sem bloquear. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em item} & Referência que receberá o item removido. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true se removeu um item; false se a fila estava vazia. 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/core/\mbox{\hyperlink{ThreadSafeQueue_8hpp}{Thread\+Safe\+Queue.\+hpp}}\end{DoxyCompactItemize}

@@ -1,0 +1,5 @@
+<map id="tasks::NavigationControl" name="tasks::NavigationControl">
+<area shape="rect" id="Node000001" title="Tarefa que aplica controle PID sobre o setpoint de navegação." alt="" coords="5,81,188,109"/>
+<area shape="rect" id="Node000002" href="$classtasks_1_1ITask.html" title="Interface padrão que todas as tarefas do robô devem implementar." alt="" coords="48,5,145,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="98,47,99,82,94,80,95,51"/>
+</map>

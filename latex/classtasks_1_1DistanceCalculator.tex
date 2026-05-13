@@ -1,0 +1,103 @@
+\doxysection{tasks\+::Distance\+Calculator Class Reference}
+\hypertarget{classtasks_1_1DistanceCalculator}{}\label{classtasks_1_1DistanceCalculator}\index{tasks::DistanceCalculator@{tasks::DistanceCalculator}}
+
+
+Tarefa que estima a distância percorrida via encoder simulado.  
+
+
+
+
+{\ttfamily \#include $<$Distance\+Calculator.\+hpp$>$}
+
+
+
+Inheritance diagram for tasks\+::Distance\+Calculator\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=221pt]{classtasks_1_1DistanceCalculator__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for tasks\+::Distance\+Calculator\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=221pt]{classtasks_1_1DistanceCalculator__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtasks_1_1DistanceCalculator_a1a1f88de1882bf204a3be33f160e8e34}{Distance\+Calculator}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classcore_1_1SharedContext}{core\+::\+Shared\+Context}} $>$ ctx)
+\begin{DoxyCompactList}\small\item\em Construtor da tarefa \doxylink{classtasks_1_1DistanceCalculator}{Distance\+Calculator}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtasks_1_1DistanceCalculator_a9ed5a88eacc2a0cd7056e7ed281347dc}{run}} () override
+\begin{DoxyCompactList}\small\item\em Executa o loop principal da tarefa. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classtasks_1_1DistanceCalculator_a4ca03c9639d5970a1970373d7f6205f5}{get\+Total\+Distance}} () const
+\begin{DoxyCompactList}\small\item\em Retorna a distância total acumulada. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Tarefa que estima a distância percorrida via encoder simulado. 
+
+Atualiza o acumulado de distância sempre que detecta transição do sinal do encoder. 
+
+\label{doc-constructors}
+\Hypertarget{classtasks_1_1DistanceCalculator_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classtasks_1_1DistanceCalculator_a1a1f88de1882bf204a3be33f160e8e34}\index{tasks::DistanceCalculator@{tasks::DistanceCalculator}!DistanceCalculator@{DistanceCalculator}}
+\index{DistanceCalculator@{DistanceCalculator}!tasks::DistanceCalculator@{tasks::DistanceCalculator}}
+\doxysubsubsection{\texorpdfstring{DistanceCalculator()}{DistanceCalculator()}}
+{\footnotesize\ttfamily \label{classtasks_1_1DistanceCalculator_a1a1f88de1882bf204a3be33f160e8e34} 
+tasks\+::\+Distance\+Calculator\+::\+Distance\+Calculator (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classcore_1_1SharedContext}{core\+::\+Shared\+Context}} $>$}]{ctx}{}\end{DoxyParamCaption})}
+
+
+
+Construtor da tarefa \doxylink{classtasks_1_1DistanceCalculator}{Distance\+Calculator}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & Ponteiro compartilhado para o contexto global. \\
+\hline
+\end{DoxyParams}
+
+
+\label{doc-func-members}
+\Hypertarget{classtasks_1_1DistanceCalculator_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classtasks_1_1DistanceCalculator_a4ca03c9639d5970a1970373d7f6205f5}\index{tasks::DistanceCalculator@{tasks::DistanceCalculator}!getTotalDistance@{getTotalDistance}}
+\index{getTotalDistance@{getTotalDistance}!tasks::DistanceCalculator@{tasks::DistanceCalculator}}
+\doxysubsubsection{\texorpdfstring{getTotalDistance()}{getTotalDistance()}}
+{\footnotesize\ttfamily \label{classtasks_1_1DistanceCalculator_a4ca03c9639d5970a1970373d7f6205f5} 
+double tasks\+::\+Distance\+Calculator\+::get\+Total\+Distance (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption}) const}
+
+
+
+Retorna a distância total acumulada. 
+
+\begin{DoxyReturn}{Returns}
+Distância total em metros. 
+\end{DoxyReturn}
+\Hypertarget{classtasks_1_1DistanceCalculator_a9ed5a88eacc2a0cd7056e7ed281347dc}\index{tasks::DistanceCalculator@{tasks::DistanceCalculator}!run@{run}}
+\index{run@{run}!tasks::DistanceCalculator@{tasks::DistanceCalculator}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily \label{classtasks_1_1DistanceCalculator_a9ed5a88eacc2a0cd7056e7ed281347dc} 
+void tasks\+::\+Distance\+Calculator\+::run (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Executa o loop principal da tarefa. 
+
+
+
+Implements \mbox{\hyperlink{classtasks_1_1ITask_a196883815ac564749b678cc5734986f6}{tasks\+::\+ITask}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+include/tasks/\mbox{\hyperlink{DistanceCalculator_8hpp}{Distance\+Calculator.\+hpp}}\item 
+src/tasks/\mbox{\hyperlink{DistanceCalculator_8cpp}{Distance\+Calculator.\+cpp}}\end{DoxyCompactItemize}

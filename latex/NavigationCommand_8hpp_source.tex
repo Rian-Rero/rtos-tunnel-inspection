@@ -1,7 +1,31 @@
 \doxysection{Navigation\+Command.\+hpp}
 \hypertarget{NavigationCommand_8hpp_source}{}\label{NavigationCommand_8hpp_source}\index{include/tasks/NavigationCommand.hpp@{include/tasks/NavigationCommand.hpp}}
-
+\mbox{\hyperlink{NavigationCommand_8hpp}{Go to the documentation of this file.}}
 \begin{DoxyCode}{0}
 \DoxyCodeLine{00001\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}Itask.hpp"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{DataTypes_8hpp}{core/DataTypes.hpp}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{SharedContext_8hpp}{core/SharedContext.hpp}}"{}}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{ThreadSafeQueue_8hpp}{core/ThreadSafeQueue.hpp}}"{}}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \textcolor{keyword}{namespace\ }tasks\ \{}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00022\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classtasks_1_1NavigationCommand_a0f2540bda4867ad2a6d4ec4b17714074}{NavigationCommand}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classtasks_1_1ITask}{ITask}}\ \{}
+\DoxyCodeLine{00023\ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00024\ \ \ \ \ std::shared\_ptr<core::SharedContext>\ context\_;\ }
+\DoxyCodeLine{00025\ \ \ \ \ std::shared\_ptr<core::ThreadSafeQueue<core::NavigationSetpoint>>}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ cmd\_queue\_;\ }
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00034\ \ \ \ \ \mbox{\hyperlink{classtasks_1_1NavigationCommand_a0f2540bda4867ad2a6d4ec4b17714074}{NavigationCommand}}(std::shared\_ptr<core::SharedContext>\ ctx,}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<\mbox{\hyperlink{classcore_1_1ThreadSafeQueue}{core::ThreadSafeQueue<core::NavigationSetpoint>}}>\ queue);}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classtasks_1_1NavigationCommand_a5044945bb228ede1de4b4fe7c0560467}{run}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00041\ \};}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \}\ \ \textcolor{comment}{//\ namespace\ tasks}}
 
 \end{DoxyCode}

@@ -1,0 +1,7 @@
+<map id="include/tasks/NavigationControl.hpp" name="include/tasks/NavigationControl.hpp">
+<area shape="rect" id="Node000001" title="Declaração da tarefa de controle de navegação." alt="" coords="61,5,243,50"/>
+<area shape="rect" id="Node000002" href="$main_8cpp.html" title="Ponto de entrada do sistema de inspeção ATR." alt="" coords="5,98,110,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,60,74,100,71,95,113,61"/>
+<area shape="rect" id="Node000003" href="$NavigationControl_8cpp.html" title="Implementação da tarefa de controle de navegação." alt="" coords="134,98,362,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="190,58,235,97,230,97,188,63"/>
+</map>

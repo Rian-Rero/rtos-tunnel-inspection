@@ -1,0 +1,30 @@
+\doxysection{Distance\+Calculator.\+hpp}
+\hypertarget{DistanceCalculator_8hpp_source}{}\label{DistanceCalculator_8hpp_source}\index{include/tasks/DistanceCalculator.hpp@{include/tasks/DistanceCalculator.hpp}}
+\mbox{\hyperlink{DistanceCalculator_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}Itask.hpp"{}}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{SharedContext_8hpp}{core/SharedContext.hpp}}"{}}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{keyword}{namespace\ }tasks\ \{}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00020\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classtasks_1_1DistanceCalculator_a1a1f88de1882bf204a3be33f160e8e34}{DistanceCalculator}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classtasks_1_1ITask}{ITask}}\ \{}
+\DoxyCodeLine{00021\ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00022\ \ \ \ \ std::shared\_ptr<core::SharedContext>\ context\_;\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordtype}{double}\ total\_distance\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordtype}{bool}\ last\_encoder\_state\_;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00031\ \ \ \ \ \mbox{\hyperlink{classtasks_1_1DistanceCalculator_a1a1f88de1882bf204a3be33f160e8e34}{DistanceCalculator}}(std::shared\_ptr<core::SharedContext>\ ctx);}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classtasks_1_1DistanceCalculator_a9ed5a88eacc2a0cd7056e7ed281347dc}{run}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{classtasks_1_1DistanceCalculator_a4ca03c9639d5970a1970373d7f6205f5}{getTotalDistance}}()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00043\ \};}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \}\ \ \textcolor{comment}{//\ namespace\ tasks}}
+
+\end{DoxyCode}

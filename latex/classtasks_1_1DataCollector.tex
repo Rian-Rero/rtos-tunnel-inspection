@@ -1,0 +1,110 @@
+\doxysection{tasks\+::Data\+Collector Class Reference}
+\hypertarget{classtasks_1_1DataCollector}{}\label{classtasks_1_1DataCollector}\index{tasks::DataCollector@{tasks::DataCollector}}
+
+
+Classe responsável por consumir os dados da superfície e gravá-\/los em um ficheiro CSV.  
+
+
+
+
+{\ttfamily \#include $<$Data\+Collector.\+hpp$>$}
+
+
+
+Inheritance diagram for tasks\+::Data\+Collector\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=195pt]{classtasks_1_1DataCollector__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for tasks\+::Data\+Collector\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=195pt]{classtasks_1_1DataCollector__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtasks_1_1DataCollector_a24ff2a57902a8029faa707f8b172bf08}{Data\+Collector}} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classcore_1_1ThreadSafeQueue}{core\+::\+Thread\+Safe\+Queue}}$<$ \mbox{\hyperlink{structcore_1_1SurfaceData}{core\+::\+Surface\+Data}} $>$ $>$ buffer, std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classcore_1_1SharedContext}{core\+::\+Shared\+Context}} $>$ context, const std\+::string \&log\+\_\+filename)
+\begin{DoxyCompactList}\small\item\em Construtor da tarefa \doxylink{classtasks_1_1DataCollector}{Data\+Collector} com injeção de dependência do nome do ficheiro. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classtasks_1_1DataCollector_adbe0bf81e6fbbac6b017acd6bdeeadad}{\texorpdfstring{$\sim$}{\string~}\+Data\+Collector}} () override
+\begin{DoxyCompactList}\small\item\em Destrutor. Fecha o ficheiro de log de forma segura. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classtasks_1_1DataCollector_aa097e06f48304a3260fa814f9d5ee342}{run}} () override
+\begin{DoxyCompactList}\small\item\em Executa o loop principal da tarefa de gravação. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Classe responsável por consumir os dados da superfície e gravá-\/los em um ficheiro CSV. 
+
+\label{doc-constructors}
+\Hypertarget{classtasks_1_1DataCollector_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classtasks_1_1DataCollector_a24ff2a57902a8029faa707f8b172bf08}\index{tasks::DataCollector@{tasks::DataCollector}!DataCollector@{DataCollector}}
+\index{DataCollector@{DataCollector}!tasks::DataCollector@{tasks::DataCollector}}
+\doxysubsubsection{\texorpdfstring{DataCollector()}{DataCollector()}}
+{\footnotesize\ttfamily \label{classtasks_1_1DataCollector_a24ff2a57902a8029faa707f8b172bf08} 
+tasks\+::\+Data\+Collector\+::\+Data\+Collector (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classcore_1_1ThreadSafeQueue}{core\+::\+Thread\+Safe\+Queue}}$<$ \mbox{\hyperlink{structcore_1_1SurfaceData}{core\+::\+Surface\+Data}} $>$ $>$}]{buffer}{, }\item[{std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{classcore_1_1SharedContext}{core\+::\+Shared\+Context}} $>$}]{context}{, }\item[{const std\+::string \&}]{log\+\_\+filename}{}\end{DoxyParamCaption})}
+
+
+
+Construtor da tarefa \doxylink{classtasks_1_1DataCollector}{Data\+Collector} com injeção de dependência do nome do ficheiro. 
+
+Construtor da tarefa \doxylink{classtasks_1_1DataCollector}{Data\+Collector}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & Ponteiro compartilhado para o buffer de dados. \\
+\hline
+{\em context} & Ponteiro compartilhado para o contexto global. \\
+\hline
+{\em log\+\_\+filename} & Nome do ficheiro de log (ex\+: "{}inspection\+\_\+log.\+csv"{}).\\
+\hline
+{\em buffer} & Ponteiro compartilhado para o buffer de dados. \\
+\hline
+{\em context} & Ponteiro compartilhado para o contexto global. \\
+\hline
+{\em log\+\_\+filename} & Caminho e nome do ficheiro onde os dados serão salvos. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classtasks_1_1DataCollector_adbe0bf81e6fbbac6b017acd6bdeeadad}\index{tasks::DataCollector@{tasks::DataCollector}!````~DataCollector@{\texorpdfstring{$\sim$}{\string~}DataCollector}}
+\index{````~DataCollector@{\texorpdfstring{$\sim$}{\string~}DataCollector}!tasks::DataCollector@{tasks::DataCollector}}
+\doxysubsubsection{\texorpdfstring{\texorpdfstring{$\sim$}{\string~}DataCollector()}{\string~DataCollector()}}
+{\footnotesize\ttfamily \label{classtasks_1_1DataCollector_adbe0bf81e6fbbac6b017acd6bdeeadad} 
+tasks\+::\+Data\+Collector\+::\texorpdfstring{$\sim$}{\string~}\+Data\+Collector (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}}
+
+
+
+Destrutor. Fecha o ficheiro de log de forma segura. 
+
+Destrutor. Fecha o arquivo de log, se aberto. 
+
+\label{doc-func-members}
+\Hypertarget{classtasks_1_1DataCollector_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classtasks_1_1DataCollector_aa097e06f48304a3260fa814f9d5ee342}\index{tasks::DataCollector@{tasks::DataCollector}!run@{run}}
+\index{run@{run}!tasks::DataCollector@{tasks::DataCollector}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily \label{classtasks_1_1DataCollector_aa097e06f48304a3260fa814f9d5ee342} 
+void tasks\+::\+Data\+Collector\+::run (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Executa o loop principal da tarefa de gravação. 
+
+Executa o loop principal da tarefa. 
+
+Implements \mbox{\hyperlink{classtasks_1_1ITask_a196883815ac564749b678cc5734986f6}{tasks\+::\+ITask}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+include/tasks/\mbox{\hyperlink{DataCollector_8hpp}{Data\+Collector.\+hpp}}\item 
+src/tasks/\mbox{\hyperlink{DataCollector_8cpp}{Data\+Collector.\+cpp}}\end{DoxyCompactItemize}
