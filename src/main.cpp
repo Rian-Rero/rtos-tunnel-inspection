@@ -52,9 +52,9 @@ int main() {
     auto surface_buffer = std::make_shared<core::ThreadSafeQueue<core::SurfaceData>>();
 
     // Instanciação das Tarefas
-    // Threshold de 2.8m (ou seja, 0.8m de variação aceitável sobre o teto base que é 2.0m)
+    // Threshold de 2.4m (ou seja, 0.4m de variação aceitável sobre o teto base que é 2.0m)
     auto task_reconstruction =
-        std::make_shared<tasks::SurfaceReconstruction>(surface_buffer, global_context, 2.8);
+        std::make_shared<tasks::SurfaceReconstruction>(surface_buffer, global_context, 2.4);
     auto task_camera = std::make_shared<tasks::CameraInspection>(global_context);
     auto task_nav_cmd = std::make_shared<tasks::NavigationCommand>(global_context, command_buffer);
     auto task_nav_ctrl = std::make_shared<tasks::NavigationControl>(global_context, command_buffer);
