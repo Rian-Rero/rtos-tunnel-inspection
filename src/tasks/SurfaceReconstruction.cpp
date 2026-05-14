@@ -114,7 +114,22 @@ void SurfaceReconstruction::run() {
             break;
         }
 
-        simulated_x += 0.2;  // Avança a posição simulada do robô
+        /**
+         * @brief Cálculo do deslocamento físico real.
+         * Lê a velocidade atual da malha de controle, converte de porcentagem 
+         * para metros por segundo (assumindo 100% = 2.0 m/s), e calcula a distância 
+         * percorrida no tempo de amostragem deste ciclo (100ms = 0.1s).
+         */
+        double speed_percent = context_->current_speed.load();
+        double speed_ms = (speed_percent / 100.0) * 2.0;
+        double delta_x = speed_ms * 0.1;
+        
+        // Impede recuo negativo na simulação do sensor caso o freio seja brusco
+        if (delta_x < 0.0) {
+            delta_x = 0.0; 
+        }
+
+        simulated_x += delta_x; // Avança a posição baseada na física real
 
         // Suspende a thread até o momento previamente agendado
         std::this_thread::sleep_until(proximo_ciclo);

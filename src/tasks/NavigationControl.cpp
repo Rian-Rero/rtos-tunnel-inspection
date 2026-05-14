@@ -52,7 +52,10 @@ int NavigationControl::computePID(int setpoint, int current_speed, double dt) {
 }
 
 /**
- * @brief Executa o loop principal da tarefa.
+ * @brief Executa o loop principal da tarefa de controle.
+ * @details Consome os setpoints do buffer IPC, calcula o esforço de controle (PID)
+ * e simula a inércia do robô. A velocidade de saída simulada (PV) é então publicada 
+ * no contexto global para ser consumida pela física dos sensores em outras threads.
  */
 void NavigationControl::run() {
     double current_simulated_speed = 0;
@@ -77,6 +80,9 @@ void NavigationControl::run() {
 
         // Simulação básica da planta
         current_simulated_speed += (o_aceleracao - current_simulated_speed) * 0.15;
+
+        // Publica a velocidade na variável atômica global
+        context_->current_speed.store(current_simulated_speed);
 
         std::ostringstream oss;
         oss << std::fixed << std::setprecision(1);

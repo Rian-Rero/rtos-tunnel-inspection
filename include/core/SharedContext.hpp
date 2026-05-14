@@ -26,6 +26,15 @@ class SharedContext {
     std::atomic<bool> is_running{true}; /**< Flag global para encerramento gracioso das threads */
 
     /**
+     * @brief Velocidade atual simulada do robô (em porcentagem).
+     * @details Esta variável atômica cria o acoplamento físico entre o Controlador 
+     * de Navegação e os módulos de Inspeção. Ela permite que a odometria e os 
+     * sensores (LIDAR) baseiem seus cálculos na velocidade real da malha fechada, 
+     * e não em incrementos estáticos arbitrários.
+     */
+    std::atomic<double> current_speed{0.0}; 
+
+    /**
      * @brief Sinaliza a detecção de uma anomalia estrutural (buraco/saliência).
      * Acorda todas as threads que estão aguardando esse evento.
      */

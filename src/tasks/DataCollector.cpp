@@ -1,10 +1,15 @@
 /**
  * @file DataCollector.cpp
  * @brief Implementação da tarefa de coleta e persistência de dados.
+ * @details Esta classe é responsável por consumir os dados da superfície do túnel
+ * a partir de um buffer compartilhado (IPC) e gravar os mesmos em um arquivo CSV.
+ * Calcula também dinamicamente o nível de confiabilidade da leitura com base
+ * na distância entre os pontos, utilizando um modelo matemático de decaimento exponencial.
  */
 #include "tasks/DataCollector.hpp"
 
-#include <cmath>  // Necessário para usar std::abs no cálculo da confiança
+#include <cmath>      // Necessário para std::abs e std::exp
+#include <algorithm>  // Necessário para std::clamp
 #include <string>
 
 #include "core/TerminalPrinter.hpp"
@@ -13,9 +18,9 @@ namespace tasks {
 
 /**
  * @brief Construtor da tarefa DataCollector.
- * @param buffer Ponteiro compartilhado para o buffer de dados.
- * @param context Ponteiro compartilhado para o contexto global.
- * @param log_filename Caminho e nome do ficheiro onde os dados serão salvos.
+ * @param buffer Ponteiro compartilhado para a fila thread-safe que contém os dados da superfície.
+ * @param context Ponteiro compartilhado para o contexto global de estado do sistema.
+ * @param log_filename Caminho e nome do arquivo CSV onde os registros serão salvos.
  */
 DataCollector::DataCollector(std::shared_ptr<core::ThreadSafeQueue<core::SurfaceData>> buffer,
                              std::shared_ptr<core::SharedContext> context,
@@ -28,59 +33,71 @@ DataCollector::DataCollector(std::shared_ptr<core::ThreadSafeQueue<core::Surface
 }
 
 /**
- * @brief Destrutor. Fecha o arquivo de log, se aberto.
+ * @brief Destrutor da classe DataCollector.
+ * @details Garante o encerramento seguro do arquivo de log, descarregando
+ * qualquer dado remanescente no buffer da stream para o disco.
  */
 DataCollector::~DataCollector() {
-    if (log_file_.is_open())
+    if (log_file_.is_open()) {
         log_file_.close();
+    }
 }
 
 /**
- * @brief Executa o loop principal da tarefa.
- * @details Retira os dados da fila, calcula a variação da posição (delta_x)
- * para determinar o nível de confiança online, e grava o registo atualizado no ficheiro CSV.
+ * @brief Executa o loop principal da tarefa de coleta e processamento de dados.
+ * @details Retira continuamente os pacotes de dados da fila bloqueante.
+ * Calcula o espaço percorrido (`delta_x`) para determinar o nível de confiabilidade 
+ * da medição de forma contínua através de uma função de decaimento exponencial. 
+ * Após o cálculo, grava o registro final atualizado no arquivo CSV.
  */
 void DataCollector::run() {
     double last_x = 0.0;
 
     while (context_->is_running) {
-        // Dorme na fila até ter dados ou até a fila ser fechada
         core::SurfaceData data;
+        
+        // Fica dormindo (bloqueado) na fila até receber dados novos ou a fila ser fechada
         if (!surface_buffer_->pop(data)) {
             break;
         }
 
-        if (!context_->is_running)
+        // Dupla verificação de segurança caso o sistema solicite encerramento (shutdown)
+        if (!context_->is_running) {
             break;
-
-        // --- INÍCIO DA ANÁLISE ONLINE DE CONFIANÇA ---
-        // Calcula a distância entre a leitura atual e a anterior
-        double delta_x = std::abs(data.position_x - last_x);
-
-        double calculated_confidence = 0.0;
-
-        if (delta_x <= 0.05) {
-            calculated_confidence = 0.99;  // Alta densidade (robô lento), altíssima confiança
-        } else if (delta_x <= 0.2) {
-            calculated_confidence = 0.90;  // Velocidade de cruzeiro normal
-        } else if (delta_x <= 0.5) {
-            calculated_confidence = 0.75;  // Leitura rápida, confiança média
-        } else {
-            calculated_confidence = 0.50;  // Leitura muito espaçada, baixa confiança
         }
 
-        // Substitui o valor emulado pelo valor real calculado online no coletor
+        // --- INÍCIO DA ANÁLISE CONTÍNUA DE CONFIABILIDADE ---
+        
+        // Calcula a distância entre a posição da leitura atual e a anterior
+        double delta_x = std::abs(data.position_x - last_x);
+
+        // Fator de decaimento (lambda): calibra a severidade da perda de confiança.
+        // Pode ser calibrado de acordo com a resolução nominal do sensor LIDAR real.
+        const double lambda = 1.5;
+
+        // Aplica a função de decaimento exponencial: e^(-lambda * delta_x)
+        double calculated_confidence = std::exp(-lambda * delta_x);
+
+        // Limita a confiança de forma segura para não ultrapassar 100% (1.0) 
+        // ou cair para valores irrealistas (mínimo de 10% ou 0.1)
+        calculated_confidence = std::clamp(calculated_confidence, 0.1, 1.0);
+
+        // Substitui a confiabilidade emulada pela confiabilidade física calculada
         data.confidence_level = calculated_confidence;
         last_x = data.position_x;
+        
         // --- FIM DA ANÁLISE ---
 
+        // Persistência em disco: grava os dados processados e força o fluxo (flush)
         if (log_file_.is_open()) {
-            log_file_ << data.timestamp << "," << data.position_x << "," << data.lidar_distance_y
-                      << "," << data.confidence_level << "\n";
+            log_file_ << data.timestamp << "," 
+                      << data.position_x << "," 
+                      << data.lidar_distance_y << "," 
+                      << data.confidence_level << "\n";
             log_file_.flush();
         }
 
-        // Para visualização no console
+        // Impressão no terminal para monitoramento e depuração (Debug)
         core::TerminalPrinter::Log(core::TerminalPrinter::Level::Info, "Coletor",
                                    "Log salvo - X: " + std::to_string(data.position_x) +
                                        "m | Y: " + std::to_string(data.lidar_distance_y) +
