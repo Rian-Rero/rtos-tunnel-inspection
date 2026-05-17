@@ -1,6 +1,6 @@
 /**
  * @file SharedContext.hpp
- * @brief Contexto compartilhado para controle de estado global do robô.
+ * @brief Contexto compartilhado atuando como Broker de estados e sensores.
  */
 #pragma once
 #include <atomic>
@@ -11,10 +11,7 @@ namespace core {
 
 /**
  * @class SharedContext
- * @brief Gerencia os estados globais e eventos de anomalia do sistema.
- *
- * @details Utiliza variáveis atômicas para estados simples e condition variables para
- * acordar threads que aguardam eventos (como a ativação da câmera IA).
+ * @brief Gerencia os estados globais e atua como um Broker (simulando MQTT) para sensores.
  */
 class SharedContext {
    private:
@@ -23,20 +20,22 @@ class SharedContext {
     bool anomaly_detected_{false};
 
    public:
-    std::atomic<bool> is_running{true}; /**< Flag global para encerramento gracioso das threads */
+    std::atomic<bool> is_running{true}; /**< Flag global para encerramento gracioso */
 
     /**
-     * @brief Velocidade atual simulada do robô (em porcentagem).
-     * @details Esta variável atômica cria o acoplamento físico entre o Controlador 
-     * de Navegação e os módulos de Inspeção. Ela permite que a odometria e os 
-     * sensores (LIDAR) baseiem seus cálculos na velocidade real da malha fechada, 
-     * e não em incrementos estáticos arbitrários.
+     * @brief Velocidade atual simulada da planta física (motor real).
+     * @details Tópico simulado: "/motor/velocidade_real". Lida apenas pelo Encoder.
      */
-    std::atomic<double> current_speed{0.0}; 
+    std::atomic<double> current_speed{0.0};
+
+    /**
+     * @brief Odometria atual calculada pelo Encoder (em metros).
+     * @details Tópico simulado: "/sensor/odometria". Consumida pelo LIDAR e outros módulos.
+     */
+    std::atomic<double> current_odometry{0.0};
 
     /**
      * @brief Sinaliza a detecção de uma anomalia estrutural (buraco/saliência).
-     * Acorda todas as threads que estão aguardando esse evento.
      */
     void triggerAnomaly() {
         std::lock_guard<std::mutex> lock(anomaly_mutex_);
@@ -45,7 +44,7 @@ class SharedContext {
     }
 
     /**
-     * @brief Redefine o estado de anomalia para falso após a inspeção ser concluída.
+     * @brief Redefine o estado de anomalia para falso após a inspeção.
      */
     void resetAnomaly() {
         std::lock_guard<std::mutex> lock(anomaly_mutex_);
@@ -53,9 +52,7 @@ class SharedContext {
     }
 
     /**
-     * @brief Suspende a thread atual até que uma anomalia seja detectada ou o sistema seja
-     * encerrado.
-     * @details Modificado para evitar deadlocks durante o desligamento do sistema.
+     * @brief Suspende a thread até que uma anomalia seja detectada.
      */
     void waitForAnomaly() {
         std::unique_lock<std::mutex> lock(anomaly_mutex_);
@@ -64,7 +61,6 @@ class SharedContext {
 
     /**
      * @brief Verifica ativamente se há uma anomalia ocorrendo neste momento.
-     * @return true se houver anomalia, false caso contrário.
      */
     bool isAnomalyActive() {
         std::lock_guard<std::mutex> lock(anomaly_mutex_);

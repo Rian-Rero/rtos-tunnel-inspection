@@ -1,6 +1,6 @@
 /**
  * @file DistanceCalculator.cpp
- * @brief Implementação da tarefa de cálculo de distância.
+ * @brief Implementação da tarefa de cálculo de distância (Simulação de Encoder).
  */
 #include "tasks/DistanceCalculator.hpp"
 
@@ -14,40 +14,56 @@ namespace tasks {
 
 /**
  * @brief Construtor da tarefa DistanceCalculator.
- * @param ctx Ponteiro compartilhado para o contexto global.
+ * @param ctx Ponteiro compartilhado para o contexto global (Broker).
  */
 DistanceCalculator::DistanceCalculator(std::shared_ptr<core::SharedContext> ctx)
     : context_(ctx), total_distance_(0.0), last_encoder_state_(false) {}
 
 /**
- * @brief Executa o loop principal da tarefa.
+ * @brief Executa o loop principal da tarefa atuando como um driver de Encoder real.
+ * @details Lê a velocidade física do eixo, converte para ticks de encoder
+ * dependendo da circunferência da roda, calcula a odometria e publica no broker.
  */
 void DistanceCalculator::run() {
-    int sim_counter = 0;
-
     auto next_wakeup = std::chrono::steady_clock::now();
-    const auto cycle_time = std::chrono::milliseconds(20);
+    const auto cycle_time = std::chrono::milliseconds(20);  // Lê o sensor a 50Hz
+
+    // Parâmetros físicos simulados do robô
+    const double wheel_circumference = 0.5;  // Roda de 50cm de circunferência
+    const double ticks_per_rev = 1024.0;     // Resolução do encoder (1024 PPR)
+    double simulated_ticks = 0.0;
+
+    int log_divider = 0;
 
     while (context_->is_running) {
         next_wakeup += cycle_time;
 
-        sim_counter++;
-        bool current_encoder_state = last_encoder_state_;
+        // 1. Lê o giro real do motor (Simulado pela planta via SharedContext)
+        double speed_percent = context_->current_speed.load();
+        double speed_ms = (speed_percent / 100.0) * 2.0;  // Assume 100% = 2.0 m/s
+        if (speed_ms < 0.0)
+            speed_ms = 0.0;  // Ignora recuo negativo do freio na contagem
 
-        // Simulação do sinal do encoder (troca a cada 50 ciclos = 1 segundo)
-        if (sim_counter >= 50) {
-            current_encoder_state = !last_encoder_state_;
-            sim_counter = 0;
+        // 2. Calcula delta físico e gera "ticks" de hardware virtual
+        double delta_dist = speed_ms * 0.020;  // d = v * t (t = 20ms)
+        double delta_ticks = (delta_dist / wheel_circumference) * ticks_per_rev;
+
+        simulated_ticks += delta_ticks;
+
+        // 3. O driver processa os ticks e atualiza a odometria do sistema
+        total_distance_ = (simulated_ticks / ticks_per_rev) * wheel_circumference;
+
+        // 4. Publica a odometria para o restante do robô (Tópico: /sensor/odometria)
+        context_->current_odometry.store(total_distance_);
+
+        // Imprime log a cada 1 segundo (50 ciclos de 20ms)
+        if (++log_divider >= 50) {
+            core::TerminalPrinter::Log(core::TerminalPrinter::Level::Info, "Encoder",
+                                       "Odometria: " + std::to_string(total_distance_) + "m (" +
+                                           std::to_string(static_cast<int>(simulated_ticks)) +
+                                           " ticks lidos)");
+            log_divider = 0;
         }
-
-        if (current_encoder_state != last_encoder_state_) {
-            total_distance_ += 1.0;
-            core::TerminalPrinter::Log(
-                core::TerminalPrinter::Level::Info, "Encoder",
-                "Odometria atualizada: " + std::to_string(total_distance_) + "m");
-        }
-
-        last_encoder_state_ = current_encoder_state;
 
         std::this_thread::sleep_until(next_wakeup);
     }
@@ -55,7 +71,6 @@ void DistanceCalculator::run() {
 
 /**
  * @brief Retorna a distância total acumulada.
- * @return Distância total em metros.
  */
 double DistanceCalculator::getTotalDistance() const { return total_distance_; }
 
