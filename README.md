@@ -126,7 +126,7 @@ make docs-serve
 - Mitigação de Drift: Utilização de `sleep_until` com `steady_clock` para garantir periodicidade estrita.
 - Controle de Navegação: Implementação de Controlador PID para regulação de velocidade.
 - Interface do operador com visual do carrinho e telemetria em tempo real.
-- Simulador com publicação de `telemetry/robot` e sensores MQTT.
+- Visualização do simulador guiada exclusivamente pela telemetria MQTT publicada pelo núcleo C++.
 
 ### 🌟 Extras
 
@@ -140,7 +140,7 @@ make docs-serve
 - `sensor/lidar`, `sensor/imu`, `sensor/encoder`
 - `telemetry/robot`, `telemetry/yolo`, `state/inspection`
 
-A GUI e o simulador foram alinhados para trabalhar com esses tópicos e mostrar o carrinho em tempo real.
+A GUI, o simulador e o serviço YOLO se comunicam com o núcleo C++ exclusivamente pelo broker MQTT.
 
 ---
 

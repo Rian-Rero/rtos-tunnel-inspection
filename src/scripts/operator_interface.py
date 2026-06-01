@@ -52,6 +52,7 @@ class OperatorGUI:
         self.tunnel_state = tk.StringVar(value="Túnel ativo")
         self.preview_angle = 0.0
         self.preview_direction = 1
+        self.preview_phase = 0.0
         self.robot_history: list[RobotTelemetry] = []
 
         self.client = self._create_client()
@@ -343,7 +344,6 @@ class OperatorGUI:
         speed = int(float(value))
         self.speed_state.set(str(speed))
         self.publish_cmd("cmd/speed_sp", speed)
-        self.publish_cmd("actuator/motor", speed)
         self.preview_direction = 1 if speed >= 0 else -1
         self._draw_robot_preview()
 
@@ -433,7 +433,10 @@ class OperatorGUI:
                 int(raw_direction), "STOP"
             )
         else:
-            direction = str(raw_direction).upper() or self.telemetry.direction
+            direction = (
+                str(data.get("direction_label", raw_direction)).upper()
+                or self.telemetry.direction
+            )
         distance_m = float(data.get("distance_m", pos_x / 10.0))
 
         self.telemetry = RobotTelemetry(
@@ -458,6 +461,7 @@ class OperatorGUI:
         self._draw_robot_preview()
 
     def _start_preview_animation(self):
+        self.preview_phase += max(0.04, abs(self.telemetry.velocidade) * 0.06)
         self.preview_angle += (
             max(0.08, abs(self.telemetry.velocidade) * 0.12) * self.preview_direction
         )
@@ -511,15 +515,19 @@ class OperatorGUI:
         samples = self.robot_history
         track_top = 118
         track_bottom = height - 118
+        imu_tilt = math.sin(math.radians(self.telemetry.imu))
+        lane_shift = imu_tilt * 34
+
         if samples:
-            start_x = samples[0].position_x
-            max_x = max(sample.position_x for sample in samples)
+            start_x = samples[0].pos_x
+            max_x = max(sample.pos_x for sample in samples)
             span = max(1.0, max_x - start_x)
             scale_x = (width - 140) / span
             path_points = []
             for sample in samples:
-                x = 70 + (sample.position_x - start_x) * scale_x
-                y = track_top + (sample.lidar_distance_y - 1.2) * 72
+                x = 70 + (sample.pos_x - start_x) * scale_x
+                terrain_wave = math.sin((sample.pos_x / 14.0) + self.preview_phase) * 10
+                y = track_top + (sample.lidar - 1.2) * 72 + lane_shift + terrain_wave
                 y = max(track_top - 30, min(track_bottom, y))
                 path_points.append((x, y))
 
@@ -537,10 +545,10 @@ class OperatorGUI:
                 )
 
             for sample, (x, y) in zip(samples[-8:], path_points[-8:]):
-                if sample.lidar_distance_y > 2.0:
+                if sample.lidar > 2.0:
                     fill = "#60a5fa"
                     label = "Buraco"
-                elif sample.lidar_distance_y < 2.0:
+                elif sample.lidar < 2.0:
                     fill = "#fb7185"
                     label = "Saliencia"
                 else:
@@ -553,7 +561,7 @@ class OperatorGUI:
 
             latest_x, latest_y = path_points[-1]
             cart_x = int(latest_x - 66)
-            cart_y = int(latest_y - 78)
+            cart_y = int(latest_y - 78 - imu_tilt * 18)
         else:
             canvas.create_text(
                 70,
@@ -564,7 +572,7 @@ class OperatorGUI:
                 font=("Helvetica", 10, "bold"),
             )
             cart_x = 100 + int((self.telemetry.pos_x * 10) % max(1, width - 220))
-            cart_y = lane_y - 30
+            cart_y = lane_y - 30 - int(imu_tilt * 18)
 
         canvas.create_rectangle(
             cart_x,
@@ -667,15 +675,6 @@ class OperatorGUI:
             fill="#cbd5e1",
             font=("Helvetica", 10),
             text=info,
-        )
-
-        canvas.create_text(
-            70,
-            height - 28,
-            anchor="w",
-            fill="#94a3b8",
-            font=("Helvetica", 10, "bold"),
-            text="Rodas animadas conforme a trilha real do C++",
         )
 
     def _on_close(self):

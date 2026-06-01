@@ -44,6 +44,9 @@ int main() {
     // Registro dos tratadores de sinal
     std::signal(SIGINT, signalHandler);
     std::signal(SIGTERM, signalHandler);
+#ifdef SIGPIPE
+    std::signal(SIGPIPE, SIG_IGN);
+#endif
 
     core::TerminalPrinter::Banner("Sistema de Inspeção ATR", "Etapa 1 - Inicialização");
 

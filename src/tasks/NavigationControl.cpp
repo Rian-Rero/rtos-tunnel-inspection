@@ -10,6 +10,7 @@
 #include <sstream>
 #include <thread>
 
+#include "core/MqttPublisher.hpp"
 #include "core/TerminalPrinter.hpp"
 
 namespace tasks {
@@ -54,11 +55,12 @@ int NavigationControl::computePID(int setpoint, int current_speed, double dt) {
 /**
  * @brief Executa o loop principal da tarefa de controle.
  * @details Consome os setpoints do buffer IPC, calcula o esforço de controle (PID)
- * e simula a inércia do robô. A velocidade de saída simulada (PV) é então publicada 
+ * e simula a inércia do robô. A velocidade de saída simulada (PV) é então publicada
  * no contexto global para ser consumida pela física dos sensores em outras threads.
  */
 void NavigationControl::run() {
     double current_simulated_speed = 0;
+    core::MqttPublisher motor_pub("actuator/motor");
 
     auto next_wakeup = std::chrono::steady_clock::now();
     const auto cycle_time = std::chrono::milliseconds(80);
@@ -83,6 +85,7 @@ void NavigationControl::run() {
 
         // Publica a velocidade na variável atômica global
         context_->current_speed.store(current_simulated_speed);
+        motor_pub.publish(std::to_string(o_aceleracao));
 
         std::ostringstream oss;
         oss << std::fixed << std::setprecision(1);

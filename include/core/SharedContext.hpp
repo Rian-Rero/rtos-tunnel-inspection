@@ -44,6 +44,11 @@ class SharedContext {
     std::atomic<int> direction{0};
 
     /**
+     * @brief Inclinação simulada do túnel em graus, usada como leitura do sensor IMU.
+     */
+    std::atomic<double> imu_degrees{0.0};
+
+    /**
      * @brief Odometria atual calculada pelo Encoder (em metros).
      * @details Tópico simulado: "/sensor/odometria". Consumida pelo LIDAR e outros módulos.
      */

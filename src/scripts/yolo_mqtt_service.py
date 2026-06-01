@@ -7,7 +7,8 @@ no barramento MQTT.
 import time
 import json
 import logging
-from ultralytics import YOLO
+import os
+from pathlib import Path
 
 import paho.mqtt.client as mqtt
 
@@ -23,7 +24,16 @@ class YoloInspectionService:
         self, model_path: str = "models/yolov8n.pt", broker: str = "localhost"
     ):
         logging.info("Carregando pesos do modelo YOLOv8...")
+        os.environ.setdefault("YOLO_CONFIG_DIR", "/tmp")
+        import cv2
+        import numpy as np
+        from ultralytics import YOLO
+
+        self.cv2 = cv2
+        self.np = np
         self.model = YOLO(model_path)
+        self.frame_path = Path("data/capturas/frame_atual.jpg")
+        self.processing = False
 
         try:
             self.client = mqtt.Client(
@@ -42,31 +52,85 @@ class YoloInspectionService:
 
     def on_message(self, client, userdata, msg):
         if msg.topic == "cmd/camera":
-            comando = int(msg.payload.decode())
+            try:
+                comando = int(msg.payload.decode().strip())
+            except ValueError:
+                logging.warning("Comando de câmera inválido: %r", msg.payload)
+                return
             if comando == 1:
+                if self.processing:
+                    logging.info("Inferência já em andamento; trigger ignorado.")
+                    return
                 logging.info("Trigger de câmera recebido. Iniciando inferência...")
                 self._realizar_inspecao()
 
+    def _load_frame(self):
+        if self.frame_path.exists():
+            frame = self.cv2.imread(str(self.frame_path))
+            if frame is not None:
+                return frame
+
+        frame = self.np.full((480, 640, 3), 35, dtype=self.np.uint8)
+        self.cv2.rectangle(frame, (0, 0), (640, 120), (70, 70, 70), -1)
+        self.cv2.line(frame, (170, 70), (460, 92), (20, 20, 20), 8)
+        self.cv2.circle(frame, (480, 78), 24, (95, 95, 95), -1)
+        self.cv2.putText(
+            frame,
+            "ATR tunnel ceiling inspection",
+            (35, 430),
+            self.cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (230, 230, 230),
+            2,
+        )
+        return frame
+
     def _realizar_inspecao(self):
         """Executa a predição da rede neural sobre a imagem atual."""
-        # Mock de captura de imagem. Em um cenário real, você leria do OpenCV (cv2.VideoCapture)
-        # result = self.model("data/capturas/frame_atual.jpg")
+        self.processing = True
+        self.client.publish("state/inspection", 1)
 
-        # Simulação de latência de processamento
-        time.sleep(0.5)
+        try:
+            frame = self._load_frame()
+            results = self.model(frame, verbose=False, device="cpu")
+            boxes = results[0].boxes if results else []
 
-        payload = {
-            "timestamp": time.time(),
-            "anomalia_detectada": True,
-            "confianca": 0.92,
-            "tipo": "Fissura",
-        }
+            detections = []
+            max_confidence = 0.0
+            for box in boxes:
+                confidence = float(box.conf[0])
+                class_id = int(box.cls[0])
+                label = self.model.names.get(class_id, str(class_id))
+                max_confidence = max(max_confidence, confidence)
+                detections.append({"classe": label, "confianca": confidence})
+
+            payload = {
+                "timestamp": time.time(),
+                "anomalia_detectada": bool(detections),
+                "confianca": max_confidence,
+                "tipo": detections[0]["classe"] if detections else "Sem objeto",
+                "deteccoes": detections,
+                "origem": (
+                    str(self.frame_path)
+                    if self.frame_path.exists()
+                    else "frame_sintetico"
+                ),
+            }
+        except Exception as exc:
+            logging.exception("Falha durante inferência YOLO.")
+            payload = {
+                "timestamp": time.time(),
+                "anomalia_detectada": False,
+                "confianca": 0.0,
+                "tipo": "Erro na inferência",
+                "erro": str(exc),
+            }
+        finally:
+            self.processing = False
 
         self.client.publish("telemetry/yolo", json.dumps(payload))
-        self.client.publish(
-            "state/inspection", 1 if payload["anomalia_detectada"] else 0
-        )
-        logging.info(f"Resultado publicado: {payload}")
+        self.client.publish("state/inspection", 0)
+        logging.info("Resultado publicado: %s", payload)
 
     def run(self):
         """Mantém o daemon rodando e escutando requisições indefinidamente."""

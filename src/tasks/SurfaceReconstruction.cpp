@@ -45,8 +45,11 @@ void SurfaceReconstruction::run() {
         // 1. Consome Odometria do "Broker" (/sensor/odometria)
         double current_x = context_->current_odometry.load();
 
-        // 2. Faz a varredura a laser simulada
-        double simulated_lidar_y = 2.0;
+        // 2. Faz a varredura a laser simulada em um túnel com declive suave.
+        const double imu_degrees = 8.0 * std::sin(current_x / 9.0);
+        context_->imu_degrees.store(imu_degrees);
+        const double base_lidar_y = 2.0 + 0.08 * std::sin(current_x / 6.0);
+        double simulated_lidar_y = base_lidar_y;
 
         if (!inside_anomaly && prob_dist(gen) < 0.03) {
             inside_anomaly = true;
@@ -64,12 +67,12 @@ void SurfaceReconstruction::run() {
                 simulated_lidar_y = current_anomaly_y;
             } else {
                 inside_anomaly = false;
-                simulated_lidar_y = 2.0;
+                simulated_lidar_y = base_lidar_y;
             }
         }
 
         // Análise contínua do perfil do teto
-        double variacao = std::abs(simulated_lidar_y - 2.0);
+        double variacao = std::abs(simulated_lidar_y - base_lidar_y);
         double limite_variacao = std::abs(threshold_anomaly_ - 2.0);
 
         if (variacao >= limite_variacao) {

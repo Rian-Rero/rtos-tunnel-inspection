@@ -10,37 +10,13 @@
 
 #include <algorithm>  // Necessário para std::clamp
 #include <cmath>      // Necessário para std::abs e std::exp
-#include <cstdlib>
 #include <sstream>
 #include <string>
 
+#include "core/MqttPublisher.hpp"
 #include "core/TerminalPrinter.hpp"
 
 namespace tasks {
-
-namespace {
-
-std::string escapeForShell(const std::string& value) {
-    std::string escaped;
-    escaped.reserve(value.size() + 8);
-    for (char ch : value) {
-        if (ch == '\'') {
-            escaped += "'\"'\"'";
-        } else {
-            escaped += ch;
-        }
-    }
-    return escaped;
-}
-
-void publishMqtt(const std::string& topic, const std::string& payload) {
-    const std::string command = "printf '%s\\n' '" + escapeForShell(payload) +
-                                "' | mosquitto_pub -h localhost -t '" + escapeForShell(topic) +
-                                "' -l";
-    std::system(command.c_str());
-}
-
-}  // namespace
 
 /**
  * @brief Construtor da tarefa DataCollector.
@@ -78,6 +54,10 @@ DataCollector::~DataCollector() {
  */
 void DataCollector::run() {
     double last_x = 0.0;
+    core::MqttPublisher telemetry_pub("telemetry/robot");
+    core::MqttPublisher lidar_pub("sensor/lidar");
+    core::MqttPublisher imu_pub("sensor/imu");
+    core::MqttPublisher encoder_pub("sensor/encoder");
 
     while (context_->is_running) {
         core::SurfaceData data;
@@ -111,6 +91,8 @@ void DataCollector::run() {
         // Substitui a confiabilidade emulada pela confiabilidade física calculada
         data.confidence_level = calculated_confidence;
         last_x = data.position_x;
+        const double imu_degrees = context_->imu_degrees.load();
+        const int encoder_count = static_cast<int>(std::llround(data.position_x * 100.0));
 
         // --- FIM DA ANÁLISE ---
 
@@ -129,12 +111,13 @@ void DataCollector::run() {
                   << "\"distance_m\":" << (data.position_x / 10.0) << ","
                   << "\"lidar_distance_y\":" << data.lidar_distance_y << ","
                   << "\"lidar\":" << data.lidar_distance_y << ","
-                  << "\"imu\":" << 0.0 << ","
+                  << "\"imu\":" << imu_degrees << ","
                   << "\"confidence_level\":" << data.confidence_level << ","
                   << "\"current_speed\":" << context_->current_speed.load() << ","
                   << "\"velocidade\":" << context_->current_speed.load() << ","
                   << "\"manual_mode\":" << (context_->manual_mode.load() ? "true" : "false") << ","
                   << "\"mode\":\"" << (context_->manual_mode.load() ? "MANUAL" : "AUTO") << "\","
+                  << "\"encoder\":" << encoder_count << ","
                   << "\"speed_setpoint\":" << context_->speed_setpoint.load() << ","
                   << "\"direction\":" << context_->direction.load() << ","
                   << "\"direction_label\":\""
@@ -143,9 +126,10 @@ void DataCollector::run() {
                                                        : "STOP")
                   << "\"}";
 
-        publishMqtt("telemetry/robot", telemetry.str());
-        publishMqtt("sensor/lidar", std::to_string(data.lidar_distance_y));
-        publishMqtt("sensor/encoder", std::to_string(static_cast<int>(data.position_x > 0.0)));
+        telemetry_pub.publish(telemetry.str());
+        lidar_pub.publish(std::to_string(data.lidar_distance_y));
+        imu_pub.publish(std::to_string(imu_degrees));
+        encoder_pub.publish(std::to_string(encoder_count));
 
         // Impressão no terminal para monitoramento e depuração (Debug)
         core::TerminalPrinter::Log(core::TerminalPrinter::Level::Info, "Coletor",

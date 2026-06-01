@@ -20,6 +20,14 @@ trap cleanup EXIT INT TERM
 # 0. Garante que o script rode a partir da raiz do projeto, não importando de onde foi chamado
 cd "$(dirname "$0")"
 
+if [ -z "${PYTHON:-}" ]; then
+    if [ -x "./venv/bin/python" ]; then
+        PYTHON="./venv/bin/python"
+    else
+        PYTHON="python3"
+    fi
+fi
+
 # 1. Compila o núcleo C++
 echo "[1/4] Iniciando Núcleo RTOS C++"
 mkdir -p build && cd build
@@ -46,13 +54,13 @@ sleep 2
 
 # 2. Inicia os serviços Python em background
 echo "[2/4] Iniciando Simulador Físico"
-python3 src/scripts/tunel_simulator.py &
+"$PYTHON" src/scripts/tunel_simulator.py &
 PID_SIM=$!
 
 echo "[3/4] Iniciando YOLOv8 Daemon"
-python3 src/scripts/yolo_mqtt_service.py &
+"$PYTHON" src/scripts/yolo_mqtt_service.py &
 PID_YOLO=$!
 
 # 3. Inicia a Interface (foreground)
 echo "[4/4] Iniciando GUI do Operador"
-python3 src/scripts/operator_interface.py
+"$PYTHON" src/scripts/operator_interface.py
