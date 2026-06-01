@@ -46,9 +46,9 @@ RTOS-TUNNEL-INSPECTION/
     ├── tasks/                # Implementação (.cpp) das threads de controle, navegação e sensores
     │
     └── scripts/              # Subsistemas e microsserviços em Python
-        ├── simulador_tunel.py       # Simulação física 2D com Pygame (Física de Newton e declive)
-        ├── interface_operador.py    # GUI de controle e telemetria (Tkinter)
-        └── yolo_mqtt_service.py     # Daemon que processa as imagens da câmera via YOLOv8
+        ├── tunel_simulator.py       # Simulação física 2D com Pygame (física, telemetria e carrinho)
+        ├── operator_interface.py    # GUI de operação e telemetria (Tkinter)
+        └── yolo_mqtt_service.py     # Serviço que processa o trigger da câmera via YOLOv8
 ```
 
 ## ⚙️ Principais Funcionalidades e Requisitos Atendidos
@@ -71,7 +71,13 @@ RTOS-TUNNEL-INSPECTION/
 
 ### 1. Preparação do Ambiente
 
-Certifique-se de que o Broker MQTT (ex: Mosquitto) está ativo no seu sistema. Instale todas as dependências do Python de uma só vez:
+Certifique-se de que o Broker MQTT (ex: Mosquitto) está ativo no seu sistema. No Linux, instale também o suporte ao Tkinter, que não vem via `pip`:
+
+```bash
+sudo apt install python3-tk
+```
+
+Depois instale as dependências do Python de uma só vez:
 
 ```bash
 pip install -r requirements.txt
@@ -119,11 +125,22 @@ make docs-serve
 - Núcleo de Tempo Real (C++): Sistema multitarefa com sincronização via `mutex` e `condition_variable`.
 - Mitigação de Drift: Utilização de `sleep_until` com `steady_clock` para garantir periodicidade estrita.
 - Controle de Navegação: Implementação de Controlador PID para regulação de velocidade.
+- Interface do operador com visual do carrinho e telemetria em tempo real.
+- Simulador com publicação de `telemetry/robot` e sensores MQTT.
 
 ### 🌟 Extras
 
 - Sensor IMU simulado (inclinação do túnel)
 - Inspeção Visual com YOLOv8 via MQTT
+
+### Tópicos MQTT
+
+- `cmd/mode`, `cmd/direction`, `cmd/speed_sp`, `cmd/camera`
+- `actuator/motor`
+- `sensor/lidar`, `sensor/imu`, `sensor/encoder`
+- `telemetry/robot`, `telemetry/yolo`, `state/inspection`
+
+A GUI e o simulador foram alinhados para trabalhar com esses tópicos e mostrar o carrinho em tempo real.
 
 ---
 

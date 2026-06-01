@@ -1,5 +1,16 @@
-site_name: Documentação RTOS_TUNNEL_INSPECTION
+site_name: Documentação RTOS Tunnel Inspection
+site_description: Documentação do sistema de inspeção de túneis com C++, MQTT, Pygame e Tkinter.
 theme:
   name: material
+  language: pt-BR
+  features:
+    - navigation.sections
+    - navigation.tabs
+    - content.code.copy
 plugins:
+  - search
   - mkdocstrings
+nav:
+  - Início: index.md
+  - Arquitetura: arquitetura.md
+  - MQTT: mqtt.md

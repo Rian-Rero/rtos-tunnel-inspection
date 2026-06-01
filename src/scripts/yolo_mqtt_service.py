@@ -1,16 +1,15 @@
-"""
-Daemon de Inspeção Visual com YOLOv8.
+"""Daemon de inspeção visual com YOLOv8.
 
-Inscrito no tópico de trigger da câmera. Quando ativado, simula
-a captura de uma imagem, processa através da rede neural YOLOv8
-e publica o JSON do resultado no barramento MQTT.
+Escuta o trigger da câmera, simula a inferência e publica o resultado
+no barramento MQTT.
 """
 
 import time
 import json
 import logging
-import paho.mqtt.client as mqtt
 from ultralytics import YOLO
+
+import paho.mqtt.client as mqtt
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
@@ -26,9 +25,13 @@ class YoloInspectionService:
         logging.info("Carregando pesos do modelo YOLOv8...")
         self.model = YOLO(model_path)
 
-        self.client = mqtt.Client(
-            mqtt.CallbackAPIVersion.VERSION1, client_id="Python_YOLO_Service"
-        )
+        try:
+            self.client = mqtt.Client(
+                client_id="Python_YOLO_Service",
+                callback_api_version=mqtt.CallbackAPIVersion.VERSION1,
+            )
+        except TypeError:
+            self.client = mqtt.Client(client_id="Python_YOLO_Service")
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
         self.client.connect(broker, 1883, 60)
@@ -60,6 +63,9 @@ class YoloInspectionService:
         }
 
         self.client.publish("telemetry/yolo", json.dumps(payload))
+        self.client.publish(
+            "state/inspection", 1 if payload["anomalia_detectada"] else 0
+        )
         logging.info(f"Resultado publicado: {payload}")
 
     def run(self):
