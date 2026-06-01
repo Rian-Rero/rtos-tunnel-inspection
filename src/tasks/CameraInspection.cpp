@@ -50,7 +50,10 @@ void CameraInspection::run() {
 
         core::TerminalPrinter::Log(core::TerminalPrinter::Level::Success, "Câmera",
                                    "Inspeção concluída. Retornando ao modo normal.");
-        context_->resetAnomaly();
+
+        while (context_->is_running && context_->isAnomalyActive()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
     }
 }
 

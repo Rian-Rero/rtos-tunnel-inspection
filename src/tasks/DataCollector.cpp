@@ -108,7 +108,7 @@ void DataCollector::run() {
                   << "\"timestamp\":" << data.timestamp << ","
                   << "\"position_x\":" << data.position_x << ","
                   << "\"pos_x\":" << data.position_x << ","
-                  << "\"distance_m\":" << (data.position_x / 10.0) << ","
+                  << "\"distance_m\":" << data.position_x << ","
                   << "\"lidar_distance_y\":" << data.lidar_distance_y << ","
                   << "\"lidar\":" << data.lidar_distance_y << ","
                   << "\"imu\":" << imu_degrees << ","
