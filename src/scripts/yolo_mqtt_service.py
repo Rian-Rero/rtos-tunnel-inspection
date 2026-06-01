@@ -33,6 +33,7 @@ class YoloInspectionService:
         self.np = np
         self.model = YOLO(model_path)
         self.frame_path = Path("data/capturas/frame_atual.jpg")
+        self.camera_index = int(os.getenv("ATR_CAMERA_INDEX", "0"))
         self.processing = False
 
         try:
@@ -64,11 +65,35 @@ class YoloInspectionService:
                 logging.info("Trigger de câmera recebido. Iniciando inferência...")
                 self._realizar_inspecao()
 
+    def _capture_webcam_frame(self):
+        capture = self.cv2.VideoCapture(self.camera_index)
+        if not capture.isOpened():
+            capture.release()
+            return None
+
+        frame = None
+        for _ in range(5):
+            ok, candidate = capture.read()
+            if ok and candidate is not None:
+                frame = candidate
+        capture.release()
+
+        if frame is None:
+            return None
+
+        self.frame_path.parent.mkdir(parents=True, exist_ok=True)
+        self.cv2.imwrite(str(self.frame_path), frame)
+        return frame
+
     def _load_frame(self):
+        webcam_frame = self._capture_webcam_frame()
+        if webcam_frame is not None:
+            return webcam_frame, "webcam"
+
         if self.frame_path.exists():
             frame = self.cv2.imread(str(self.frame_path))
             if frame is not None:
-                return frame
+                return frame, str(self.frame_path)
 
         frame = self.np.full((480, 640, 3), 35, dtype=self.np.uint8)
         self.cv2.rectangle(frame, (0, 0), (640, 120), (70, 70, 70), -1)
@@ -83,7 +108,7 @@ class YoloInspectionService:
             (230, 230, 230),
             2,
         )
-        return frame
+        return frame, "frame_sintetico"
 
     def _realizar_inspecao(self):
         """Executa a predição da rede neural sobre a imagem atual."""
@@ -91,7 +116,7 @@ class YoloInspectionService:
         self.client.publish("state/inspection", 1)
 
         try:
-            frame = self._load_frame()
+            frame, frame_source = self._load_frame()
             results = self.model(frame, verbose=False, device="cpu")
             boxes = results[0].boxes if results else []
 
@@ -110,11 +135,7 @@ class YoloInspectionService:
                 "confianca": max_confidence,
                 "tipo": detections[0]["classe"] if detections else "Sem objeto",
                 "deteccoes": detections,
-                "origem": (
-                    str(self.frame_path)
-                    if self.frame_path.exists()
-                    else "frame_sintetico"
-                ),
+                "origem": frame_source,
             }
         except Exception as exc:
             logging.exception("Falha durante inferência YOLO.")

@@ -39,6 +39,7 @@ class TunelSimulator:
         self.last_encoder_count = 0
         self.imu = 0.0
         self.lidar = 2.0
+        self.inspection_active = False
         self.robot_history: list[dict] = []
         self.yolo_state = "Aguardando inspeção..."
         self.preview_angle = 0.0
@@ -57,6 +58,7 @@ class TunelSimulator:
         logging.info("Simulador conectado ao MQTT Broker.")
         client.subscribe("telemetry/robot")
         client.subscribe("telemetry/yolo")
+        client.subscribe("state/inspection")
 
     def on_message(self, client, userdata, msg):
         payload = msg.payload.decode(errors="replace")
@@ -112,6 +114,9 @@ class TunelSimulator:
             else:
                 self.yolo_state = status
 
+        if msg.topic == "state/inspection":
+            self.inspection_active = payload.strip() == "1"
+
     def _draw_background(self, screen):
         width, height = screen.get_size()
         screen.fill((7, 13, 24))
@@ -119,10 +124,27 @@ class TunelSimulator:
         pygame.draw.rect(screen, (16, 24, 39), (0, 78, width, height - 154))
         pygame.draw.rect(screen, (5, 10, 18), (0, height - 76, width, 76))
 
+        for index, x in enumerate(range(-80, width + 120, 110)):
+            color = (22, 31, 46) if index % 2 else (28, 38, 54)
+            points = [
+                (x, 78),
+                (x + 72, 78),
+                (x + 118, height - 104),
+                (x + 18, height - 104),
+            ]
+            pygame.draw.polygon(screen, color, points)
+
         for x in range(40, width, 80):
             pygame.draw.line(screen, (31, 41, 55), (x, 92), (x, height - 100), 1)
         for y in range(120, height - 92, 60):
             pygame.draw.line(screen, (31, 41, 55), (0, y), (width, y), 1)
+
+        for x in range(20, width, 46):
+            y = 98 + int(18 * math.sin(x * 0.031))
+            pygame.draw.circle(screen, (55, 65, 81), (x, y), 2)
+        for x in range(0, width, 64):
+            y = height - 92 + int(8 * math.sin(x * 0.04))
+            pygame.draw.line(screen, (30, 41, 59), (x, y), (x + 34, y - 7), 2)
 
     def _draw_overlay(self, screen):
         width, height = screen.get_size()
@@ -196,6 +218,15 @@ class TunelSimulator:
                 [(0, 78)] + [(x, y - 24) for x, y in path_points] + [(width, 78)]
             )
             pygame.draw.polygon(screen, (45, 55, 72), ceiling_poly)
+            for index, (x, y) in enumerate(path_points[::3]):
+                vein_color = (78, 90, 110) if index % 2 else (62, 75, 94)
+                pygame.draw.line(
+                    screen,
+                    vein_color,
+                    (int(x) - 28, int(y) - 26),
+                    (int(x) + 26, int(y) - 14),
+                    2,
+                )
             if len(path_points) >= 2:
                 pygame.draw.lines(screen, (203, 213, 225), False, path_points, 4)
             else:
@@ -207,6 +238,13 @@ class TunelSimulator:
                 )
 
         pygame.draw.polygon(screen, (15, 23, 42), floor_poly)
+        for x in range(-40, width + 40, 58):
+            y = self._floor_y(screen, x)
+            pygame.draw.ellipse(
+                screen,
+                (23, 31, 45),
+                (x, y + 12, 44, 12),
+            )
         pygame.draw.line(
             screen, (34, 197, 94), (0, floor_left_y), (width, floor_right_y), 5
         )
@@ -266,8 +304,19 @@ class TunelSimulator:
             (robot_x + 160, robot_y + 54 - tilt),
             (robot_x, robot_y + 66 + tilt),
         ]
+        shadow = pygame.Surface((220, 80), pygame.SRCALPHA)
+        pygame.draw.ellipse(shadow, (0, 0, 0, 90), (8, 28, 196, 34))
+        screen.blit(shadow, (robot_x - 22, floor_y - 42))
+
         pygame.draw.polygon(screen, (34, 197, 94), body_points)
         pygame.draw.polygon(screen, (187, 247, 208), body_points, 3)
+        pygame.draw.line(
+            screen,
+            (134, 239, 172),
+            (robot_x + 18, robot_y + 23 + tilt),
+            (robot_x + 146, robot_y + 11 - tilt),
+            3,
+        )
 
         cab_points = [
             (robot_x + 18, robot_y + 16 + tilt),
@@ -281,6 +330,35 @@ class TunelSimulator:
         cockpit_glow = pygame.Surface((160, 56), pygame.SRCALPHA)
         pygame.draw.ellipse(cockpit_glow, (34, 211, 238, 28), (18, 4, 124, 28))
         screen.blit(cockpit_glow, (robot_x + 6, robot_y + 6))
+
+        camera_mount = (int(robot_x + 91), int(robot_y + 2 - tilt))
+        camera_tip = (camera_mount[0], camera_mount[1] - 22)
+        pygame.draw.line(screen, (203, 213, 225), camera_mount, camera_tip, 4)
+        pygame.draw.circle(screen, (15, 23, 42), camera_tip, 12)
+        pygame.draw.circle(screen, (96, 165, 250), camera_tip, 7)
+        pygame.draw.circle(
+            screen, (219, 234, 254), (camera_tip[0] + 2, camera_tip[1] - 2), 2
+        )
+
+        beam_alpha = 92 if self.inspection_active else 36
+        beam_color = (96, 165, 250, beam_alpha)
+        beam = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+        beam_top_y = max(78, camera_tip[1] - 210)
+        beam_points = [
+            (camera_tip[0] - 7, camera_tip[1] - 4),
+            (camera_tip[0] + 7, camera_tip[1] - 4),
+            (camera_tip[0] + 78, beam_top_y),
+            (camera_tip[0] - 78, beam_top_y),
+        ]
+        pygame.draw.polygon(beam, beam_color, beam_points)
+        pygame.draw.line(
+            beam,
+            (191, 219, 254, min(160, beam_alpha + 40)),
+            camera_tip,
+            (camera_tip[0], beam_top_y),
+            2,
+        )
+        screen.blit(beam, (0, 0))
 
         wheel_radius = 16
         wheel_centers = [
