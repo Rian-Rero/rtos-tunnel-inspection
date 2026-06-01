@@ -7,6 +7,7 @@ Painel principal para comando remoto, telemetria MQTT e visualização do carrin
 from __future__ import annotations
 
 import json
+import math
 import tkinter as tk
 from dataclasses import dataclass
 from tkinter import ttk
@@ -47,11 +48,17 @@ class OperatorGUI:
         self.encoder_state = tk.StringVar(value="---")
         self.speed_state = tk.StringVar(value="0")
         self.position_state = tk.StringVar(value="0.0 m")
+        self.confidence_state = tk.StringVar(value="0.00")
+        self.tunnel_state = tk.StringVar(value="Túnel ativo")
+        self.preview_angle = 0.0
+        self.preview_direction = 1
+        self.robot_history: list[RobotTelemetry] = []
 
         self.client = self._create_client()
         self._setup_styles()
         self._build_ui()
         self._setup_mqtt()
+        self._start_preview_animation()
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
 
     def _create_client(self):
@@ -278,6 +285,7 @@ class OperatorGUI:
         self._metric_card(self.telemetry_card, "IMU", self.imu_state)
         self._metric_card(self.telemetry_card, "Encoder", self.encoder_state)
         self._metric_card(self.telemetry_card, "Posição", self.position_state)
+        self._metric_card(self.telemetry_card, "Confiança", self.confidence_state)
 
         mode_row = ttk.Frame(self.telemetry_card, style="Card.TFrame")
         mode_row.pack(fill="x", pady=(10, 0))
@@ -304,11 +312,17 @@ class OperatorGUI:
             style="Subtitle.TLabel",
         ).pack(anchor="w", pady=(4, 12))
 
+        tunnel_info = ttk.Frame(self.preview_card, style="Card.TFrame")
+        tunnel_info.pack(fill="x", pady=(0, 10))
+        ttk.Label(
+            tunnel_info, textvariable=self.tunnel_state, style="Status.TLabel"
+        ).pack(anchor="w")
+
         self.preview_canvas = tk.Canvas(
             self.preview_card,
-            width=360,
-            height=420,
-            bg="#0b1220",
+            width=380,
+            height=460,
+            bg="#09111f",
             highlightthickness=0,
         )
         self.preview_canvas.pack(fill="both", expand=True)
@@ -330,6 +344,7 @@ class OperatorGUI:
         self.speed_state.set(str(speed))
         self.publish_cmd("cmd/speed_sp", speed)
         self.publish_cmd("actuator/motor", speed)
+        self.preview_direction = 1 if speed >= 0 else -1
         self._draw_robot_preview()
 
     def _trigger_camera(self):
@@ -403,39 +418,79 @@ class OperatorGUI:
             return
 
         pos_x = float(data.get("pos_x", self.telemetry.pos_x))
-        velocidade = float(data.get("velocidade", self.telemetry.velocidade))
-        lidar = float(data.get("lidar", self.telemetry.lidar))
+        velocidade = float(
+            data.get("current_speed", data.get("velocidade", self.telemetry.velocidade))
+        )
+        lidar = float(
+            data.get("lidar_distance_y", data.get("lidar", self.telemetry.lidar))
+        )
         imu = float(data.get("imu", self.telemetry.imu))
         encoder = int(data.get("encoder", self.telemetry.encoder))
         mode = str(data.get("mode", self.telemetry.mode))
-        direction = str(data.get("direction", self.telemetry.direction))
+        raw_direction = data.get("direction", self.telemetry.direction)
+        if isinstance(raw_direction, (int, float)):
+            direction = {-1: "LEFT", 0: "STOP", 1: "RIGHT"}.get(
+                int(raw_direction), "STOP"
+            )
+        else:
+            direction = str(raw_direction).upper() or self.telemetry.direction
         distance_m = float(data.get("distance_m", pos_x / 10.0))
 
         self.telemetry = RobotTelemetry(
             pos_x, velocidade, lidar, imu, encoder, mode, direction
         )
+        self.robot_history.append(self.telemetry)
+        self.robot_history = self.robot_history[-240:]
         self.position_state.set(f"{distance_m:.2f} m")
+        self.tunnel_state.set(
+            f"Túnel ativo | modo {mode} | direção {direction} | velocidade {velocidade:.2f}"
+        )
         self.mode_state.set(mode)
         self.direction_state.set(direction)
         self.lidar_state.set(f"{lidar:.0f}")
         self.imu_state.set(f"{imu:.1f}°")
         self.encoder_state.set(str(encoder))
+        self.confidence_state.set(f"{float(data.get('confidence_level', 0.0)):.2f}")
+        if direction == "LEFT":
+            self.preview_direction = -1
+        elif direction == "RIGHT":
+            self.preview_direction = 1
         self._draw_robot_preview()
+
+    def _start_preview_animation(self):
+        self.preview_angle += (
+            max(0.08, abs(self.telemetry.velocidade) * 0.12) * self.preview_direction
+        )
+        self._draw_robot_preview()
+        self.root.after(40, self._start_preview_animation)
 
     def _draw_robot_preview(self):
         canvas = self.preview_canvas
         canvas.delete("all")
 
         width = int(canvas.winfo_width() or 360)
-        height = int(canvas.winfo_height() or 420)
+        height = int(canvas.winfo_height() or 460)
 
-        canvas.create_rectangle(0, 0, width, height, fill="#0b1220", outline="")
+        canvas.create_rectangle(0, 0, width, height, fill="#09111f", outline="")
         canvas.create_rectangle(
-            30, 30, width - 30, height - 60, fill="#111827", outline="#1f2937", width=2
+            26, 26, width - 26, height - 68, fill="#0f172a", outline="#1f2937", width=2
+        )
+        canvas.create_rectangle(
+            34, 34, width - 34, height - 76, fill="#111827", outline=""
+        )
+        canvas.create_rectangle(
+            34, height - 120, width - 34, height - 76, fill="#0b1220", outline=""
         )
 
-        lane_y = height // 2 + 30
-        canvas.create_line(60, lane_y, width - 60, lane_y, fill="#22c55e", width=3)
+        lane_y = height // 2 + 34
+        canvas.create_line(52, lane_y, width - 52, lane_y, fill="#22c55e", width=3)
+        canvas.create_line(
+            52, lane_y + 38, width - 52, lane_y + 38, fill="#334155", width=2
+        )
+        for x in range(52, width - 52, 42):
+            canvas.create_line(
+                x, lane_y - 10, x + 16, lane_y - 10, fill="#475569", width=1
+            )
         canvas.create_text(
             70,
             55,
@@ -453,63 +508,152 @@ class OperatorGUI:
             text=f"Posição {self.telemetry.pos_x:.1f} m",
         )
 
-        cart_x = 120 + int((self.telemetry.pos_x * 12) % max(1, width - 240))
-        cart_y = lane_y - 28
+        samples = self.robot_history
+        track_top = 118
+        track_bottom = height - 118
+        if samples:
+            start_x = samples[0].position_x
+            max_x = max(sample.position_x for sample in samples)
+            span = max(1.0, max_x - start_x)
+            scale_x = (width - 140) / span
+            path_points = []
+            for sample in samples:
+                x = 70 + (sample.position_x - start_x) * scale_x
+                y = track_top + (sample.lidar_distance_y - 1.2) * 72
+                y = max(track_top - 30, min(track_bottom, y))
+                path_points.append((x, y))
+
+            tunnel_outline = (
+                [(40, 34)]
+                + [(x, y - 18) for x, y in path_points]
+                + [(width - 40, 34), (40, 34)]
+            )
+            canvas.create_polygon(
+                tunnel_outline, fill="#475569", outline="#94a3b8", width=2
+            )
+            if len(path_points) > 1:
+                canvas.create_line(
+                    *sum(path_points, ()), fill="#22c55e", width=4, smooth=True
+                )
+
+            for sample, (x, y) in zip(samples[-8:], path_points[-8:]):
+                if sample.lidar_distance_y > 2.0:
+                    fill = "#60a5fa"
+                    label = "Buraco"
+                elif sample.lidar_distance_y < 2.0:
+                    fill = "#fb7185"
+                    label = "Saliencia"
+                else:
+                    fill = "#94a3b8"
+                    label = "Normal"
+                canvas.create_oval(x - 6, y - 6, x + 6, y + 6, fill=fill, outline="")
+                canvas.create_text(
+                    x, y - 18, text=label, fill=fill, font=("Helvetica", 8, "bold")
+                )
+
+            latest_x, latest_y = path_points[-1]
+            cart_x = int(latest_x - 66)
+            cart_y = int(latest_y - 78)
+        else:
+            canvas.create_text(
+                70,
+                112,
+                anchor="w",
+                text="Aguardando telemetria do C++ via MQTT",
+                fill="#94a3b8",
+                font=("Helvetica", 10, "bold"),
+            )
+            cart_x = 100 + int((self.telemetry.pos_x * 10) % max(1, width - 220))
+            cart_y = lane_y - 30
+
         canvas.create_rectangle(
             cart_x,
             cart_y,
-            cart_x + 120,
-            cart_y + 40,
+            cart_x + 132,
+            cart_y + 44,
             fill="#22c55e",
             outline="#86efac",
             width=2,
         )
         canvas.create_rectangle(
-            cart_x + 14,
-            cart_y + 10,
-            cart_x + 42,
-            cart_y + 28,
+            cart_x + 20,
+            cart_y + 8,
+            cart_x + 112,
+            cart_y + 26,
             fill="#0f172a",
             outline="",
         )
         canvas.create_rectangle(
-            cart_x + 46,
-            cart_y + 10,
-            cart_x + 74,
-            cart_y + 28,
-            fill="#0f172a",
-            outline="",
-        )
-        canvas.create_rectangle(
-            cart_x + 78,
-            cart_y + 10,
-            cart_x + 106,
-            cart_y + 28,
-            fill="#0f172a",
-            outline="",
-        )
-        canvas.create_oval(
-            cart_x + 10,
-            cart_y + 32,
             cart_x + 28,
-            cart_y + 50,
-            fill="#94a3b8",
+            cart_y + 8,
+            cart_x + 50,
+            cart_y + 26,
+            fill="#1e293b",
             outline="",
         )
-        canvas.create_oval(
-            cart_x + 92,
-            cart_y + 32,
-            cart_x + 110,
-            cart_y + 50,
-            fill="#94a3b8",
+        canvas.create_rectangle(
+            cart_x + 58,
+            cart_y + 8,
+            cart_x + 80,
+            cart_y + 26,
+            fill="#1e293b",
+            outline="",
+        )
+        canvas.create_rectangle(
+            cart_x + 88,
+            cart_y + 8,
+            cart_x + 104,
+            cart_y + 26,
+            fill="#1e293b",
             outline="",
         )
         canvas.create_text(
-            cart_x + 60,
+            cart_x + 66,
             cart_y + 20,
             fill="#0f172a",
             font=("Helvetica", 11, "bold"),
             text="ATR",
+        )
+
+        wheel_radius = 17
+        wheel_centers = [(cart_x + 28, cart_y + 48), (cart_x + 104, cart_y + 48)]
+        for center in wheel_centers:
+            canvas.create_oval(
+                center[0] - wheel_radius,
+                center[1] - wheel_radius,
+                center[0] + wheel_radius,
+                center[1] + wheel_radius,
+                fill="#0f172a",
+                outline="#cbd5e1",
+                width=2,
+            )
+            for spoke in range(4):
+                angle = self.preview_angle + spoke * (math.pi / 2)
+                spoke_x = center[0] + math.cos(angle) * (wheel_radius - 2)
+                spoke_y = center[1] + math.sin(angle) * (wheel_radius - 2)
+                canvas.create_line(
+                    center[0], center[1], spoke_x, spoke_y, fill="#e2e8f0", width=2
+                )
+            canvas.create_oval(
+                center[0] - 3,
+                center[1] - 3,
+                center[0] + 3,
+                center[1] + 3,
+                fill="#e2e8f0",
+                outline="",
+            )
+
+        direction_arrow = 1 if self.preview_direction >= 0 else -1
+        arrow_color = "#fbbf24" if direction_arrow > 0 else "#60a5fa"
+        arrow_end = cart_x + 160 if direction_arrow > 0 else cart_x - 28
+        canvas.create_line(
+            cart_x + 68,
+            cart_y - 12,
+            arrow_end,
+            cart_y - 12,
+            fill=arrow_color,
+            width=4,
+            arrow=tk.LAST,
         )
 
         info = (
@@ -523,6 +667,15 @@ class OperatorGUI:
             fill="#cbd5e1",
             font=("Helvetica", 10),
             text=info,
+        )
+
+        canvas.create_text(
+            70,
+            height - 28,
+            anchor="w",
+            fill="#94a3b8",
+            font=("Helvetica", 10, "bold"),
+            text="Rodas animadas conforme a trilha real do C++",
         )
 
     def _on_close(self):

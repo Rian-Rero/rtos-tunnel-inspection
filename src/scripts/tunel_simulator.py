@@ -32,32 +32,15 @@ class TunelSimulator:
         except TypeError:
             self.client = mqtt.Client(client_id="Python_Simulador")
 
-        # Variáveis Físicas do Robô
         self.pos_x = 0.0
         self.velocidade = 0.0
-        self.motor_command = 0.0
-        self.inclinacao_tunel = 5.0  # Graus (simulando declive - Ponto Extra)
-        self.gravidade = 9.81
-        self.metros_percorridos = 0
-        self.encoder_state = False
         self.modo_operacao = "MANUAL"
         self.direcao = "STOP"
-
-        # Perfil do teto (Mock para simular anomalias)
-        self.perfil_teto = self._gerar_perfil_teto()
+        self.robot_history: list[dict] = []
+        self.yolo_state = "Aguardando inspeção..."
+        self.preview_angle = 0.0
 
         self._setup_mqtt()
-
-    def _gerar_perfil_teto(self) -> list:
-        """Gera um perfil de teto estático com anomalias (buracos e saliências)."""
-        perfil = [200] * 1000  # Altura normal 200
-        # Injetar falha 1 (Buraco)
-        for i in range(200, 250):
-            perfil[i] = 300
-        # Injetar falha 2 (Saliência)
-        for i in range(600, 650):
-            perfil[i] = 100
-        return perfil
 
     def _setup_mqtt(self):
         self.client.on_connect = self.on_connect
@@ -67,91 +50,140 @@ class TunelSimulator:
 
     def on_connect(self, client, userdata, flags, rc):
         logging.info("Simulador conectado ao MQTT Broker.")
-        client.subscribe("actuator/motor")
-        client.subscribe("cmd/speed_sp")
-        client.subscribe("cmd/mode")
-        client.subscribe("cmd/direction")
+        client.subscribe("telemetry/robot")
+        client.subscribe("telemetry/yolo")
 
     def on_message(self, client, userdata, msg):
         payload = msg.payload.decode(errors="replace")
 
-        if msg.topic in {"actuator/motor", "cmd/speed_sp"}:
+        if msg.topic == "telemetry/robot":
             try:
-                self.motor_command = float(payload)
-            except ValueError:
-                logging.warning("Comando de motor inválido recebido: %s", payload)
+                data = json.loads(payload)
+            except json.JSONDecodeError:
+                logging.warning("Telemetria inválida recebida: %s", payload)
+                return
+
+            self.robot_history.append(data)
+            self.robot_history = self.robot_history[-240:]
+            self.pos_x = float(data.get("pos_x", self.pos_x))
+            self.velocidade = float(
+                data.get("current_speed", data.get("velocidade", 0.0))
+            )
+            self.modo_operacao = "MANUAL" if data.get("manual_mode") else "AUTO"
+            raw_direction = data.get("direction", 0)
+            if isinstance(raw_direction, (int, float)):
+                direction = int(raw_direction)
+                self.direcao = {-1: "LEFT", 0: "STOP", 1: "RIGHT"}.get(
+                    direction, "STOP"
+                )
+            else:
+                self.direcao = str(raw_direction).upper() or "STOP"
             return
 
-        if msg.topic == "cmd/mode":
-            self.modo_operacao = payload.strip().upper() or self.modo_operacao
-            return
+        if msg.topic == "telemetry/yolo":
+            try:
+                data = json.loads(payload)
+            except json.JSONDecodeError:
+                self.yolo_state = payload
+                return
 
-        if msg.topic == "cmd/direction":
-            self.direcao = payload.strip().upper() or self.direcao
-
-    def calc_physics(self, dt: float):
-        """Atualiza a física do robô aplicando as Leis de Newton."""
-        # Fator de declive: a gravidade ajuda ou atrapalha dependendo da inclinação
-        forca_peso_x = self.gravidade * math.sin(math.radians(self.inclinacao_tunel))
-        comando = max(-100.0, min(100.0, self.motor_command)) / 10.0
-        if self.direcao == "LEFT":
-            comando -= 0.35
-        elif self.direcao == "RIGHT":
-            comando += 0.35
-        elif self.direcao == "STOP":
-            comando *= 0.4
-
-        aceleracao_real = comando - (forca_peso_x if self.velocidade > 0 else 0)
-
-        # Atrito viscoso simples
-        aceleracao_real -= self.velocidade * 0.12
-
-        self.velocidade += aceleracao_real * dt
-        self.pos_x += self.velocidade * dt
-        self.velocidade = max(-4.0, min(14.0, self.velocidade))
-        self.pos_x = max(0.0, self.pos_x)
-
-        # Atualizar Encoder
-        novo_metro = int(self.pos_x / 10.0)  # Cada 10 pixels = 1 metro
-        if novo_metro > self.metros_percorridos:
-            self.metros_percorridos = novo_metro
-            self.encoder_state = not self.encoder_state
-            self.client.publish("sensor/encoder", int(self.encoder_state))
-
-    def _publish_telemetry(self, leitura_lidar: int):
-        self.client.publish("sensor/lidar", leitura_lidar)
-        self.client.publish("sensor/imu", f"{self.inclinacao_tunel:.1f}")
-        payload = {
-            "pos_x": round(self.pos_x, 2),
-            "distance_m": round(self.pos_x / 10.0, 2),
-            "velocidade": round(self.velocidade, 2),
-            "lidar": int(leitura_lidar),
-            "imu": round(self.inclinacao_tunel, 1),
-            "encoder": int(self.encoder_state),
-            "mode": self.modo_operacao,
-            "direction": self.direcao,
-        }
-        self.client.publish("telemetry/robot", json.dumps(payload))
+            status = (
+                "Anomalia detectada"
+                if data.get("anomalia_detectada")
+                else "Sem anomalia"
+            )
+            confidence = data.get("confianca")
+            if isinstance(confidence, (int, float)):
+                self.yolo_state = f"{status} | confiança {confidence:.2f}"
+            else:
+                self.yolo_state = status
 
     def _draw_background(self, screen):
-        screen.fill((11, 18, 32))
-        pygame.draw.rect(screen, (20, 28, 46), (0, 60, 1200, 420))
-        pygame.draw.rect(screen, (34, 197, 94), (0, 476, 1200, 24))
-        pygame.draw.line(screen, (148, 163, 184), (0, 288), (1200, 288), 2)
-        for x in range(0, 1200, 80):
-            pygame.draw.line(screen, (31, 41, 55), (x, 90), (x, 460), 1)
+        screen.fill((6, 12, 24))
+        width, height = screen.get_size()
+        pygame.draw.rect(screen, (12, 18, 31), (0, 0, width, height))
+        pygame.draw.rect(screen, (20, 28, 46), (0, 72, width, height - 136))
+        pygame.draw.rect(screen, (34, 197, 94), (0, height - 84, width, 24))
+        pygame.draw.rect(screen, (8, 15, 28), (0, height - 60, width, 60))
+
+        for x in range(0, width, 60):
+            pygame.draw.line(screen, (31, 41, 55), (x, 80), (x, height - 92), 1)
+        for y in range(100, height - 80, 50):
+            pygame.draw.line(screen, (30, 41, 59), (0, y), (width, y), 1)
 
     def _draw_tunnel_profile(self, screen, leitura_lidar: int):
-        ceiling_y = max(80, min(320, leitura_lidar))
-        pygame.draw.rect(screen, (71, 85, 105), (0, 0, 1200, ceiling_y))
-        pygame.draw.rect(screen, (100, 116, 139), (0, ceiling_y - 12, 1200, 12))
+        width, height = screen.get_size()
+        horizon = 120
+        floor_y = height - 96
+        history = self.robot_history
+        if not history:
+            pygame.draw.rect(screen, (55, 65, 81), (0, 0, width, horizon))
+            font = pygame.font.SysFont("arial", 22, bold=True)
+            screen.blit(
+                font.render(
+                    "Aguardando telemetria do C++ via MQTT...", True, (226, 232, 240)
+                ),
+                (28, 110),
+            )
+            return
+
+        start_x = float(history[0].get("pos_x", 0.0))
+        max_x = max(float(sample.get("pos_x", start_x)) for sample in history)
+        span = max(1.0, max_x - start_x)
+        scale_x = (width - 140) / span
+
+        path_points = []
+        for sample in history:
+            x = 70 + (float(sample.get("pos_x", start_x)) - start_x) * scale_x
+            lidar = float(sample.get("lidar_distance_y", sample.get("lidar", 2.0)))
+            y = horizon + (lidar - 1.2) * 70
+            y = max(horizon - 40, min(floor_y - 36, y))
+            path_points.append((x, y))
+
+        if len(path_points) >= 2:
+            pygame.draw.polygon(
+                screen,
+                (55, 65, 81),
+                [(0, 0)] + [(x, y - 20) for x, y in path_points] + [(width, 0)],
+            )
+            pygame.draw.lines(screen, (226, 232, 240), False, path_points, 3)
+            pygame.draw.lines(
+                screen,
+                (74, 222, 128),
+                False,
+                [(60, floor_y)] + [(x, floor_y) for x, _ in path_points],
+                4,
+            )
+
+        for sample, (x, y) in zip(history[-8:], path_points[-8:]):
+            lidar = float(sample.get("lidar_distance_y", sample.get("lidar", 2.0)))
+            if lidar > 2.0:
+                color = (59, 130, 246)
+                label = "Buraco"
+            elif lidar < 2.0:
+                color = (248, 113, 113)
+                label = "Saliencia"
+            else:
+                color = (148, 163, 184)
+                label = "Normal"
+            pygame.draw.circle(screen, color, (int(x), int(y)), 8)
+            font = pygame.font.SysFont("arial", 16, bold=True)
+            screen.blit(font.render(label, True, color), (int(x) - 20, int(y) - 28))
 
     def _draw_robot(self, screen):
-        robot_x = 520
-        robot_y = 360
+        width, height = screen.get_size()
+        robot_world_x = self.pos_x * 10.0
+        robot_x = int(robot_world_x - 120.0)
+        robot_y = height - 150
         body_rect = pygame.Rect(robot_x, robot_y, 160, 64)
         pygame.draw.rect(screen, (34, 197, 94), body_rect, border_radius=12)
         pygame.draw.rect(screen, (187, 247, 208), body_rect, 3, border_radius=12)
+        pygame.draw.rect(
+            screen,
+            (15, 23, 42),
+            (robot_x + 22, robot_y + 12, 116, 28),
+            border_radius=10,
+        )
         pygame.draw.rect(
             screen, (15, 23, 42), (robot_x + 18, robot_y + 14, 42, 24), border_radius=6
         )
@@ -163,14 +195,44 @@ class TunelSimulator:
         )
         pygame.draw.circle(screen, (148, 163, 184), (robot_x + 28, robot_y + 68), 12)
         pygame.draw.circle(screen, (148, 163, 184), (robot_x + 132, robot_y + 68), 12)
+
+        wheel_radius = 16
+        wheel_centers = [(robot_x + 28, robot_y + 68), (robot_x + 132, robot_y + 68)]
+        spin_angle = self.preview_angle * (1 if self.velocidade >= 0 else -1)
+
+        for index, center in enumerate(wheel_centers):
+            pygame.draw.circle(screen, (15, 23, 42), center, wheel_radius + 4)
+            pygame.draw.circle(screen, (148, 163, 184), center, wheel_radius, 2)
+            angle = spin_angle + index * math.pi / 2.0
+            for offset in (0, math.pi / 2, math.pi, 3 * math.pi / 2):
+                x = center[0] + math.cos(angle + offset) * (wheel_radius - 2)
+                y = center[1] + math.sin(angle + offset) * (wheel_radius - 2)
+                pygame.draw.line(screen, (226, 232, 240), center, (x, y), 2)
+
+        arrow_color = (250, 204, 21) if self.velocidade >= 0 else (96, 165, 250)
+        arrow_tip_x = robot_x + 190 if self.direcao != "LEFT" else robot_x - 30
         pygame.draw.line(
             screen,
-            (225, 29, 72),
-            (robot_x + 20, robot_y - 10),
-            (robot_x + 20, robot_y + 14),
+            arrow_color,
+            (robot_x + 80, robot_y - 10),
+            (arrow_tip_x, robot_y - 10),
             4,
         )
-        pygame.draw.circle(screen, (225, 29, 72), (robot_x + 20, robot_y - 16), 6)
+        pygame.draw.polygon(
+            screen,
+            arrow_color,
+            [
+                (arrow_tip_x, robot_y - 10),
+                (
+                    arrow_tip_x - 12 * (-1 if arrow_tip_x > robot_x + 80 else 1),
+                    robot_y - 18,
+                ),
+                (
+                    arrow_tip_x - 12 * (-1 if arrow_tip_x > robot_x + 80 else 1),
+                    robot_y - 2,
+                ),
+            ],
+        )
 
     def run(self):
         """Loop principal do simulador integrado com Pygame."""
@@ -189,26 +251,28 @@ class TunelSimulator:
                 if event.type == pygame.QUIT:
                     running = False
 
-            self.calc_physics(dt)
+            self.preview_angle += max(0.08, abs(self.velocidade) * 0.12) * dt * 20.0
 
-            # Leitura do LIDAR baseada na posição X
-            idx_teto = int(self.pos_x) % len(self.perfil_teto)
-            leitura_lidar = self.perfil_teto[idx_teto]
-
-            self._publish_telemetry(leitura_lidar)
             self._draw_background(screen)
-            self._draw_tunnel_profile(screen, leitura_lidar)
+            self._draw_tunnel_profile(screen, 0)
             self._draw_robot(screen)
 
             img = font.render(
-                f"LIDAR {leitura_lidar} | POS {self.pos_x:.1f} px | VEL {self.velocidade:.2f} | MODO {self.modo_operacao} | DIR {self.direcao}",
+                f"POS {self.pos_x:.1f} px | VEL {self.velocidade:.2f} | MODO {self.modo_operacao} | DIR {self.direcao}",
                 True,
                 (248, 250, 252),
             )
             screen.blit(img, (28, 18))
 
+            sub = small_font.render(
+                "Rodas animadas e túnel completo guiados só pela telemetria MQTT do C++",
+                True,
+                (226, 232, 240),
+            )
+            screen.blit(sub, (28, 42))
+
             speed_img = small_font.render(
-                "MQTT: actuator/motor, cmd/speed_sp, cmd/mode, cmd/direction -> sensor/#, telemetry/robot",
+                f"Inspeção: {self.yolo_state}",
                 True,
                 (148, 163, 184),
             )

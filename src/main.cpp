@@ -16,6 +16,7 @@
 #include "tasks/CameraInspection.hpp"
 #include "tasks/DataCollector.hpp"
 #include "tasks/DistanceCalculator.hpp"
+#include "tasks/MqttBridge.hpp"
 #include "tasks/NavigationCommand.hpp"
 #include "tasks/NavigationControl.hpp"
 #include "tasks/SurfaceReconstruction.hpp"
@@ -61,6 +62,7 @@ int main() {
     auto task_dist_calc = std::make_shared<tasks::DistanceCalculator>(global_context);
     auto task_collector = std::make_shared<tasks::DataCollector>(surface_buffer, global_context,
                                                                  "inspection_log.csv");
+    auto task_mqtt_bridge = std::make_shared<tasks::MqttBridge>(global_context);
 
     // Lançamento das Threads
     std::vector<std::thread> thread_pool;
@@ -70,6 +72,7 @@ int main() {
     thread_pool.emplace_back([task_nav_ctrl]() { task_nav_ctrl->run(); });
     thread_pool.emplace_back([task_dist_calc]() { task_dist_calc->run(); });
     thread_pool.emplace_back([task_collector]() { task_collector->run(); });
+    thread_pool.emplace_back([task_mqtt_bridge]() { task_mqtt_bridge->run(); });
 
     // A thread principal atua como Watchdog. Dorme até que um CTRL+C seja pressionado.
     while (!global_shutdown_requested) {

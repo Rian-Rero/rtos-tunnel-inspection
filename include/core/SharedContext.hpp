@@ -29,6 +29,21 @@ class SharedContext {
     std::atomic<double> current_speed{0.0};
 
     /**
+     * @brief Indica se o robô está em modo manual (true) ou automático (false).
+     */
+    std::atomic<bool> manual_mode{false};
+
+    /**
+     * @brief Setpoint de velocidade recebido via MQTT.
+     */
+    std::atomic<int> speed_setpoint{50};
+
+    /**
+     * @brief Direção recebida via MQTT: -1 = LEFT, 0 = STOP, 1 = RIGHT.
+     */
+    std::atomic<int> direction{0};
+
+    /**
      * @brief Odometria atual calculada pelo Encoder (em metros).
      * @details Tópico simulado: "/sensor/odometria". Consumida pelo LIDAR e outros módulos.
      */

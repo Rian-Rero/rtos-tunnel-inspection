@@ -33,7 +33,10 @@ void NavigationCommand::run() {
 
         core::NavigationSetpoint sp;
 
-        if (context_->isAnomalyActive()) {
+        if (context_->manual_mode.load()) {
+            sp.speed_setpoint = context_->speed_setpoint.load();
+            sp.is_automatic = false;
+        } else if (context_->isAnomalyActive()) {
             sp.speed_setpoint = 15;
             sp.is_automatic = true;
         } else {
