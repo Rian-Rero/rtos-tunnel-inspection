@@ -6,12 +6,48 @@
 
 #include <chrono>
 #include <cmath>
-#include <random>
 #include <thread>
 
 #include "core/TerminalPrinter.hpp"
 
 namespace tasks {
+
+namespace {
+
+constexpr double kNominalCeilingDistanceM = 2.0;
+constexpr double kRadiansToDegrees = 57.29577951308232;
+
+double floorElevation(double x) { return 0.32 * std::sin(x / 7.5) + 0.08 * std::sin(x / 2.4); }
+
+double floorSlope(double x) {
+    return (0.32 / 7.5) * std::cos(x / 7.5) + (0.08 / 2.4) * std::cos(x / 2.4);
+}
+
+double naturalCeilingVariation(double x) {
+    return 0.06 * std::sin(x / 5.5) + 0.035 * std::sin(x / 1.9);
+}
+
+double structuralAnomalyOffset(double x) {
+    if (x >= 2.2 && x <= 3.4) {
+        return 0.85;  // Buraco no teto: distância medida aumenta.
+    }
+    if (x >= 6.0 && x <= 7.1) {
+        return -0.65;  // Saliência: distância medida diminui.
+    }
+    if (x >= 10.5 && x <= 12.0) {
+        return 1.10;
+    }
+    return 0.0;
+}
+
+double lidarDistanceForPosition(double x) {
+    const double floor_y = floorElevation(x);
+    const double ceiling_y = floor_y + kNominalCeilingDistanceM + naturalCeilingVariation(x) +
+                             structuralAnomalyOffset(x);
+    return ceiling_y - floor_y;
+}
+
+}  // namespace
 
 /**
  * @brief Construtor da tarefa de reconstrução de superfície.
@@ -30,50 +66,22 @@ void SurfaceReconstruction::run() {
     auto proximo_ciclo = std::chrono::steady_clock::now();
     const auto periodo = std::chrono::milliseconds(100);  // LIDAR varre a 10Hz
 
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> prob_dist(0.0, 1.0);
-    std::uniform_real_distribution<> size_dist(0.5, 2.0);
-
-    bool inside_anomaly = false;
-    double anomaly_end_x = 0.0;
-    double current_anomaly_y = 2.0;
-
     while (context_->is_running) {
         proximo_ciclo += periodo;
 
         // 1. Consome Odometria do "Broker" (/sensor/odometria)
         double current_x = context_->current_odometry.load();
 
-        // 2. Faz a varredura a laser simulada em um túnel com declive suave.
-        const double imu_degrees = 8.0 * std::sin(current_x / 9.0);
+        // 2. Simula um túnel com declive real: a IMU mede o ângulo do piso.
+        const double imu_degrees = std::atan(floorSlope(current_x)) * kRadiansToDegrees;
         context_->imu_degrees.store(imu_degrees);
-        const double base_lidar_y = 2.0 + 0.08 * std::sin(current_x / 6.0);
-        double simulated_lidar_y = base_lidar_y;
 
-        if (!inside_anomaly && prob_dist(gen) < 0.03) {
-            inside_anomaly = true;
-            anomaly_end_x = current_x + size_dist(gen);
-
-            if (prob_dist(gen) > 0.5) {
-                current_anomaly_y = 2.0 + (prob_dist(gen) * 2.0);
-            } else {
-                current_anomaly_y = 2.0 - (prob_dist(gen) * 1.0);
-            }
-        }
-
-        if (inside_anomaly) {
-            if (current_x < anomaly_end_x) {
-                simulated_lidar_y = current_anomaly_y;
-            } else {
-                inside_anomaly = false;
-                simulated_lidar_y = base_lidar_y;
-            }
-        }
+        const double base_lidar_y = kNominalCeilingDistanceM + naturalCeilingVariation(current_x);
+        const double simulated_lidar_y = lidarDistanceForPosition(current_x);
 
         // Análise contínua do perfil do teto
         double variacao = std::abs(simulated_lidar_y - base_lidar_y);
-        double limite_variacao = std::abs(threshold_anomaly_ - 2.0);
+        double limite_variacao = std::abs(threshold_anomaly_ - kNominalCeilingDistanceM);
 
         if (variacao >= limite_variacao) {
             if (!context_->isAnomalyActive()) {
