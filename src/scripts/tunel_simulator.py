@@ -196,17 +196,31 @@ class TunelSimulator:
     def _floor_elevation(self, world_x: float) -> float:
         return 0.62 * math.sin(world_x / 5.4) + 0.16 * math.sin(world_x / 1.8)
 
+    def _floor_slope(self, world_x: float) -> float:
+        return (0.62 / 5.4) * math.cos(world_x / 5.4) + (0.16 / 1.8) * math.cos(
+            world_x / 1.8
+        )
+
+    def _local_imu(self, world_x: float) -> float:
+        return math.degrees(math.atan(self._floor_slope(world_x)))
+
     def _slope_label(self) -> str:
-        if self.imu > 0.4:
+        return self._slope_label_for_angle(self.imu)
+
+    def _slope_color(self) -> tuple[int, int, int]:
+        return self._slope_color_for_angle(self.imu)
+
+    def _slope_label_for_angle(self, angle: float) -> str:
+        if angle > 0.4:
             return "SUBIDA"
-        if self.imu < -0.4:
+        if angle < -0.4:
             return "DESCIDA"
         return "PLANO"
 
-    def _slope_color(self) -> tuple[int, int, int]:
-        if self.imu > 0.4:
+    def _slope_color_for_angle(self, angle: float) -> tuple[int, int, int]:
+        if angle > 0.4:
             return (250, 204, 21)
-        if self.imu < -0.4:
+        if angle < -0.4:
             return (96, 165, 250)
         return (148, 163, 184)
 
@@ -217,6 +231,79 @@ class TunelSimulator:
         local_elevation = self._floor_elevation(world_x) - center_elevation
         imu_slope = math.sin(math.radians(self.imu)) * 0.035
         return int((height - 116) - local_elevation * 82 - (x - width / 2) * imu_slope)
+
+    def _draw_slope_scan(self, screen):
+        width, height = screen.get_size()
+        slope_layer = pygame.Surface((width, height), pygame.SRCALPHA)
+        font = pygame.font.SysFont("arial", 12, bold=True)
+
+        last_label = None
+        label_cooldown_px = -999
+        for x in range(24, width - 92, 52):
+            world_x = self._world_x(x)
+            angle = self._local_imu(world_x)
+            label = self._slope_label_for_angle(angle)
+            color = self._slope_color_for_angle(angle)
+            alpha = 168 if label != "PLANO" else 90
+            y = self._floor_y(screen, x)
+            next_x = x + 42
+            next_y = self._floor_y(screen, next_x)
+
+            pygame.draw.line(
+                slope_layer,
+                (*color, alpha),
+                (x, y - 17),
+                (next_x, next_y - 17),
+                5,
+            )
+            arrow_tip = (next_x, next_y - 17)
+            pygame.draw.polygon(
+                slope_layer,
+                (*color, alpha),
+                [
+                    arrow_tip,
+                    (arrow_tip[0] - 10, arrow_tip[1] - 6),
+                    (arrow_tip[0] - 10, arrow_tip[1] + 6),
+                ],
+            )
+
+            if label != last_label and x - label_cooldown_px > 150:
+                slope_layer.blit(
+                    font.render(label, True, color),
+                    (x + 2, y - 42),
+                )
+                label_cooldown_px = x
+                last_label = label
+
+        screen.blit(slope_layer, (0, 0))
+
+    def _draw_anomaly_shape(self, screen, x: int, y: int, anomaly_type: str):
+        if anomaly_type == "Buraco":
+            pygame.draw.ellipse(screen, (4, 8, 14), (x - 38, y - 20, 76, 34))
+            pygame.draw.ellipse(screen, (37, 99, 235), (x - 41, y - 23, 82, 40), 3)
+            pygame.draw.arc(
+                screen, (147, 197, 253), (x - 34, y - 16, 68, 28), 0, math.pi, 2
+            )
+            for offset in (-26, -12, 18, 30):
+                pygame.draw.line(
+                    screen,
+                    (96, 165, 250),
+                    (x + offset, y - 12),
+                    (x + offset + 10, y - 30),
+                    2,
+                )
+            return
+
+        points = [
+            (x - 36, y - 20),
+            (x - 18, y + 18),
+            (x + 4, y + 34),
+            (x + 26, y + 12),
+            (x + 40, y - 18),
+        ]
+        pygame.draw.polygon(screen, (120, 57, 48), points)
+        pygame.draw.polygon(screen, (248, 113, 113), points, 3)
+        pygame.draw.line(screen, (254, 202, 202), (x - 12, y + 8), (x + 16, y + 20), 2)
 
     def _draw_unmapped_overlay(self, screen):
         width, height = screen.get_size()
@@ -349,34 +436,7 @@ class TunelSimulator:
             (width, floor_right_y + 28),
             2,
         )
-        slope_label = self._slope_label()
-        slope_color = self._slope_color()
-        slope_alpha = 150 if slope_label != "PLANO" else 85
-        slope_layer = pygame.Surface((width, height), pygame.SRCALPHA)
-        for x in range(34, width - 120, 118):
-            y = self._floor_y(screen, x)
-            next_x = x + 74
-            next_y = self._floor_y(screen, next_x)
-            pygame.draw.line(
-                slope_layer,
-                (*slope_color, slope_alpha),
-                (x, y - 18),
-                (next_x, next_y - 18),
-                5,
-            )
-            arrow_tip = (next_x, next_y - 18)
-            arrow_back = (x + 50, y - 18)
-            direction_sign = 1 if arrow_tip[1] >= arrow_back[1] else -1
-            pygame.draw.polygon(
-                slope_layer,
-                (*slope_color, slope_alpha),
-                [
-                    arrow_tip,
-                    (arrow_tip[0] - 12, arrow_tip[1] - 7 * direction_sign),
-                    (arrow_tip[0] - 12, arrow_tip[1] + 7 * direction_sign),
-                ],
-            )
-        screen.blit(slope_layer, (0, 0))
+        self._draw_slope_scan(screen)
 
         marker_font = pygame.font.SysFont("arial", 13, bold=True)
         for mark in self.anomaly_marks:
@@ -393,7 +453,7 @@ class TunelSimulator:
             else:
                 color = (248, 113, 113)
                 label = "Saliencia"
-            pygame.draw.circle(screen, color, (int(x), int(y)), 7)
+            self._draw_anomaly_shape(screen, int(x), int(y), str(mark["type"]))
             screen.blit(
                 marker_font.render(label, True, color), (int(x) - 22, int(y) - 26)
             )
@@ -410,6 +470,8 @@ class TunelSimulator:
                 )
 
         info_font = pygame.font.SysFont("arial", 14, bold=True)
+        slope_label = self._slope_label()
+        slope_color = self._slope_color()
         screen.blit(
             info_font.render(
                 f"IMU {self.imu:+.1f}° | {slope_label}", True, slope_color
