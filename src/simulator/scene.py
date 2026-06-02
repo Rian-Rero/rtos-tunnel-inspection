@@ -1,15 +1,15 @@
-"""Pygame scene renderer — everything except the robot model.
+"""Renderizador da cena Pygame: tudo exceto o modelo do robô.
 
-*TunnelScene* receives a *SceneState* snapshot per frame and draws:
-  - background grid / panels
-  - tunnel ceiling profile (LIDAR-driven)
-  - floor geology
-  - slope scan overlay
-  - anomaly markers
-  - distance ruler
-  - camera-monitor panel
-  - dark overlay vignette
-  - unmapped fog-of-war
+*TunnelScene* recebe um retrato *SceneState* por quadro e desenha:
+  - grade e painéis de fundo
+  - perfil do teto do túnel (guiado por LIDAR)
+  - geologia do piso
+  - sobreposição de varredura de inclinação
+  - marcadores de anomalia
+  - régua de distância
+  - painel do monitor da câmera
+  - vinheta escura de sobreposição
+  - névoa de áreas ainda não mapeadas
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ __all__ = ["SceneState", "TunnelScene"]
 
 @dataclass
 class SceneState:
-    """Snapshot of simulator state required for a single frame render."""
+    """Retrato do estado do simulador necessário para renderizar um quadro."""
 
     visual_pos_x: float
     reveal_pos_x: float
@@ -39,7 +39,7 @@ class SceneState:
 
 
 class TunnelScene:
-    """Stateless Pygame renderer for the tunnel environment."""
+    """Renderizador Pygame sem estado para o ambiente do túnel."""
 
     def draw_background(self, screen: pygame.Surface) -> None:
         width, height = screen.get_size()
@@ -172,7 +172,7 @@ class TunnelScene:
         srf.blit(small.render("imagem sintética", True, (148, 163, 184)), (178, 68))
         screen.blit(srf, rect)
 
-    # ── private helpers ──────────────────────────────────────────────────────
+    # ── auxiliares privados ─────────────────────────────────────────────────
 
     def _draw_floor_terrain(
         self,
@@ -184,22 +184,22 @@ class TunnelScene:
         floor_fn,
         visual_pos_x: float,
     ) -> None:
-        """Render a realistic layered-earth floor with world-anchored detail."""
-        # ── Bedrock fill — deepest layer ──────────────────────────────────────
+        """Renderiza um piso realista em camadas com detalhes fixos no mundo."""
+        # ── Preenchimento de rocha-base: camada mais profunda ───────────────
         floor_poly = floor_top + [(width + 24, height), (-24, height)]
         pygame.draw.polygon(screen, (42, 25, 11), floor_poly)
 
-        # ── Sub-surface clay band ─────────────────────────────────────────────
+        # ── Faixa de argila subsuperficial ───────────────────────────────────
         clay_bot = [(x, min(height, y + 72)) for x, y in reversed(floor_top)]
         pygame.draw.polygon(screen, (64, 40, 19), floor_top + clay_bot)
 
-        # ── Topsoil surface crust ─────────────────────────────────────────────
+        # ── Crosta superficial do solo ───────────────────────────────────────
         top_bot = [(x, min(height, y + 26)) for x, y in reversed(floor_top)]
         pygame.draw.polygon(screen, (92, 58, 31), floor_top + top_bot)
 
-        # ── World-anchored stones / pebbles ───────────────────────────────────
-        # Anchored to world x (not screen x) so they don't shift as camera scrolls.
-        w_step = 0.18  # metres between stone slots
+        # ── Pedras fixas no mundo ────────────────────────────────────────────
+        # Ancoradas no X do mundo para não se deslocarem com a câmera.
+        w_step = 0.18  # metros entre posições de pedra
         wi_start = int(view.view_start_m / w_step) - 1
         wi_end = int(view.view_end_m / w_step) + 2
 
@@ -210,12 +210,12 @@ class TunnelScene:
                 continue
             sy = floor_fn(sx)
 
-            # Deterministic mixing from world index (LCG-style, no Python hash)
+            # Mistura determinística a partir do índice do mundo (estilo LCG).
             a = ((wi * 1664525 + 1013904223) >> 4) & 0xFF
             b = ((wi * 22695477 + 12345678) >> 5) & 0xFF
             c = ((wi * 134775813 + 1) >> 6) & 0xFF
 
-            # Small surface pebble
+            # Pedra pequena na superfície
             px = sx + (a % 34) - 17
             py = sy + 2 + (b % 5)
             pw = 2 + (c % 3)
@@ -226,7 +226,7 @@ class TunnelScene:
                 (px - pw, py - ph, pw * 2, ph * 2),
             )
 
-            # Medium rock — every ~3rd slot, slightly offset
+            # Rocha média, a cada ~3 posições, com pequeno deslocamento
             if a % 3 == 0:
                 rx = sx + (b % 44) - 22
                 ry = sy + 5 + (c % 7)
@@ -238,13 +238,13 @@ class TunnelScene:
                     (rx - rw // 2, ry - rh // 2, rw, rh),
                 )
 
-            # Rare hairline crack on the surface
+            # Fissura fina rara na superfície
             if c % 11 == 0:
                 cx1, cy1 = sx + (a % 22) - 11, sy
                 cx2, cy2 = cx1 + (b % 14) - 7, sy + 2 + (c % 4)
                 pygame.draw.line(screen, (33, 19, 7), (cx1, cy1), (cx2, cy2), 1)
 
-        # ── Surface edge — crisp ground boundary with shadow ─────────────────
+        # ── Borda da superfície com limite nítido e sombra ───────────────────
         if len(floor_top) >= 2:
             pygame.draw.lines(screen, (148, 96, 52), False, floor_top, 4)
             shadow = [(x, y + 9) for x, y in floor_top]
@@ -305,9 +305,9 @@ class TunnelScene:
     def _draw_ceiling(
         self, screen, path_pts: list, view: ViewTransform, width: int, height: int
     ) -> None:
-        """Realistic rocky tunnel ceiling with integrated anomaly rendering."""
+        """Renderiza teto rochoso realista com anomalias integradas."""
         ROOF_TOP = 78
-        FACE_H = 22  # visible face thickness in px
+        FACE_H = 22  # espessura visível da face, em px
 
         if not path_pts:
             return
@@ -319,11 +319,11 @@ class TunnelScene:
             return
         body_bot = [(x, y - FACE_H) for x, y in face_pts]
 
-        # ── Rock body — dark stone mass filling from ROOF_TOP to ceiling face ─
+        # ── Corpo rochoso: massa escura do topo até a face do teto ──────────
         body_poly = [(0, ROOF_TOP)] + body_bot + [(width, ROOF_TOP)]
         pygame.draw.polygon(screen, (66, 62, 57), body_poly)
 
-        # Depth layer — slightly darker inner pass to simulate thick rock mass
+        # Camada de profundidade mais escura para simular massa rochosa espessa
         inner_top = ROOF_TOP + 12
         inner_bot = [(x, max(ROOF_TOP + 14, y - FACE_H - 8)) for x, y in face_pts]
         depth_srf = pygame.Surface((width, height), pygame.SRCALPHA)
@@ -334,7 +334,7 @@ class TunnelScene:
         )
         screen.blit(depth_srf, (0, 0))
 
-        # Rock strata — subtle horizontal geological bands in the body
+        # Estratos rochosos: faixas geológicas horizontais sutis no corpo
         strata_srf = pygame.Surface((width, height), pygame.SRCALPHA)
         for si in range(7):
             ofs = 8 + si * 11
@@ -344,11 +344,11 @@ class TunnelScene:
                 pygame.draw.lines(strata_srf, (18, 14, 11, alpha), False, pts, 1)
         screen.blit(strata_srf, (0, 0))
 
-        # ── Visible face — underside of the rock facing the tunnel interior ───
+        # ── Face visível: lado inferior da rocha voltado ao interior do túnel ─
         face_poly = body_bot + [(x, y) for x, y in reversed(face_pts)]
         pygame.draw.polygon(screen, (82, 76, 70), face_poly)
 
-        # ── World-anchored rock surface details on the face ───────────────────
+        # ── Detalhes da face rochosa ancorados no mundo ──────────────────────
         w_step = 0.20
         wi_start = int(view.view_start_m / w_step) - 1
         wi_end = int(view.view_end_m / w_step) + 2
@@ -364,7 +364,7 @@ class TunnelScene:
             b = ((wi * 22695477 + 12345678) >> 5) & 0xFF
             c = ((wi * 134775813 + 1) >> 6) & 0xFF
 
-            # Rock nodule on the face
+            # Nódulo rochoso na face
             px, py = sx + (a % 28) - 14, cy - 5 - (b % 7)
             pr = 2 + (c % 4)
             pygame.draw.ellipse(
@@ -373,7 +373,7 @@ class TunnelScene:
                 (px - pr, py - pr // 2, pr * 2, pr),
             )
 
-            # Hairline crack / fissure
+            # Rachadura fina / fissura
             if b % 5 == 0:
                 pygame.draw.line(
                     screen,
@@ -383,8 +383,8 @@ class TunnelScene:
                     1,
                 )
 
-        # ── Profile-based anomaly shading — emergent from LIDAR geometry ───────
-        # Median y as stable baseline (robust against isolated anomaly segments)
+        # ── Sombreamento de anomalias derivado da geometria LIDAR ───────────
+        # Mediana em y como linha-base estável contra segmentos isolados.
         sorted_ys = sorted(y for _, y in face_pts)
         baseline_y = sorted_ys[len(sorted_ys) // 2]
 
@@ -395,46 +395,46 @@ class TunnelScene:
             mid_y = (y0 + y1) * 0.5
             dev = (
                 mid_y - baseline_y
-            )  # positive = saliência (lower), negative = buraco (higher)
+            )  # positivo = saliência (mais baixo); negativo = buraco (mais alto)
 
-            if dev < -10:  # Buraco — ceiling above baseline → dark void opening
+            if dev < -10:  # Buraco: teto acima da linha-base, abertura escura
                 t = min(1.0, (-dev - 10) / 55.0)
                 alpha = int(80 + t * 155)
-                # Black void fills the face segment
+                # Vazio escuro preenchendo o segmento da face
                 pygame.draw.polygon(
                     anom_srf,
                     (3, 2, 1, alpha),
                     [(x0, y0 - FACE_H), (x1, y1 - FACE_H), (x1, y1), (x0, y0)],
                 )
-                # Lit rock rim at opening edge — edge catching ambient light
+                # Borda iluminada da abertura captando luz ambiente
                 rim_a = int(50 + t * 80)
                 pygame.draw.line(
                     anom_srf, (126, 114, 101, rim_a), (x0, y0), (x1, y1), 2
                 )
 
-            elif dev > 10:  # Saliência — ceiling below baseline → 3-D protrusion
+            elif dev > 10:  # Saliência: teto abaixo da linha-base, volume 3D
                 t = min(1.0, (dev - 10) / 40.0)
-                # Shadow on the face of the protrusion (sides face away from light)
+                # Sombra na face da saliência, voltada para longe da luz
                 shd_a = int(30 + t * 55)
                 pygame.draw.polygon(
                     anom_srf,
                     (0, 0, 0, shd_a),
                     [(x0, y0 - FACE_H), (x1, y1 - FACE_H), (x1, y1), (x0, y0)],
                 )
-                # Highlight on bottom edge — underside of protrusion catches tunnel light
+                # Realce na borda inferior, onde a saliência capta luz do túnel
                 hl_a = int(35 + t * 60)
                 pygame.draw.line(anom_srf, (200, 190, 178, hl_a), (x0, y0), (x1, y1), 3)
 
         screen.blit(anom_srf, (0, 0))
 
-        # ── Profile edge — the lower boundary of the ceiling face ─────────────
+        # ── Borda do perfil: limite inferior da face do teto ─────────────────
         if len(face_pts) >= 2:
             pygame.draw.lines(screen, (96, 90, 83), False, face_pts, 3)
         elif face_pts:
             pygame.draw.circle(screen, (96, 90, 83), face_pts[0], 4)
 
     def _interp_path_y(self, face_pts: list, target_x: float) -> int:
-        """Linear interpolation of ceiling face y at target_x."""
+        """Interpolação linear do y da face do teto em target_x."""
         if not face_pts:
             return 178
         if len(face_pts) == 1:

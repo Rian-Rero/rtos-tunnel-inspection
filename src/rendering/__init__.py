@@ -1,8 +1,8 @@
-"""Renderer components — one per graphics backend.
+"""Componentes de renderização, um por backend gráfico.
 
-Each renderer is a stateless class whose only job is to draw the ATR
-robot onto whatever surface the calling application provides (Pygame
-Surface, Tkinter Canvas or OpenCV ndarray).
+Cada renderizador é uma classe sem estado cuja única responsabilidade é
+desenhar o robô ATR na superfície fornecida pela aplicação chamadora
+(Surface do Pygame, Canvas do Tkinter ou ndarray do OpenCV).
 """
 
 from .pygame_robot import PygameRobotRenderer, RobotRenderState

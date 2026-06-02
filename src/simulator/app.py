@@ -1,8 +1,8 @@
-"""Main tunnel simulator application.
+"""Aplicação principal do simulador de túnel.
 
-*TunelSimulator* is now a lean orchestrator: it owns the MQTT state,
-the main Pygame loop, and delegates all rendering to *TunnelScene*
-and *PygameRobotRenderer*.
+*TunelSimulator* é um orquestrador enxuto: mantém o estado MQTT, executa
+o loop principal do Pygame e delega a renderização para *TunnelScene* e
+*PygameRobotRenderer*.
 """
 
 from __future__ import annotations
@@ -27,12 +27,12 @@ logger = logging.getLogger(__name__)
 
 
 class TunelSimulator(MqttComponent):
-    """Pygame-based 2D tunnel visualiser driven exclusively by MQTT telemetry."""
+    """Visualizador 2D de túnel em Pygame guiado só por telemetria MQTT."""
 
     def __init__(self, broker: str = MQTT_BROKER, port: int = MQTT_PORT) -> None:
         super().__init__(broker, port, "Python_Simulador")
 
-        # ── Robot state ──────────────────────────────────────────────────────
+        # ── Estado do robô ───────────────────────────────────────────────────
         self._telemetry = RobotTelemetry()
         self._inspection = InspectionState()
         self._target_pos_x: float = 0.0
@@ -41,15 +41,15 @@ class TunelSimulator(MqttComponent):
         self._robot_history: list[dict] = []
         self._anomaly_marks: list[AnomalyMark] = []
 
-        # ── Animation state ──────────────────────────────────────────────────
+        # ── Estado de animação ───────────────────────────────────────────────
         self._preview_angle: float = 0.0
         self._view = ViewTransform()
 
-        # ── Renderers ────────────────────────────────────────────────────────
+        # ── Renderizadores ───────────────────────────────────────────────────
         self._scene = TunnelScene()
         self._robot_renderer = PygameRobotRenderer()
 
-    # ── MQTT hooks ───────────────────────────────────────────────────────────
+    # ── ganchos MQTT ─────────────────────────────────────────────────────────
 
     def _on_connect(self, client) -> None:
         client.subscribe(Topics.TELEMETRY_ROBOT)
@@ -68,7 +68,7 @@ class TunelSimulator(MqttComponent):
         try:
             data = json.loads(payload)
         except json.JSONDecodeError:
-            logger.warning("Invalid telemetry: %s", payload)
+            logger.warning("Telemetria inválida: %s", payload)
             return
 
         self._robot_history.append(data)
@@ -120,7 +120,7 @@ class TunelSimulator(MqttComponent):
         elif self._inspection.result_expires_at is None:
             self._inspection.yolo_state = "Sistema em regime normal"
 
-    # ── Main loop ─────────────────────────────────────────────────────────────
+    # ── loop principal ───────────────────────────────────────────────────────
 
     def run(self) -> None:
         pygame.init()
@@ -141,7 +141,7 @@ class TunelSimulator(MqttComponent):
 
                 self._tick_animation(dt)
 
-                # ── Build scene state snapshot ───────────────────────────────
+                # ── Monta o retrato de estado da cena ───────────────────────
                 self._view.update(self._visual_pos_x, screen.get_width())
                 floor_fn = self._view.make_floor_fn(
                     screen.get_height(), self._visual_pos_x
@@ -157,7 +157,7 @@ class TunelSimulator(MqttComponent):
                     inspection=self._inspection,
                 )
 
-                # ── Render ───────────────────────────────────────────────────
+                # ── Renderização ────────────────────────────────────────────
                 self._scene.draw_background(screen)
                 self._scene.draw_tunnel_profile(screen, scene_state, self._view)
                 self._scene.draw_camera_monitor(screen, self._inspection)
@@ -205,7 +205,7 @@ class TunelSimulator(MqttComponent):
             pygame.quit()
             self.disconnect()
 
-    # ── helpers ───────────────────────────────────────────────────────────────
+    # ── auxiliares ───────────────────────────────────────────────────────────
 
     def _tick_animation(self, dt: float) -> None:
         alpha = min(1.0, max(0.08, dt * 7.0))

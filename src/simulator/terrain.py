@@ -1,7 +1,8 @@
-"""Pure terrain / coordinate-transform helpers.
+"""Auxiliares puros de terreno e transformação de coordenadas.
 
-All functions here are pure (no side-effects, no Pygame dependency).
-They are shared between the scene renderer and the robot renderer.
+Todas as funções aqui são puras, sem efeitos colaterais e sem dependência
+do Pygame. Elas são compartilhadas entre os renderizadores da cena e do
+robô.
 """
 
 from __future__ import annotations
@@ -22,19 +23,19 @@ __all__ = [
 
 
 def floor_elevation(world_x: float) -> float:
-    """Sinusoidal floor height used by the physics simulation."""
+    """Altura senoidal do piso usada pela simulação física."""
     return 0.62 * math.sin(world_x / 5.4) + 0.16 * math.sin(world_x / 1.8)
 
 
 def floor_slope(world_x: float) -> float:
-    """First derivative of *floor_elevation*."""
+    """Primeira derivada de *floor_elevation*."""
     return (0.62 / 5.4) * math.cos(world_x / 5.4) + (0.16 / 1.8) * math.cos(
         world_x / 1.8
     )
 
 
 def local_imu(world_x: float) -> float:
-    """Simulated IMU angle (degrees) at *world_x*."""
+    """Ângulo IMU simulado, em graus, na posição *world_x*."""
     return math.degrees(math.atan(floor_slope(world_x)))
 
 
@@ -61,8 +62,8 @@ def slope_color_hex(angle: float) -> str:
 
 @dataclass
 class ViewTransform:
-    """Bidirectional mapping between world coordinates (metres) and screen
-    pixels.  Updated once per frame in *update()*.
+    """Mapeamento bidirecional entre coordenadas do mundo (metros) e pixels
+    de tela. Atualizado uma vez por quadro em *update()*.
     """
 
     view_start_m: float = 0.0
@@ -71,7 +72,7 @@ class ViewTransform:
     floor_vertical_scale: float = 118.0
 
     def update(self, visual_pos_x: float, screen_width: int) -> None:
-        """Recalculate the view window so the robot stays centred."""
+        """Recalcula a janela de visão para manter o robô centralizado."""
         view_width_m = 18.0
         self.view_left_px = 70.0
         robot_center_px = screen_width / 2.0
@@ -100,7 +101,7 @@ class ViewTransform:
     def make_floor_fn(
         self, screen_height: int, visual_pos_x: float
     ) -> Callable[[int], int]:
-        """Return a closure ``floor_y(screen_x)`` bound to current state."""
+        """Retorna um closure ``floor_y(screen_x)`` vinculado ao estado atual."""
 
         def _fn(sx: int) -> int:
             return self.floor_y(screen_height, sx, visual_pos_x)

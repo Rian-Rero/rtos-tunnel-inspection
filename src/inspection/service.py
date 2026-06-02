@@ -1,8 +1,8 @@
-"""YOLOv8 inspection daemon.
+"""Daemon de inspeção YOLOv8.
 
-*YoloInspectionService* is now a lean orchestrator: it owns the MQTT
-connection and delegates frame generation to *SyntheticFrameGenerator*
-and inference to the YOLO model.
+*YoloInspectionService* é um orquestrador enxuto: mantém a conexão MQTT
+e delega a geração de quadros para *SyntheticFrameGenerator* e a
+inferência para o modelo YOLO.
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class YoloInspectionService(MqttComponent):
-    """MQTT-driven YOLOv8 inspection daemon with synthetic frame capture."""
+    """Daemon de inspeção YOLOv8 via MQTT com captura de quadro sintético."""
 
     def __init__(
         self,
@@ -49,7 +49,7 @@ class YoloInspectionService(MqttComponent):
         self._cv2 = cv2
         self._processing = False
 
-    # ── MQTT hooks ────────────────────────────────────────────────────────────
+    # ── ganchos MQTT ─────────────────────────────────────────────────────────
 
     def _on_connect(self, client) -> None:
         client.subscribe(Topics.CMD_CAMERA)
@@ -69,7 +69,7 @@ class YoloInspectionService(MqttComponent):
                 logger.info("Trigger recebido. Iniciando inferência...")
                 self._run_inspection()
 
-    # ── inspection pipeline ───────────────────────────────────────────────────
+    # ── pipeline de inspeção ─────────────────────────────────────────────────
 
     def _run_inspection(self) -> None:
         self._processing = True
@@ -119,10 +119,10 @@ class YoloInspectionService(MqttComponent):
         self._frame_path.parent.mkdir(parents=True, exist_ok=True)
         self._cv2.imwrite(str(self._frame_path), frame)
 
-    # ── entry point ───────────────────────────────────────────────────────────
+    # ── ponto de entrada ─────────────────────────────────────────────────────
 
     def run(self) -> None:
-        """Block forever, processing inspection triggers."""
+        """Bloqueia continuamente, processando disparos de inspeção."""
         try:
             self.connect_blocking()
         except KeyboardInterrupt:

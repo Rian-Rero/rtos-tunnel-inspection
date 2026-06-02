@@ -1,8 +1,8 @@
-"""OpenCV robot renderer for the synthetic YOLO camera frame.
+"""Renderizador OpenCV do robô para o quadro sintético da câmera YOLO.
 
-*OpenCVRobotRenderer* draws the robot as seen from its upward-pointing
-camera.  Only standard OpenCV primitives are used; the caller supplies
-the numpy frame.
+*OpenCVRobotRenderer* desenha o robô como visto por sua câmera apontada
+para cima. São usadas apenas primitivas padrão do OpenCV; o chamador
+fornece o quadro numpy.
 """
 
 from __future__ import annotations
@@ -11,17 +11,17 @@ import math
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    pass  # type alias only
+    pass  # usado apenas para alias de tipo
 
 __all__ = ["OpenCVRobotRenderer"]
 
 
 class OpenCVRobotRenderer:
-    """Renders the ATR robot onto a 640×480 OpenCV frame.
+    """Renderiza o robô ATR em um quadro OpenCV 640×480.
 
-    All drawing is done using the *cv2* and *np* modules injected at
-    construction to avoid importing them at module-load time (they are
-    optional heavy dependencies).
+    Todo o desenho usa os módulos *cv2* e *np* injetados na construção
+    para evitar importá-los no carregamento do módulo, pois são
+    dependências opcionais pesadas.
     """
 
     def __init__(self, cv2, np) -> None:
@@ -42,7 +42,7 @@ class OpenCVRobotRenderer:
         self._draw_lidar(cv2, np, frame, bx_c, body_top)
         self._draw_camera_arm(cv2, frame, bx_r, body_top)
 
-    # ── private helpers ────────────────────────────────────────────────────
+    # ── auxiliares privados ─────────────────────────────────────────────────
 
     @staticmethod
     def _draw_shadow(cv2, frame, bx_c):

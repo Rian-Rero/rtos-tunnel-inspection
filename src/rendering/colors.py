@@ -1,8 +1,8 @@
-"""ATR colour palette — single source of truth for both Pygame (RGB tuples)
-and Tkinter (hex strings).
+"""Paleta de cores do ATR, fonte única para Pygame (tuplas RGB)
+e Tkinter (strings hexadecimais).
 
-All rendering modules import from here; no colour constants should appear
-in application code.
+Todos os módulos de renderização importam daqui; constantes de cor não
+devem aparecer no código da aplicação.
 """
 
 from __future__ import annotations
@@ -25,9 +25,9 @@ class RGB(NamedTuple):
 
 
 class Palette:
-    """Pygame-ready RGB tuples for the ATR robot."""
+    """Tuplas RGB prontas para Pygame usadas no robô ATR."""
 
-    # ── Tracks ───────────────────────────────────────────────────────────────
+    # ── Esteiras ─────────────────────────────────────────────────────────────
     TRACK_FILL = RGB(26, 31, 39)
     TRACK_OUTLINE = RGB(55, 65, 76)
     TRACK_TREAD = RGB(17, 21, 27)
@@ -40,22 +40,22 @@ class Palette:
     ROAD_WHEEL_OUTLINE = RGB(72, 84, 98)
     ROAD_WHEEL_HUB = RGB(52, 62, 74)
 
-    # ── Body ─────────────────────────────────────────────────────────────────
+    # ── Corpo ────────────────────────────────────────────────────────────────
     BODY_FILL = RGB(65, 84, 98)
     BODY_OUTLINE = RGB(106, 128, 146)
     BODY_PANEL = RGB(46, 63, 76)
 
-    # ── Equipment box ────────────────────────────────────────────────────────
+    # ── Caixa de equipamentos ────────────────────────────────────────────────
     EQ_BOX_FILL = RGB(52, 68, 82)
     EQ_BOX_OUTLINE = RGB(88, 108, 124)
     EQ_BOX_VENT = RGB(32, 48, 60)
 
-    # ── Antenna ──────────────────────────────────────────────────────────────
+    # ── Antena ───────────────────────────────────────────────────────────────
     ANTENNA_STEM = RGB(168, 186, 204)
     ANTENNA_TIP = RGB(200, 218, 236)
     ANTENNA_GLOW = RGB(96, 170, 255)
 
-    # ── LiDAR dome ───────────────────────────────────────────────────────────
+    # ── Cúpula do LiDAR ──────────────────────────────────────────────────────
     LIDAR_MOUNT_FILL = RGB(48, 62, 76)
     LIDAR_MOUNT_OUTLINE = RGB(84, 102, 118)
     LIDAR_SHELL = RGB(38, 50, 63)
@@ -65,7 +65,7 @@ class Palette:
     LIDAR_SHINE_OUTER = RGB(155, 210, 255)
     LIDAR_SHINE_INNER = RGB(215, 240, 255)
 
-    # ── Camera arm ───────────────────────────────────────────────────────────
+    # ── Braço da câmera ──────────────────────────────────────────────────────
     ARM_STEEL = RGB(128, 146, 162)
     ARM_HIGHLIGHT = RGB(158, 175, 192)
     ARM_JOINT = RGB(76, 92, 108)
@@ -78,14 +78,14 @@ class Palette:
     LED_ACTIVE = RGB(248, 113, 113)
     LED_IDLE = RGB(74, 222, 128)
 
-    # ── Slope indicator ──────────────────────────────────────────────────────
+    # ── Indicador de inclinação ──────────────────────────────────────────────
     SLOPE_UP = RGB(250, 204, 21)
     SLOPE_DOWN = RGB(96, 165, 250)
     SLOPE_FLAT = RGB(148, 163, 184)
 
 
 def hex_palette() -> dict[str, str]:
-    """Return all Palette entries as a {name: hex_string} dict (for Tkinter)."""
+    """Retorna as entradas da Palette como {nome: cor_hex} (para Tkinter)."""
     return {
         name: value.hex()
         for name, value in vars(Palette).items()

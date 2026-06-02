@@ -1,8 +1,8 @@
-"""Operator GUI application.
+"""Aplicação GUI do operador.
 
-*OperatorGUI* is now a lean orchestrator: it owns the MQTT connection,
-builds three panels, and wires them together.  All rendering and widget
-state live in their respective panel classes.
+*OperatorGUI* é um orquestrador enxuto: mantém a conexão MQTT, constrói
+três painéis e conecta suas interações. Toda renderização e estado de
+widgets ficam nas classes de painel correspondentes.
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class OperatorGUI(MqttComponent):
-    """Remote-operation GUI backed by a Tkinter window and MQTT telemetry."""
+    """GUI de operação remota baseada em janela Tkinter e telemetria MQTT."""
 
     def __init__(
         self,
@@ -49,7 +49,7 @@ class OperatorGUI(MqttComponent):
         except OSError as exc:
             self._connection_var.set(f"Falha na conexão: {exc}")
 
-    # ── window setup ─────────────────────────────────────────────────────────
+    # ── configuração da janela ───────────────────────────────────────────────
 
     def _configure_window(self) -> None:
         sw, sh = self._root.winfo_screenwidth(), self._root.winfo_screenheight()
@@ -117,7 +117,7 @@ class OperatorGUI(MqttComponent):
         container = ttk.Frame(self._root, style="Root.TFrame")
         container.pack(fill="both", expand=True)
 
-        # ── Header ───────────────────────────────────────────────────────────
+        # ── Cabeçalho ────────────────────────────────────────────────────────
         header = ttk.Frame(container, style="Header.TFrame", padding=(24, 20))
         header.pack(fill="x")
         header.columnconfigure(0, weight=1)
@@ -139,7 +139,7 @@ class OperatorGUI(MqttComponent):
             status_box, textvariable=self._connection_var, style="Status.TLabel"
         ).pack(anchor="e")
 
-        # ── Body: three-column layout ─────────────────────────────────────────
+        # ── Corpo: layout em três colunas ────────────────────────────────────
         body = ttk.Frame(container, style="Root.TFrame", padding=(20, 20, 20, 16))
         body.pack(fill="both", expand=True)
         for col in range(3):
@@ -157,7 +157,7 @@ class OperatorGUI(MqttComponent):
         self._telemetry_panel = TelemetryPanel(tele_card)
         self._preview = PreviewPanel(prev_card)
 
-        # ── Footer ────────────────────────────────────────────────────────────
+        # ── Rodapé ───────────────────────────────────────────────────────────
         footer = ttk.Frame(container, style="Panel.TFrame", padding=(20, 0, 20, 18))
         footer.pack(fill="x")
         ttk.Label(
@@ -166,7 +166,7 @@ class OperatorGUI(MqttComponent):
             style="Subtitle.TLabel",
         ).pack(anchor="w")
 
-    # ── MQTT hooks ───────────────────────────────────────────────────────────
+    # ── ganchos MQTT ─────────────────────────────────────────────────────────
 
     def _on_connect(self, client) -> None:
         self._root.after(
@@ -180,7 +180,7 @@ class OperatorGUI(MqttComponent):
         dispatch = {
             Topics.TELEMETRY_YOLO: self._handle_yolo,
             Topics.TELEMETRY_ROBOT: self._handle_robot,
-            Topics.SENSOR_LIDAR: lambda p: None,  # handled via telemetry/robot
+            Topics.SENSOR_LIDAR: lambda p: None,  # tratado via telemetry/robot
             Topics.STATE_INSPECTION: self._handle_inspection,
         }
         handler = dispatch.get(topic)
@@ -223,7 +223,7 @@ class OperatorGUI(MqttComponent):
         )
         self._telemetry_panel.update(self._telemetry, self._yolo_state)
 
-    # ── lifecycle ─────────────────────────────────────────────────────────────
+    # ── ciclo de vida ────────────────────────────────────────────────────────
 
     def close(self) -> None:
         if self._closed:

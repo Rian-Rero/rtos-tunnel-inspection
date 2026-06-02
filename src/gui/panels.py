@@ -1,12 +1,12 @@
-"""Operator GUI panels — each panel owns its widgets and state.
+"""Painéis da GUI do operador; cada painel controla seus widgets e estado.
 
-Three panels:
-  * *ControlsPanel* — mode/direction buttons, speed slider, camera trigger.
-  * *TelemetryPanel* — read-only metric cards (LIDAR, IMU, encoder, …).
-  * *PreviewPanel*   — live canvas rendering the tunnel and robot.
+Três painéis:
+  * *ControlsPanel* — botões de modo/direção, slider de velocidade e câmera.
+  * *TelemetryPanel* — cartões de métricas somente leitura (LIDAR, IMU etc.).
+  * *PreviewPanel*   — canvas ao vivo renderizando o túnel e o robô.
 
-All panels communicate outbound through a ``on_command(topic, payload)``
-callback; they never touch the MQTT client directly.
+Todos os painéis enviam comandos pelo callback ``on_command(topic, payload)``;
+eles nunca acessam o cliente MQTT diretamente.
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ _CommandCallback = Callable[[str, str | int | float], None]
 
 
 class ControlsPanel:
-    """Mode/direction/speed/camera controls."""
+    """Controles de modo, direção, velocidade e câmera."""
 
     def __init__(self, parent: ttk.Frame, on_command: _CommandCallback) -> None:
         self._cmd = on_command
@@ -98,7 +98,7 @@ class ControlsPanel:
             command=self._trigger_camera,
         ).pack(fill="x", pady=(0, 8))
 
-    # ── commands ─────────────────────────────────────────────────────────────
+    # ── comandos ─────────────────────────────────────────────────────────────
 
     def _set_auto(self) -> None:
         self._cmd(Topics.CMD_MODE, "AUTO")
@@ -139,7 +139,7 @@ class ControlsPanel:
 
 
 class TelemetryPanel:
-    """Read-only metric display cards."""
+    """Cartões de exibição de métricas somente leitura."""
 
     def __init__(self, parent: ttk.Frame) -> None:
         self._vars: dict[str, tk.StringVar] = {}
@@ -186,7 +186,7 @@ class TelemetryPanel:
 
 
 class PreviewPanel:
-    """Canvas that renders the tunnel profile and the robot in real-time."""
+    """Canvas que renderiza o perfil do túnel e o robô em tempo real."""
 
     _ANIMATION_INTERVAL_MS = 40
 

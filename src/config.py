@@ -1,7 +1,7 @@
-"""System-wide configuration constants for the ATR project.
+"""Constantes de configuração globais do projeto ATR.
 
-All magic strings and tuneable values live here so that changing
-a topic name or threshold never requires hunting through render code.
+Todas as strings especiais e valores ajustáveis ficam aqui para que
+alterar um tópico ou limiar não exija procurar no código de renderização.
 """
 
 from __future__ import annotations
@@ -13,9 +13,9 @@ MQTT_PORT: int = 1883
 
 
 class Topics:
-    """MQTT topic namespace — never use raw strings outside this class."""
+    """Namespace de tópicos MQTT; evite strings cruas fora desta classe."""
 
-    # Upstream telemetry (C++ → Python)
+    # Telemetria de entrada (C++ → Python)
     TELEMETRY_ROBOT: str = "telemetry/robot"
     TELEMETRY_YOLO: str = "telemetry/yolo"
     STATE_INSPECTION: str = "state/inspection"
@@ -23,7 +23,7 @@ class Topics:
     SENSOR_IMU: str = "sensor/imu"
     SENSOR_ENCODER: str = "sensor/encoder"
 
-    # Downstream commands (Python → C++)
+    # Comandos de saída (Python → C++)
     CMD_MODE: str = "cmd/mode"
     CMD_DIRECTION: str = "cmd/direction"
     CMD_SPEED: str = "cmd/speed_sp"
@@ -31,7 +31,7 @@ class Topics:
 
 
 class Limits:
-    """Application-wide numeric limits and thresholds."""
+    """Limites numéricos e limiares usados por toda a aplicação."""
 
     ANOMALY_LIDAR_THRESHOLD: float = 0.35
     ANOMALY_MIN_SPACING_M: float = 0.18

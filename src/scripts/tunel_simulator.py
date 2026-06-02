@@ -1,4 +1,4 @@
-"""Entry point for the Pygame tunnel simulator."""
+"""Ponto de entrada do simulador de túnel em Pygame."""
 
 import logging
 import sys

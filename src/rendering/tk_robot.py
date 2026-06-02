@@ -1,8 +1,8 @@
-"""Tkinter Canvas robot renderer.
+"""Renderizador do robô em Canvas Tkinter.
 
-*TkinterRobotRenderer* is stateless.  Caller provides the canvas and
-position; this class handles all drawing.  No Tkinter imports at module
-level — the caller owns the root/canvas lifecycle.
+*TkinterRobotRenderer* não mantém estado. O chamador fornece o canvas e
+a posição; esta classe faz todo o desenho. O chamador controla o ciclo
+de vida da raiz e do canvas.
 """
 
 from __future__ import annotations
@@ -25,10 +25,10 @@ class TkRobotState:
 
 
 class TkinterRobotRenderer:
-    """Draws the ATR robot components onto a tk.Canvas.
+    """Desenha os componentes do robô ATR em um tk.Canvas.
 
-    All positions are relative to *(cart_x, cart_y)* where *cart_y* is
-    roughly the vertical midpoint of the robot body.
+    Todas as posições são relativas a *(cart_x, cart_y)*, em que *cart_y*
+    é aproximadamente o ponto médio vertical do corpo do robô.
     """
 
     def render(
@@ -47,7 +47,7 @@ class TkinterRobotRenderer:
         if state.direction != "STOP":
             self._draw_direction_arrow(canvas, cart_x, cart_y, state.direction)
 
-    # ── private helpers ────────────────────────────────────────────────────
+    # ── auxiliares privados ─────────────────────────────────────────────────
 
     def _draw_tracks(self, canvas, cart_x, cart_y, state):
         x1 = cart_x - 2

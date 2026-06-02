@@ -1,4 +1,4 @@
-"""Entry point for the Tkinter operator GUI."""
+"""Ponto de entrada da GUI Tkinter do operador."""
 
 import logging
 import signal

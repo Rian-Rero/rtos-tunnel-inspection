@@ -1,7 +1,7 @@
-"""Shared domain models for the ATR inspection system.
+"""Modelos de domínio compartilhados do sistema de inspeção ATR.
 
-Single source of truth for all data structures exchanged between
-the C++ RTOS core (via MQTT) and the Python visualisation layer.
+Fonte única para as estruturas de dados trocadas entre o núcleo RTOS em
+C++ (via MQTT) e a camada de visualização em Python.
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ _VALID_DIRS: frozenset[str] = frozenset({"LEFT", "STOP", "RIGHT"})
 
 
 def parse_direction(raw: object, fallback: Direction = "STOP") -> Direction:
-    """Normalise a raw MQTT direction value (int or string) to a Direction."""
+    """Normaliza uma direção MQTT bruta (int ou string) para Direction."""
     if isinstance(raw, (int, float)):
         return _DIR_MAP.get(int(raw), fallback)
     candidate = str(raw).upper()
@@ -38,7 +38,7 @@ def parse_direction(raw: object, fallback: Direction = "STOP") -> Direction:
 
 @dataclass
 class RobotTelemetry:
-    """Complete snapshot of robot state as published by the C++ core."""
+    """Retrato completo do estado do robô publicado pelo núcleo C++."""
 
     pos_x: float = 0.0
     distance_m: float = 0.0
@@ -56,7 +56,7 @@ class RobotTelemetry:
         data: dict,
         previous: RobotTelemetry | None = None,
     ) -> RobotTelemetry:
-        """Construct from a raw MQTT JSON payload, falling back to *previous* for missing keys."""
+        """Constrói a telemetria a partir de JSON MQTT, usando *previous* para chaves ausentes."""
         prev = previous or cls()
         raw_dir = data.get("direction", data.get("direction_label", prev.direction))
         return cls(
@@ -76,7 +76,7 @@ class RobotTelemetry:
 
 @dataclass
 class AnomalyMark:
-    """A detected anomaly recorded at a specific tunnel position."""
+    """Anomalia detectada em uma posição específica do túnel."""
 
     pos_x: float
     lidar: float
@@ -85,7 +85,7 @@ class AnomalyMark:
 
 @dataclass
 class YoloResult:
-    """Inference result published by the YOLO inspection service."""
+    """Resultado de inferência publicado pelo serviço de inspeção YOLO."""
 
     timestamp: float
     anomalia_detectada: bool
@@ -109,7 +109,7 @@ class YoloResult:
 
 @dataclass
 class InspectionState:
-    """Live YOLO / inspection status consumed by the visualisation layer."""
+    """Estado ao vivo de YOLO/inspeção consumido pela camada de visualização."""
 
     active: bool = False
     yolo_state: str = "Aguardando inspeção..."

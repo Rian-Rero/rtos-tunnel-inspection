@@ -1,11 +1,11 @@
-"""Synthetic camera frame generator.
+"""Gerador de quadros sintéticos da câmera.
 
-*SyntheticFrameGenerator* produces a 640×480 BGR frame that simulates
-what the robot's upward-facing camera would see — tunnel ceiling, a
-cycling defect, and the robot itself at the bottom of the image.
+*SyntheticFrameGenerator* produz um quadro BGR 640×480 que simula o que
+a câmera superior do robô veria: teto do túnel, defeito alternado e o
+próprio robô na parte inferior da imagem.
 
-Rendering is delegated to *OpenCVRobotRenderer* so the robot visuals
-stay consistent with the other backends.
+A renderização é delegada para *OpenCVRobotRenderer* para manter o visual
+do robô consistente com os outros backends.
 """
 
 from __future__ import annotations
@@ -20,10 +20,10 @@ AnomalyFrameType = Literal["fissura", "buraco", "saliencia"]
 
 
 class SyntheticFrameGenerator:
-    """Generates synthetic inspection frames using OpenCV primitives.
+    """Gera quadros sintéticos de inspeção usando primitivas do OpenCV.
 
-    The ``cv2`` and ``np`` modules are injected to avoid importing them
-    at module-load time (they are optional heavy dependencies).
+    Os módulos ``cv2`` e ``np`` são injetados para evitar importá-los no
+    carregamento do módulo, pois são dependências opcionais pesadas.
     """
 
     _FRAME_H = 480
@@ -36,7 +36,7 @@ class SyntheticFrameGenerator:
         self._frame_index = 0
 
     def generate(self) -> tuple[object, AnomalyFrameType]:
-        """Return ``(frame_ndarray, simulated_anomaly_type)``."""
+        """Retorna ``(frame_ndarray, tipo_de_anomalia_simulada)``."""
         self._frame_index += 1
         frame = self._np.full(
             (self._FRAME_H, self._FRAME_W, 3), (24, 28, 34), dtype=self._np.uint8
@@ -47,7 +47,7 @@ class SyntheticFrameGenerator:
         self._draw_hud(frame, anomaly_type)
         return frame, anomaly_type
 
-    # ── private helpers ────────────────────────────────────────────────────
+    # ── auxiliares privados ─────────────────────────────────────────────────
 
     def _draw_ceiling(self, frame) -> None:
         cv2 = self._cv2

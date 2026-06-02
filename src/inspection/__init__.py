@@ -1,4 +1,4 @@
-"""YOLOv8 inspection service sub-package."""
+"""Subpacote do serviço de inspeção YOLOv8."""
 
 from .service import YoloInspectionService
 

@@ -1,8 +1,8 @@
-"""Pygame robot renderer.
+"""Renderizador do robô em Pygame.
 
-*PygameRobotRenderer* is a stateless drawing class — it receives all it
-needs through *render()* arguments and has no knowledge of MQTT, state
-management or the main game loop.
+*PygameRobotRenderer* é uma classe de desenho sem estado: recebe tudo o
+que precisa pelos argumentos de *render()* e não conhece MQTT, gerência
+de estado nem o loop principal.
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ __all__ = ["RobotRenderState", "PygameRobotRenderer"]
 
 @dataclass
 class RobotRenderState:
-    """Everything the renderer needs — passed explicitly, never mutated."""
+    """Tudo que o renderizador precisa, passado explicitamente e sem mutação."""
 
     spin_angle: float
     inspection_active: bool
@@ -31,11 +31,11 @@ class RobotRenderState:
 
 
 class PygameRobotRenderer:
-    """Draws the ATR robot on a Pygame surface.
+    """Desenha o robô ATR em uma superfície Pygame.
 
-    The caller is responsible for positioning: pass *rx* (rear track X),
-    *fx* (front track X), and a *floor_y_fn* that returns the screen-Y
-    of the floor for a given screen-X.
+    O chamador é responsável pelo posicionamento: informe *rx* (X da
+    esteira traseira), *fx* (X da esteira dianteira) e uma *floor_y_fn*
+    que retorna o Y de tela do piso para um X de tela.
     """
 
     def render(
@@ -74,7 +74,7 @@ class PygameRobotRenderer:
             screen, cx, tr, body_gap, body_h, body_lift, ty, state.encoder_count
         )
 
-    # ── private draw helpers ────────────────────────────────────────────────
+    # ── auxiliares privados de desenho ──────────────────────────────────────
 
     def _draw_shadow(self, screen, rx, fx, floor_mid):
         shd = pygame.Surface((fx - rx + 40, 28), pygame.SRCALPHA)

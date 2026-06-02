@@ -1,8 +1,8 @@
-"""MQTT client factory and base component.
+"""Fábrica de clientes MQTT e componente base.
 
-All three Python services inherit from *MqttComponent* rather than
-duplicating the paho boilerplate.  Subclasses only override the two
-hook methods *_on_connect* and *_on_message*.
+Os três serviços Python herdam de *MqttComponent* em vez de duplicar
+o código padrão do paho. As subclasses só precisam sobrescrever os
+métodos de gancho *_on_connect* e *_on_message*.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def create_client(client_id: str) -> _paho.Client:
-    """Return a paho Client compatible with both v1 and v2 callback APIs."""
+    """Retorna um Client do paho compatível com callbacks v1 e v2."""
     try:
         return _paho.Client(
             client_id=client_id,
@@ -28,9 +28,9 @@ def create_client(client_id: str) -> _paho.Client:
 
 
 class MqttComponent:
-    """Base class for any Python service that speaks MQTT.
+    """Classe base para qualquer serviço Python que se comunica por MQTT.
 
-    Usage::
+    Uso::
 
         class MyService(MqttComponent):
             def _on_connect(self, client):
@@ -40,9 +40,9 @@ class MqttComponent:
                 print(topic, payload)
 
         svc = MyService("localhost", 1883, "my-client")
-        svc.connect_async()          # non-blocking (for GUI apps)
-        # or
-        svc.connect_blocking()       # blocks forever (for daemons)
+        svc.connect_async()          # não bloqueante (para GUIs)
+        # ou
+        svc.connect_blocking()       # bloqueia continuamente (para daemons)
     """
 
     def __init__(self, broker: str, port: int, client_id: str) -> None:
@@ -52,7 +52,7 @@ class MqttComponent:
         self._client.on_connect = self._handle_connect
         self._client.on_message = self._handle_message
 
-    # ── paho adapters ────────────────────────────────────────────────────────
+    # ── adaptadores do paho ──────────────────────────────────────────────────
 
     def _handle_connect(self, client, _userdata, _flags, rc: int) -> None:
         logger.info(
@@ -63,23 +63,23 @@ class MqttComponent:
     def _handle_message(self, _client, _userdata, msg) -> None:
         self._on_message(msg.topic, msg.payload.decode(errors="replace"))
 
-    # ── hooks for subclasses ─────────────────────────────────────────────────
+    # ── ganchos para subclasses ──────────────────────────────────────────────
 
     def _on_connect(self, client: _paho.Client) -> None:
-        """Called once the broker accepts the connection.  Subscribe here."""
+        """Chamado quando o broker aceita a conexão. Faça assinaturas aqui."""
 
     def _on_message(self, topic: str, payload: str) -> None:
-        """Called for every inbound message after *_on_connect* subscriptions."""
+        """Chamado para cada mensagem recebida após as assinaturas."""
 
-    # ── public API ───────────────────────────────────────────────────────────
+    # ── API pública ──────────────────────────────────────────────────────────
 
     def connect_async(self) -> None:
-        """Connect and start the background network thread (for GUI apps)."""
+        """Conecta e inicia a thread de rede em segundo plano (para GUIs)."""
         self._client.connect(self._broker, self._port, 60)
         self._client.loop_start()
 
     def connect_blocking(self) -> None:
-        """Connect and block forever processing messages (for daemon services)."""
+        """Conecta e bloqueia continuamente processando mensagens (daemons)."""
         self._client.connect(self._broker, self._port, 60)
         self._client.loop_forever()
 

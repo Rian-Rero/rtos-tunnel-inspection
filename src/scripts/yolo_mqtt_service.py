@@ -1,4 +1,4 @@
-"""Entry point for the YOLOv8 inspection daemon."""
+"""Ponto de entrada do daemon de inspeção YOLOv8."""
 
 import logging
 import sys

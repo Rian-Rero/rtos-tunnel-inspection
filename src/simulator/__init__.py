@@ -1,4 +1,4 @@
-"""Pygame tunnel simulator sub-package."""
+"""Subpacote do simulador de túnel em Pygame."""
 
 from .app import TunelSimulator
 

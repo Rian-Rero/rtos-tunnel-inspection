@@ -1,4 +1,4 @@
-"""Tkinter operator GUI sub-package."""
+"""Subpacote da GUI Tkinter do operador."""
 
 from .app import OperatorGUI
 
