@@ -119,7 +119,6 @@ class TunnelScene:
             path_pts.append((x, sum(p[1] for p in win) / len(win)))
 
         floor_top = [(x, floor_fn(x)) for x in range(-24, width + 25, 24)]
-        floor_poly = floor_top + [(width + 24, height), (-24, height)]
 
         if path_pts:
             ceil_poly = [(0, 78)] + [(x, y - 24) for x, y in path_pts] + [(width, 78)]
@@ -139,20 +138,9 @@ class TunnelScene:
                     4,
                 )
 
-        pygame.draw.polygon(screen, (57, 38, 26), floor_poly)
-        crust = floor_top + [(x, min(height, y + 38)) for x, y in reversed(floor_top)]
-        pygame.draw.polygon(screen, (80, 52, 32), crust)
-        for x in range(-40, width + 40, 58):
-            y = floor_fn(x)
-            pygame.draw.ellipse(screen, (43, 29, 20), (x, y + 12, 44, 12))
-            pygame.draw.circle(screen, (102, 72, 45), (x + 18, y + 8), 3)
-            pygame.draw.circle(screen, (128, 88, 53), (x + 34, y + 18), 2)
-        if len(floor_top) >= 2:
-            pygame.draw.lines(screen, (151, 101, 55), False, floor_top, 5)
-            pygame.draw.lines(
-                screen, (92, 64, 42), False, [(x, y + 28) for x, y in floor_top], 2
-            )
-
+        self._draw_floor_terrain(
+            screen, floor_top, width, height, view, floor_fn, state.visual_pos_x
+        )
         self._draw_slope_scan(screen, view, state.imu)
         self._draw_anomaly_marks(screen, state, view, roof_mid_y)
         self._draw_distance_ruler(screen, view, floor_fn)
@@ -203,6 +191,82 @@ class TunnelScene:
 
     # ── private helpers ──────────────────────────────────────────────────────
 
+    def _draw_floor_terrain(
+        self,
+        screen,
+        floor_top,
+        width: int,
+        height: int,
+        view: ViewTransform,
+        floor_fn,
+        visual_pos_x: float,
+    ) -> None:
+        """Render a realistic layered-earth floor with world-anchored detail."""
+        # ── Bedrock fill — deepest layer ──────────────────────────────────────
+        floor_poly = floor_top + [(width + 24, height), (-24, height)]
+        pygame.draw.polygon(screen, (42, 25, 11), floor_poly)
+
+        # ── Sub-surface clay band ─────────────────────────────────────────────
+        clay_bot = [(x, min(height, y + 72)) for x, y in reversed(floor_top)]
+        pygame.draw.polygon(screen, (64, 40, 19), floor_top + clay_bot)
+
+        # ── Topsoil surface crust ─────────────────────────────────────────────
+        top_bot = [(x, min(height, y + 26)) for x, y in reversed(floor_top)]
+        pygame.draw.polygon(screen, (92, 58, 31), floor_top + top_bot)
+
+        # ── World-anchored stones / pebbles ───────────────────────────────────
+        # Anchored to world x (not screen x) so they don't shift as camera scrolls.
+        w_step = 0.18  # metres between stone slots
+        wi_start = int(view.view_start_m / w_step) - 1
+        wi_end = int(view.view_end_m / w_step) + 2
+
+        for wi in range(wi_start, wi_end):
+            wx = wi * w_step
+            sx = view.screen_x(wx)
+            if not (-30 <= sx <= width + 30):
+                continue
+            sy = floor_fn(sx)
+
+            # Deterministic mixing from world index (LCG-style, no Python hash)
+            a = ((wi * 1664525 + 1013904223) >> 4) & 0xFF
+            b = ((wi * 22695477 + 12345678) >> 5) & 0xFF
+            c = ((wi * 134775813 + 1) >> 6) & 0xFF
+
+            # Small surface pebble
+            px = sx + (a % 34) - 17
+            py = sy + 2 + (b % 5)
+            pw = 2 + (c % 3)
+            ph = max(1, pw - 1)
+            pygame.draw.ellipse(
+                screen,
+                (76 + a % 34, 50 + b % 26, 31 + c % 18),
+                (px - pw, py - ph, pw * 2, ph * 2),
+            )
+
+            # Medium rock — every ~3rd slot, slightly offset
+            if a % 3 == 0:
+                rx = sx + (b % 44) - 22
+                ry = sy + 5 + (c % 7)
+                rw = 7 + (a % 9)
+                rh = 4 + (b % 4)
+                pygame.draw.ellipse(
+                    screen,
+                    (68 + c % 24, 46 + a % 20, 29 + b % 14),
+                    (rx - rw // 2, ry - rh // 2, rw, rh),
+                )
+
+            # Rare hairline crack on the surface
+            if c % 11 == 0:
+                cx1, cy1 = sx + (a % 22) - 11, sy
+                cx2, cy2 = cx1 + (b % 14) - 7, sy + 2 + (c % 4)
+                pygame.draw.line(screen, (33, 19, 7), (cx1, cy1), (cx2, cy2), 1)
+
+        # ── Surface edge — crisp ground boundary with shadow ─────────────────
+        if len(floor_top) >= 2:
+            pygame.draw.lines(screen, (148, 96, 52), False, floor_top, 4)
+            shadow = [(x, y + 9) for x, y in floor_top]
+            pygame.draw.lines(screen, (30, 17, 6), False, shadow, 2)
+
     def _draw_slope_scan(self, screen, view: ViewTransform, imu: float):
         width, height = screen.get_size()
         layer = pygame.Surface((width, height), pygame.SRCALPHA)
@@ -212,16 +276,17 @@ class TunnelScene:
             wx = view.world_x(x)
             angle = local_imu(wx)
             lbl = slope_label(angle)
+            if lbl == "PLANO":
+                continue
             color = slope_color_rgb(angle)
-            alpha = 168 if lbl != "PLANO" else 90
             y = view.floor_y(height, x, 0.0)
             nx, ny = x + 42, view.floor_y(height, x + 42, 0.0)
-            pygame.draw.line(layer, (*color, alpha), (x, y - 17), (nx, ny - 17), 5)
+            pygame.draw.line(layer, (*color, 155), (x, y - 17), (nx, ny - 17), 4)
             tip = (nx, ny - 17)
             pygame.draw.polygon(
                 layer,
-                (*color, alpha),
-                [tip, (tip[0] - 10, tip[1] - 6), (tip[0] - 10, tip[1] + 6)],
+                (*color, 155),
+                [tip, (tip[0] - 9, tip[1] - 5), (tip[0] - 9, tip[1] + 5)],
             )
             if lbl != last_label and x - cooldown_x > 150:
                 layer.blit(font.render(lbl, True, color), (x + 2, y - 42))
@@ -231,19 +296,29 @@ class TunnelScene:
     def _draw_anomaly_marks(
         self, screen, state: SceneState, view: ViewTransform, roof_mid_y: int
     ):
-        _, height = screen.get_size()
+        height = screen.get_size()[1]
+        width = screen.get_size()[0]
         font = pygame.font.SysFont("arial", 13, bold=True)
+
+        visible: list[tuple[int, int, AnomalyMark]] = []
         for mark in state.anomaly_marks:
             if not (view.view_start_m <= mark.pos_x <= view.view_end_m):
                 continue
             x = view.screen_x(mark.pos_x)
-            _, width = screen.get_size()[1], screen.get_size()[0]
             y = roof_mid_y - (mark.lidar - 2.0) * 82.0
             y += math.sin(math.radians(state.imu)) * (x - width / 2) * 0.045
             y = max(86, min(height - 230, y))
-            self._draw_anomaly_shape(screen, int(x), int(y), mark.kind)
+            visible.append((int(x), int(y), mark))
+
+        last_x_by_kind: dict[str, int] = {}
+        for x, y, mark in visible:
+            prev = last_x_by_kind.get(mark.kind, -9999)
+            if abs(x - prev) < 75:
+                continue
+            last_x_by_kind[mark.kind] = x
+            self._draw_anomaly_shape(screen, x, y, mark.kind)
             color = (59, 130, 246) if mark.kind == "Buraco" else (248, 113, 113)
-            screen.blit(font.render(mark.kind, True, color), (int(x) - 22, int(y) - 26))
+            screen.blit(font.render(mark.kind, True, color), (x - 22, y - 26))
 
     def _draw_anomaly_shape(self, screen, x: int, y: int, kind: str):
         if kind == "Buraco":
