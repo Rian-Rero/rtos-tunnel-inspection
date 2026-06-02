@@ -684,83 +684,276 @@ class OperatorGUI:
             cart_x = 100 + int((self.telemetry.pos_x * 10) % max(1, width - 220))
             cart_y = lane_y - 30 - int(imu_tilt * 18)
 
-        canvas.create_rectangle(
-            cart_x,
-            cart_y,
-            cart_x + 132,
-            cart_y + 44,
-            fill="#22c55e",
-            outline="#86efac",
+        # ── CATERPILLAR TRACKS ──────────────────────────────────────────────
+        trk_x1 = cart_x - 2
+        trk_x2 = cart_x + 142
+        trk_y1 = cart_y + 36
+        trk_y2 = cart_y + 54
+        trk_mid = (trk_y1 + trk_y2) // 2
+        canvas.create_polygon(
+            trk_x1,
+            trk_y1,
+            trk_x2,
+            trk_y1,
+            trk_x2,
+            trk_y2,
+            trk_x1,
+            trk_y2,
+            fill="#1c2028",
+            outline="#404e5c",
+            width=1,
+        )
+        canvas.create_line(
+            trk_x1, trk_y1 + 2, trk_x2, trk_y1 + 2, fill="#4a5a6a", width=1
+        )
+        for ti in range(0, 144, 11):
+            tx_t = trk_x1 + ti
+            canvas.create_line(
+                tx_t, trk_y1 + 2, tx_t, trk_y2 - 2, fill="#141820", width=2
+            )
+
+        # Rear sprocket
+        rsx = trk_x1
+        canvas.create_oval(
+            rsx - 11,
+            trk_mid - 11,
+            rsx + 11,
+            trk_mid + 11,
+            fill="#2e3844",
+            outline="#586878",
             width=2,
         )
+        for k in range(6):
+            a = self.preview_angle + k * math.pi / 3
+            ex = int(rsx + math.cos(a) * 7)
+            ey = int(trk_mid + math.sin(a) * 7)
+            canvas.create_line(rsx, trk_mid, ex, ey, fill="#6a7c8e", width=1)
+        canvas.create_oval(
+            rsx - 3, trk_mid - 3, rsx + 3, trk_mid + 3, fill="#4a5c6e", outline=""
+        )
+
+        # Front sprocket
+        fsx = trk_x2
+        canvas.create_oval(
+            fsx - 11,
+            trk_mid - 11,
+            fsx + 11,
+            trk_mid + 11,
+            fill="#2e3844",
+            outline="#586878",
+            width=2,
+        )
+        for k in range(6):
+            a = self.preview_angle + k * math.pi / 3
+            ex = int(fsx + math.cos(a) * 7)
+            ey = int(trk_mid + math.sin(a) * 7)
+            canvas.create_line(fsx, trk_mid, ex, ey, fill="#6a7c8e", width=1)
+        canvas.create_oval(
+            fsx - 3, trk_mid - 3, fsx + 3, trk_mid + 3, fill="#4a5c6e", outline=""
+        )
+
+        # Road wheels (3)
+        for ri in range(1, 4):
+            rwx = trk_x1 + int(144 * ri / 4)
+            canvas.create_oval(
+                rwx - 7,
+                trk_mid - 7,
+                rwx + 7,
+                trk_mid + 7,
+                fill="#262e3a",
+                outline="#485870",
+                width=1,
+            )
+            canvas.create_oval(
+                rwx - 2, trk_mid - 2, rwx + 2, trk_mid + 2, fill="#384858", outline=""
+            )
+
+        # ── MAIN BODY ───────────────────────────────────────────────────────
+        bx1 = cart_x + 8
+        bx2 = cart_x + 132
+        by1 = cart_y + 8
+        by2 = cart_y + 36
+        canvas.create_polygon(
+            bx1,
+            by1,
+            bx2,
+            by1,
+            bx2,
+            by2,
+            bx1,
+            by2,
+            fill="#425466",
+            outline="#687c8e",
+            width=2,
+        )
+        canvas.create_line(
+            bx1 + 6,
+            (by1 + by2) // 2,
+            bx2 - 6,
+            (by1 + by2) // 2,
+            fill="#2e3e4e",
+            width=1,
+        )
+
+        # ── EQUIPMENT BOX (rear-left of body top) ───────────────────────────
+        eq1x = bx1 + 6
+        eq2x = bx1 + 64
+        eq1y = by1 - 20
+        eq2y = by1
+        canvas.create_polygon(
+            eq1x,
+            eq1y,
+            eq2x,
+            eq1y,
+            eq2x,
+            eq2y,
+            eq1x,
+            eq2y,
+            fill="#344252",
+            outline="#5a7080",
+            width=1,
+        )
+        for slot in range(4):
+            sx = eq1x + 7 + slot * 12
+            canvas.create_line(sx, eq1y + 5, sx, eq1y + 14, fill="#223040", width=2)
+
+        # ── ANTENNA ─────────────────────────────────────────────────────────
+        ant_x = bx1 + 18
+        canvas.create_line(ant_x, eq1y, ant_x, cart_y - 48, fill="#a8b8c8", width=2)
+        canvas.create_oval(
+            ant_x - 4, cart_y - 52, ant_x + 4, cart_y - 44, fill="#c0cfd8", outline=""
+        )
+        canvas.create_oval(
+            ant_x - 3, cart_y - 51, ant_x + 3, cart_y - 45, fill="#60a5fa", outline=""
+        )
+
+        # ── LIDAR DOME ──────────────────────────────────────────────────────
+        lidar_x = cart_x + 84
+        lidar_cy_tk = by1 - 14
+        lidar_r_tk = 15
+        # Mount pedestal
         canvas.create_rectangle(
-            cart_x + 20,
-            cart_y + 8,
-            cart_x + 112,
-            cart_y + 26,
-            fill="#0f172a",
+            lidar_x - 14,
+            by1 - 9,
+            lidar_x + 14,
+            by1,
+            fill="#304050",
+            outline="#506070",
+            width=1,
+        )
+        # LiDAR scan beams (fan, color fades toward edges)
+        beam_palette = [
+            "#20b8ff",
+            "#28b0f8",
+            "#30a8f0",
+            "#3898e8",
+            "#4090e0",
+            "#4888d8",
+            "#5080d0",
+        ]
+        n_beams_tk = 15
+        for b in range(n_beams_tk):
+            ang = math.radians(-78.0 + b * (156.0 / (n_beams_tk - 1)))
+            bl = 120
+            bx_e = int(lidar_x + math.sin(ang) * bl)
+            by_e = int(lidar_cy_tk - lidar_r_tk - math.cos(ang) * bl)
+            cdist = abs(b - (n_beams_tk - 1) / 2.0) / ((n_beams_tk - 1) / 2.0)
+            cidx = min(len(beam_palette) - 1, int(cdist * len(beam_palette)))
+            canvas.create_line(
+                lidar_x,
+                lidar_cy_tk - lidar_r_tk + 2,
+                bx_e,
+                by_e,
+                fill=beam_palette[cidx],
+                width=1,
+            )
+        # Dome outer
+        canvas.create_oval(
+            lidar_x - lidar_r_tk - 4,
+            lidar_cy_tk - lidar_r_tk - 4,
+            lidar_x + lidar_r_tk + 4,
+            lidar_cy_tk + lidar_r_tk + 4,
+            fill="#283848",
+            outline="#486080",
+            width=2,
+        )
+        # Dome lens
+        canvas.create_oval(
+            lidar_x - lidar_r_tk,
+            lidar_cy_tk - lidar_r_tk,
+            lidar_x + lidar_r_tk,
+            lidar_cy_tk + lidar_r_tk,
+            fill="#1460a8",
+            outline="#3090e0",
+            width=2,
+        )
+        # Lens highlight
+        canvas.create_oval(
+            lidar_x - lidar_r_tk + 2,
+            lidar_cy_tk - lidar_r_tk + 2,
+            lidar_x - lidar_r_tk + 9,
+            lidar_cy_tk - lidar_r_tk + 9,
+            fill="#90c8f0",
             outline="",
         )
-        canvas.create_rectangle(
-            cart_x + 28,
-            cart_y + 8,
-            cart_x + 50,
-            cart_y + 26,
-            fill="#1e293b",
-            outline="",
+
+        # ── CAMERA ARM ──────────────────────────────────────────────────────
+        cb_x = bx2 - 18
+        cb_y = by1
+        pt_y = by1 - 24
+        # Post
+        canvas.create_line(cb_x, cb_y, cb_x, pt_y, fill="#7a8e9e", width=3)
+        # Elbow joint
+        canvas.create_oval(
+            cb_x - 4,
+            pt_y - 4,
+            cb_x + 4,
+            pt_y + 4,
+            fill="#4a5e6e",
+            outline="#8098a8",
+            width=1,
         )
+        # Boom
+        at_x = cb_x + 28
+        at_y = by1 - 28
+        canvas.create_line(cb_x, pt_y, at_x, at_y, fill="#7a8e9e", width=3)
+        # Camera head
         canvas.create_rectangle(
-            cart_x + 58,
-            cart_y + 8,
-            cart_x + 80,
-            cart_y + 26,
-            fill="#1e293b",
-            outline="",
+            at_x - 4,
+            at_y - 16,
+            at_x + 22,
+            at_y + 2,
+            fill="#141c28",
+            outline="#6a7c8e",
+            width=1,
         )
-        canvas.create_rectangle(
-            cart_x + 88,
-            cart_y + 8,
-            cart_x + 104,
-            cart_y + 26,
-            fill="#1e293b",
-            outline="",
+        # Camera lens
+        canvas.create_oval(
+            at_x + 2,
+            at_y - 13,
+            at_x + 16,
+            at_y - 1,
+            fill="#1464b8",
+            outline="#3090e0",
+            width=1,
+        )
+        canvas.create_oval(
+            at_x + 3, at_y - 12, at_x + 8, at_y - 7, fill="#90c0e8", outline=""
+        )
+        # Status LED
+        led_fill = "#f87171" if abs(self.telemetry.velocidade) > 0.05 else "#4ade80"
+        canvas.create_oval(
+            at_x + 18, at_y - 16, at_x + 23, at_y - 11, fill=led_fill, outline=""
         )
         canvas.create_text(
-            cart_x + 66,
-            cart_y + 20,
-            fill="#0f172a",
-            font=("Helvetica", 11, "bold"),
-            text="ATR",
+            at_x + 9,
+            at_y + 6,
+            text="CAM",
+            fill="#c8d8e8",
+            font=("Helvetica", 8, "bold"),
         )
 
-        wheel_radius = 17
-        wheel_centers = [(cart_x + 28, cart_y + 48), (cart_x + 104, cart_y + 48)]
-        for center in wheel_centers:
-            canvas.create_oval(
-                center[0] - wheel_radius,
-                center[1] - wheel_radius,
-                center[0] + wheel_radius,
-                center[1] + wheel_radius,
-                fill="#0f172a",
-                outline="#cbd5e1",
-                width=2,
-            )
-            for spoke in range(4):
-                angle = self.preview_angle + spoke * (math.pi / 2)
-                spoke_x = center[0] + math.cos(angle) * (wheel_radius - 2)
-                spoke_y = center[1] + math.sin(angle) * (wheel_radius - 2)
-                canvas.create_line(
-                    center[0], center[1], spoke_x, spoke_y, fill="#e2e8f0", width=2
-                )
-            canvas.create_oval(
-                center[0] - 3,
-                center[1] - 3,
-                center[0] + 3,
-                center[1] + 3,
-                fill="#e2e8f0",
-                outline="",
-            )
-
+        # ── DIRECTION ARROW ─────────────────────────────────────────────────
         if self.telemetry.direction != "STOP":
             direction_arrow = -1 if self.telemetry.direction == "LEFT" else 1
             arrow_color = "#60a5fa" if direction_arrow < 0 else "#fbbf24"

@@ -69,6 +69,7 @@ Testing/
 .cache/
 __pycache__/
 *.py[cod]
+*.pyc
 
 # vs code
 .vscode/

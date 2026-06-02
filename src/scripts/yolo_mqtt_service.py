@@ -4,6 +4,7 @@ Escuta o trigger da câmera, simula a inferência e publica o resultado
 no barramento MQTT.
 """
 
+import math
 import time
 import json
 import logging
@@ -91,24 +92,164 @@ class YoloInspectionService:
             self.cv2.circle(frame, (320, 78), 44, (44, 44, 48), 4)
             simulated_type = "saliencia"
 
-        # Robô e cone de iluminação/câmera, tudo sintético.
-        overlay = frame.copy()
-        triangle = self.np.array(
-            [[(320, 445), (110, 150), (530, 150)]], dtype=self.np.int32
+        # ── Robô sintético com esteiras, caixa, LiDAR e câmera articulada ──
+        cv2 = self.cv2
+        np = self.np
+        bx_c = 320  # centro horizontal do corpo
+        bx_l = bx_c - 118  # borda esquerda do corpo
+        bx_r = bx_c + 118  # borda direita do corpo
+        body_top = 358
+        body_bot = 408
+
+        # Sombra
+        cv2.ellipse(frame, (bx_c, 450), (132, 9), 0, 0, 360, (12, 14, 18), -1)
+
+        # Esteiras (caterpillar tracks)
+        cv2.rectangle(
+            frame, (bx_l - 14, body_bot), (bx_r + 14, body_bot + 30), (22, 27, 33), -1
         )
-        self.cv2.fillPoly(overlay, triangle, (84, 130, 190))
-        frame = self.cv2.addWeighted(overlay, 0.28, frame, 0.72, 0)
-        self.cv2.rectangle(frame, (210, 385), (430, 460), (40, 170, 92), -1)
-        self.cv2.rectangle(frame, (238, 400), (402, 430), (14, 22, 36), -1)
-        self.cv2.circle(frame, (262, 462), 24, (18, 22, 30), -1)
-        self.cv2.circle(frame, (378, 462), 24, (18, 22, 30), -1)
-        self.cv2.circle(frame, (320, 376), 18, (42, 120, 190), -1)
-        self.cv2.circle(frame, (320, 376), 8, (215, 235, 255), -1)
-        self.cv2.putText(
+        cv2.rectangle(
+            frame, (bx_l - 14, body_bot), (bx_r + 14, body_bot + 30), (50, 62, 72), 1
+        )
+        # Marcas de tração
+        for ti in range(0, 248, 12):
+            tx_t = bx_l - 12 + ti
+            cv2.line(
+                frame, (tx_t, body_bot + 2), (tx_t, body_bot + 28), (14, 18, 22), 2
+            )
+        # Estria superior da esteira
+        cv2.line(
+            frame, (bx_l - 14, body_bot + 2), (bx_r + 14, body_bot + 2), (64, 78, 90), 1
+        )
+        # Rodas motrizes (sprockets)
+        cv2.circle(frame, (bx_l - 12, body_bot + 15), 16, (40, 48, 58), -1)
+        cv2.circle(frame, (bx_l - 12, body_bot + 15), 16, (76, 92, 106), 2)
+        cv2.circle(frame, (bx_r + 12, body_bot + 15), 16, (40, 48, 58), -1)
+        cv2.circle(frame, (bx_r + 12, body_bot + 15), 16, (76, 92, 106), 2)
+        # Rodas de apoio (3)
+        for rwi in range(1, 4):
+            rwx = bx_l + int(236 * rwi / 4)
+            cv2.circle(frame, (rwx, body_bot + 15), 10, (32, 38, 46), -1)
+            cv2.circle(frame, (rwx, body_bot + 15), 10, (60, 72, 84), 1)
+
+        # Corpo principal
+        cv2.rectangle(frame, (bx_l, body_top), (bx_r, body_bot), (60, 78, 92), -1)
+        cv2.rectangle(frame, (bx_l, body_top), (bx_r, body_bot), (98, 120, 138), 2)
+        cv2.line(
             frame,
-            f"CAMERA SIMULADA DO ROBO | {simulated_type}",
+            (bx_l + 8, (body_top + body_bot) // 2),
+            (bx_r - 8, (body_top + body_bot) // 2),
+            (42, 58, 70),
+            1,
+        )
+
+        # Caixa de equipamentos (topo-esquerdo do corpo)
+        eq_x1 = bx_l + 8
+        eq_y1 = body_top - 30
+        eq_x2 = bx_l + 88
+        eq_y2 = body_top
+        cv2.rectangle(frame, (eq_x1, eq_y1), (eq_x2, eq_y2), (46, 62, 76), -1)
+        cv2.rectangle(frame, (eq_x1, eq_y1), (eq_x2, eq_y2), (80, 100, 116), 1)
+        for slot in range(5):
+            sx = eq_x1 + 8 + slot * 13
+            cv2.line(frame, (sx, eq_y1 + 6), (sx, eq_y1 + 20), (30, 44, 56), 3)
+
+        # Antena
+        cv2.line(
+            frame, (bx_l + 30, eq_y1), (bx_l + 30, body_top - 78), (158, 178, 198), 2
+        )
+        cv2.circle(frame, (bx_l + 30, body_top - 80), 5, (188, 208, 228), -1)
+        cv2.circle(frame, (bx_l + 30, body_top - 80), 4, (72, 148, 230), -1)
+
+        # Cone de varredura do LiDAR (antes da cúpula para ela cobrir a base)
+        lidar_cx = bx_c + 22
+        lidar_cy_v = body_top - 18
+        lidar_r_v = 20
+        overlay_beam = frame.copy()
+        cone_pts = np.array(
+            [
+                [
+                    (lidar_cx - 6, lidar_cy_v),
+                    (lidar_cx + 6, lidar_cy_v),
+                    (lidar_cx + 320, 4),
+                    (lidar_cx - 320, 4),
+                ]
+            ],
+            dtype=np.int32,
+        )
+        cv2.fillPoly(overlay_beam, cone_pts, (34, 140, 215))
+        n_scan = 15
+        for b in range(n_scan):
+            ang = math.radians(-78.0 + b * (156.0 / (n_scan - 1)))
+            bl_v = 390
+            bx_e = int(lidar_cx + math.sin(ang) * bl_v)
+            by_e = max(0, int(lidar_cy_v - math.cos(ang) * bl_v))
+            cv2.line(
+                overlay_beam, (lidar_cx, lidar_cy_v), (bx_e, by_e), (72, 195, 255), 1
+            )
+        frame = cv2.addWeighted(overlay_beam, 0.30, frame, 0.70, 0)
+
+        # Cúpula do LiDAR – base de montagem
+        cv2.rectangle(
+            frame,
+            (lidar_cx - 18, body_top - 12),
+            (lidar_cx + 18, body_top),
+            (44, 58, 72),
+            -1,
+        )
+        cv2.rectangle(
+            frame,
+            (lidar_cx - 18, body_top - 12),
+            (lidar_cx + 18, body_top),
+            (80, 98, 114),
+            1,
+        )
+        # Dome externo
+        cv2.circle(frame, (lidar_cx, lidar_cy_v), lidar_r_v + 4, (36, 48, 60), -1)
+        cv2.circle(frame, (lidar_cx, lidar_cy_v), lidar_r_v + 4, (68, 84, 100), 2)
+        # Lente (azul)
+        cv2.circle(frame, (lidar_cx, lidar_cy_v), lidar_r_v, (16, 88, 160), -1)
+        cv2.circle(frame, (lidar_cx, lidar_cy_v), lidar_r_v, (46, 148, 238), 2)
+        # Reflexo na lente
+        cv2.circle(frame, (lidar_cx - 6, lidar_cy_v - 6), 6, (138, 198, 250), -1)
+        cv2.circle(frame, (lidar_cx - 6, lidar_cy_v - 6), 3, (210, 238, 255), -1)
+
+        # Braço da câmera (direita do corpo)
+        cam_bx = bx_r - 26
+        cam_by = body_top
+        pt_ty = body_top - 36
+        cv2.line(frame, (cam_bx, cam_by), (cam_bx, pt_ty), (118, 136, 154), 4)
+        cv2.circle(frame, (cam_bx, pt_ty), 6, (70, 86, 102), -1)
+        cv2.circle(frame, (cam_bx, pt_ty), 6, (114, 132, 150), 2)
+        at_x_v = cam_bx + 38
+        at_y_v = pt_ty - 8
+        cv2.line(frame, (cam_bx, pt_ty), (at_x_v, at_y_v), (118, 136, 154), 4)
+        # Cabeça da câmera
+        cv2.rectangle(
+            frame,
+            (at_x_v - 6, at_y_v - 20),
+            (at_x_v + 26, at_y_v + 4),
+            (18, 24, 32),
+            -1,
+        )
+        cv2.rectangle(
+            frame,
+            (at_x_v - 6, at_y_v - 20),
+            (at_x_v + 26, at_y_v + 4),
+            (94, 112, 130),
+            1,
+        )
+        # Lente da câmera
+        cv2.circle(frame, (at_x_v + 9, at_y_v - 8), 9, (24, 94, 168), -1)
+        cv2.circle(frame, (at_x_v + 9, at_y_v - 8), 9, (48, 142, 228), 2)
+        cv2.circle(frame, (at_x_v + 5, at_y_v - 12), 3, (168, 210, 252), -1)
+        # LED de status (verde = operacional)
+        cv2.circle(frame, (at_x_v + 22, at_y_v - 18), 4, (52, 211, 114), -1)
+        cv2.putText(
+            frame,
+            f"CAMERA ATR | {simulated_type.upper()}",
             (32, 34),
-            self.cv2.FONT_HERSHEY_SIMPLEX,
+            cv2.FONT_HERSHEY_SIMPLEX,
             0.75,
             (235, 238, 244),
             2,

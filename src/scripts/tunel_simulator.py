@@ -566,152 +566,283 @@ class TunelSimulator:
 
     def _draw_robot(self, screen):
         width, _ = screen.get_size()
-        robot_x = int(width / 2 - 80)
-        rear_wheel_x = robot_x + 28
-        front_wheel_x = robot_x + 132
-        rear_floor_y = self._floor_y(screen, rear_wheel_x)
-        front_floor_y = self._floor_y(screen, front_wheel_x)
+
+        # Anchor X positions for terrain conforming
+        rx = int(width / 2 - 88)  # rear track edge
+        fx = rx + 176  # front track edge
+        cx = (rx + fx) // 2
+        rear_floor_y = self._floor_y(screen, rx)
+        front_floor_y = self._floor_y(screen, fx)
         floor_y = int((rear_floor_y + front_floor_y) / 2)
-        wheel_radius = 16
-        chassis_rear_y = rear_floor_y - 82
-        chassis_front_y = front_floor_y - 82
-        robot_y = int((chassis_rear_y + chassis_front_y) / 2 - 4)
-        terrain_tilt = max(-18.0, min(18.0, (front_floor_y - rear_floor_y) * 0.36))
 
-        body_points = [
-            (robot_x, chassis_rear_y + 4),
-            (robot_x + 160, chassis_front_y - 8),
-            (robot_x + 160, chassis_front_y + 48),
-            (robot_x, chassis_rear_y + 60),
+        def ty(x, lift=0):
+            """Screen-Y at world-X, lifted above floor."""
+            t = max(0.0, min(1.0, (x - rx) / max(1, fx - rx)))
+            return int(rear_floor_y + (front_floor_y - rear_floor_y) * t - lift)
+
+        tr = 13  # sprocket radius
+        body_gap = 3
+        body_h = 44
+        body_lift = tr * 2 + body_gap
+
+        spin_angle = self.preview_angle * (1 if self.velocidade >= 0 else -1)
+
+        # ── SHADOW ──────────────────────────────────────────────────────────
+        shd = pygame.Surface((216, 28), pygame.SRCALPHA)
+        pygame.draw.ellipse(shd, (0, 0, 0, 72), (4, 8, 208, 14))
+        screen.blit(shd, (rx - 8, floor_y - 10))
+
+        # ── CATERPILLAR TRACKS ──────────────────────────────────────────────
+        track_pts = [
+            (rx, ty(rx, 0)),
+            (fx, ty(fx, 0)),
+            (fx, ty(fx, tr * 2)),
+            (rx, ty(rx, tr * 2)),
         ]
-        shadow = pygame.Surface((220, 80), pygame.SRCALPHA)
-        pygame.draw.ellipse(shadow, (0, 0, 0, 90), (8, 28, 196, 34))
-        screen.blit(shadow, (robot_x - 22, floor_y - 42))
+        pygame.draw.polygon(screen, (26, 31, 39), track_pts)
+        pygame.draw.polygon(screen, (55, 65, 76), track_pts, 2)
 
-        pygame.draw.polygon(screen, (34, 197, 94), body_points)
-        pygame.draw.polygon(screen, (187, 247, 208), body_points, 3)
+        # Animated tread marks
+        track_span = fx - rx
+        tread_off = int(spin_angle * 10) % 12
+        for i in range(-tread_off, track_span + 12, 12):
+            tx_pos = rx + i
+            if not (rx <= tx_pos <= fx):
+                continue
+            t_top = ty(tx_pos, tr * 2 - 3)
+            t_bot = ty(tx_pos, 3)
+            pygame.draw.line(screen, (17, 21, 27), (tx_pos, t_top), (tx_pos, t_bot), 2)
+
+        # Upper-track highlight strip
+        pygame.draw.line(
+            screen, (70, 82, 96), (rx, ty(rx, tr * 2 - 1)), (fx, ty(fx, tr * 2 - 1)), 2
+        )
+
+        # Rear sprocket
+        rs = (rx, ty(rx, tr))
+        pygame.draw.circle(screen, (45, 52, 62), rs, tr)
+        pygame.draw.circle(screen, (88, 100, 114), rs, tr, 2)
+        for k in range(6):
+            a = spin_angle + k * math.pi / 3
+            pygame.draw.line(
+                screen,
+                (106, 120, 136),
+                rs,
+                (
+                    int(rs[0] + math.cos(a) * (tr - 3)),
+                    int(rs[1] + math.sin(a) * (tr - 3)),
+                ),
+                2,
+            )
+        pygame.draw.circle(screen, (65, 75, 88), rs, 4)
+
+        # Front sprocket
+        fs = (fx, ty(fx, tr))
+        pygame.draw.circle(screen, (45, 52, 62), fs, tr)
+        pygame.draw.circle(screen, (88, 100, 114), fs, tr, 2)
+        for k in range(6):
+            a = spin_angle + k * math.pi / 3
+            pygame.draw.line(
+                screen,
+                (106, 120, 136),
+                fs,
+                (
+                    int(fs[0] + math.cos(a) * (tr - 3)),
+                    int(fs[1] + math.sin(a) * (tr - 3)),
+                ),
+                2,
+            )
+        pygame.draw.circle(screen, (65, 75, 88), fs, 4)
+
+        # Road wheels (3 between sprockets)
+        for i in range(1, 4):
+            t = i / 4.0
+            wx = int(rx + track_span * t)
+            wy = ty(wx, tr)
+            pygame.draw.circle(screen, (38, 45, 54), (wx, wy), 8)
+            pygame.draw.circle(screen, (72, 84, 98), (wx, wy), 8, 1)
+            pygame.draw.circle(screen, (52, 62, 74), (wx, wy), 3)
+
+        # ── MAIN BODY ───────────────────────────────────────────────────────
+        bx_l = rx + 14
+        bx_r = fx - 14
+
+        def btop(x):
+            return ty(x, body_lift + body_h)
+
+        def bbot(x):
+            return ty(x, body_lift)
+
+        body_pts = [
+            (bx_l, btop(bx_l)),
+            (bx_r, btop(bx_r)),
+            (bx_r, bbot(bx_r)),
+            (bx_l, bbot(bx_l)),
+        ]
+        pygame.draw.polygon(screen, (65, 84, 98), body_pts)
+        pygame.draw.polygon(screen, (106, 128, 146), body_pts, 2)
+
+        # Mid-body panel detail
         pygame.draw.line(
             screen,
-            (134, 239, 172),
-            (robot_x + 18, chassis_rear_y + 18),
-            (robot_x + 146, chassis_front_y + 3),
-            3,
+            (46, 63, 76),
+            (bx_l + 6, (btop(bx_l + 6) + bbot(bx_l + 6)) // 2),
+            (bx_r - 6, (btop(bx_r - 6) + bbot(bx_r - 6)) // 2),
+            1,
         )
 
-        cab_points = [
-            (robot_x + 18, chassis_rear_y + 12),
-            (robot_x + 128, chassis_front_y + 2),
-            (robot_x + 142, chassis_front_y + 28),
-            (robot_x + 12, chassis_rear_y + 38),
+        # ── EQUIPMENT BOX (rear/left of body top) ───────────────────────────
+        eq_l = bx_l + 8
+        eq_r = bx_l + 74
+        eq_h_box = 26
+        eq_pts = [
+            (eq_l, btop(eq_l) - eq_h_box),
+            (eq_r, btop(eq_r) - eq_h_box),
+            (eq_r, btop(eq_r)),
+            (eq_l, btop(eq_l)),
         ]
-        pygame.draw.polygon(screen, (15, 23, 42), cab_points)
-        pygame.draw.polygon(screen, (51, 65, 85), cab_points, 2)
+        pygame.draw.polygon(screen, (52, 68, 82), eq_pts)
+        pygame.draw.polygon(screen, (88, 108, 124), eq_pts, 2)
+        for slot in range(4):
+            sx = eq_l + 9 + slot * 13
+            pygame.draw.line(
+                screen,
+                (32, 48, 60),
+                (sx, btop(sx) - eq_h_box + 6),
+                (sx, btop(sx) - eq_h_box + 16),
+                3,
+            )
 
-        cockpit_glow = pygame.Surface((160, 56), pygame.SRCALPHA)
-        pygame.draw.ellipse(cockpit_glow, (34, 211, 238, 28), (18, 4, 124, 28))
-        screen.blit(cockpit_glow, (robot_x + 6, robot_y + 6))
+        # ── ANTENNA ─────────────────────────────────────────────────────────
+        ant_x = bx_l + 22
+        ant_base = btop(ant_x) - eq_h_box
+        ant_tip = ant_base - 48
+        pygame.draw.line(
+            screen, (168, 186, 204), (ant_x, ant_base), (ant_x, ant_tip), 2
+        )
+        pygame.draw.circle(screen, (200, 218, 236), (ant_x, ant_tip), 4)
+        pygame.draw.circle(screen, (96, 170, 255), (ant_x, ant_tip + 1), 3)
 
-        camera_mount = (int(robot_x + 96), int(robot_y - 3 - terrain_tilt))
-        camera_tip = (camera_mount[0], camera_mount[1] - 30)
-        camera_rect = pygame.Rect(camera_tip[0] - 22, camera_tip[1] - 12, 44, 24)
-        pygame.draw.line(screen, (203, 213, 225), camera_mount, camera_tip, 5)
-        pygame.draw.rect(screen, (15, 23, 42), camera_rect, border_radius=6)
-        pygame.draw.rect(screen, (148, 163, 184), camera_rect, 2, border_radius=6)
-        pygame.draw.circle(screen, (96, 165, 250), camera_tip, 9)
-        pygame.draw.circle(
-            screen, (219, 234, 254), (camera_tip[0] + 2, camera_tip[1] - 2), 2
+        # ── LIDAR DOME ──────────────────────────────────────────────────────
+        lidar_x = cx + 10
+        lidar_base = btop(lidar_x)
+        lidar_cy = lidar_base - 16
+        lidar_r = 18
+
+        # Mount pedestal
+        pygame.draw.rect(
+            screen,
+            (48, 62, 76),
+            (lidar_x - 16, lidar_base - 10, 32, 11),
+            border_radius=3,
         )
-        status_color = (248, 113, 113) if self.inspection_active else (74, 222, 128)
-        pygame.draw.circle(
-            screen, status_color, (camera_tip[0] + 16, camera_tip[1] - 7), 3
+        pygame.draw.rect(
+            screen,
+            (84, 102, 118),
+            (lidar_x - 16, lidar_base - 10, 32, 11),
+            1,
+            border_radius=3,
         )
-        camera_font = pygame.font.SysFont("arial", 10, bold=True)
+
+        # Scan beams drawn BEFORE dome so dome overlaps at root
+        beam_surf = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+        beam_origin = (lidar_x, lidar_cy - lidar_r + 2)
+        n_beams = 17
+        for b in range(n_beams):
+            ang = math.radians(-82.0 + b * (164.0 / (n_beams - 1)))
+            beam_len = 290 + int(math.cos(ang * 1.5) * 28)
+            bx_e = int(beam_origin[0] + math.sin(ang) * beam_len)
+            by_e = int(beam_origin[1] - math.cos(ang) * beam_len)
+            cdist = abs(b - (n_beams - 1) / 2.0) / ((n_beams - 1) / 2.0)
+            alpha = max(35, int(192 - cdist * 138))
+            g_val = max(168, int(212 - cdist * 42))
+            pygame.draw.line(
+                beam_surf, (48, g_val, 255, alpha), beam_origin, (bx_e, by_e), 1
+            )
+        screen.blit(beam_surf, (0, 0))
+
+        # Dome outer shell
+        pygame.draw.circle(screen, (38, 50, 63), (lidar_x, lidar_cy), lidar_r + 4)
+        pygame.draw.circle(screen, (70, 86, 102), (lidar_x, lidar_cy), lidar_r + 4, 2)
+        # Dome lens (blue)
+        pygame.draw.circle(screen, (18, 94, 168), (lidar_x, lidar_cy), lidar_r)
+        pygame.draw.circle(screen, (50, 154, 248), (lidar_x, lidar_cy), lidar_r, 2)
+        # Lens shine
+        pygame.draw.circle(screen, (155, 210, 255), (lidar_x - 5, lidar_cy - 5), 5)
+        pygame.draw.circle(screen, (215, 240, 255), (lidar_x - 5, lidar_cy - 5), 2)
+
+        # ── CAMERA ARM ──────────────────────────────────────────────────────
+        cam_base_x = bx_r - 22
+        cam_base_y = btop(cam_base_x)
+        post_top = (cam_base_x, cam_base_y - 28)
+        # Post
+        pygame.draw.line(screen, (128, 146, 162), (cam_base_x, cam_base_y), post_top, 4)
+        pygame.draw.line(screen, (158, 175, 192), (cam_base_x, cam_base_y), post_top, 2)
+        # Elbow joint
+        pygame.draw.circle(screen, (76, 92, 108), post_top, 5)
+        pygame.draw.circle(screen, (124, 142, 160), post_top, 5, 1)
+        # Horizontal boom
+        arm_tip = (cam_base_x + 30, cam_base_y - 34)
+        pygame.draw.line(screen, (128, 146, 162), post_top, arm_tip, 4)
+        pygame.draw.line(screen, (158, 175, 192), post_top, arm_tip, 2)
+        # Camera head body
+        cam_rect = pygame.Rect(arm_tip[0] - 6, arm_tip[1] - 18, 24, 16)
+        pygame.draw.rect(screen, (20, 26, 34), cam_rect, border_radius=4)
+        pygame.draw.rect(screen, (104, 120, 138), cam_rect, 1, border_radius=4)
+        # Camera lens
+        cam_lens = (arm_tip[0] + 7, arm_tip[1] - 10)
+        pygame.draw.circle(screen, (28, 100, 178), cam_lens, 7)
+        pygame.draw.circle(screen, (52, 150, 238), cam_lens, 7, 1)
+        pygame.draw.circle(
+            screen, (170, 212, 252), (cam_lens[0] - 2, cam_lens[1] - 2), 2
+        )
+        # Status LED
+        led_color = (248, 113, 113) if self.inspection_active else (74, 222, 128)
+        pygame.draw.circle(screen, led_color, (arm_tip[0] + 18, arm_tip[1] - 18), 3)
+        cam_font = pygame.font.SysFont("arial", 10, bold=True)
         screen.blit(
-            camera_font.render("CAM", True, (226, 232, 240)),
-            (camera_tip[0] - 11, camera_tip[1] + 13),
+            cam_font.render("CAM", True, (205, 220, 238)),
+            (arm_tip[0] - 2, arm_tip[1] + 2),
         )
 
+        # Camera inspection beam cone
         if self.inspection_active:
             beam = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
-            beam_top_y = max(78, camera_tip[1] - 230)
-            beam_points = [
-                (camera_tip[0] - 8, camera_tip[1] - 3),
-                (camera_tip[0] + 8, camera_tip[1] - 3),
-                (camera_tip[0] + 86, beam_top_y),
-                (camera_tip[0] - 86, beam_top_y),
+            tip_y = max(20, cam_lens[1] - 190)
+            beam_pts = [
+                (cam_lens[0] - 5, cam_lens[1] - 4),
+                (cam_lens[0] + 5, cam_lens[1] - 4),
+                (cam_lens[0] + 68, tip_y),
+                (cam_lens[0] - 68, tip_y),
             ]
-            pygame.draw.polygon(beam, (96, 165, 250, 108), beam_points)
+            pygame.draw.polygon(beam, (96, 165, 250, 82), beam_pts)
             pygame.draw.line(
-                beam,
-                (219, 234, 254, 185),
-                camera_tip,
-                (camera_tip[0], beam_top_y),
-                3,
+                beam, (218, 234, 254, 168), cam_lens, (cam_lens[0], tip_y), 2
             )
             screen.blit(beam, (0, 0))
 
-        wheel_centers = [
-            (rear_wheel_x, rear_floor_y - wheel_radius),
-            (front_wheel_x, front_floor_y - wheel_radius),
-        ]
-        spin_angle = self.preview_angle * (1 if self.velocidade >= 0 else -1)
-        if self.encoder_count != self.last_encoder_count:
-            spin_angle += (self.encoder_count - self.last_encoder_count) * 0.02
-
-        for index, center in enumerate(wheel_centers):
-            pygame.draw.circle(screen, (15, 23, 42), center, wheel_radius + 4)
-            pygame.draw.circle(screen, (148, 163, 184), center, wheel_radius, 2)
-            angle = spin_angle + index * math.pi / 2.0
-            for offset in (0, math.pi / 2, math.pi, 3 * math.pi / 2):
-                x = center[0] + math.cos(angle + offset) * (wheel_radius - 2)
-                y = center[1] + math.sin(angle + offset) * (wheel_radius - 2)
-                pygame.draw.line(screen, (226, 232, 240), center, (x, y), 2)
-
-        pygame.draw.line(
-            screen,
-            (226, 232, 240),
-            wheel_centers[0],
-            wheel_centers[1],
-            2,
-        )
-        pygame.draw.line(
-            screen,
-            (96, 165, 250),
-            (robot_x + 12, chassis_rear_y + 56),
-            (robot_x + 148, chassis_front_y + 44),
-            2,
-        )
-
+        # ── DIRECTION ARROW ─────────────────────────────────────────────────
         if self.direcao != "STOP":
             arrow_color = (96, 165, 250) if self.direcao == "LEFT" else (250, 204, 21)
-            arrow_tip_x = robot_x - 30 if self.direcao == "LEFT" else robot_x + 190
-            pygame.draw.line(
-                screen,
-                arrow_color,
-                (robot_x + 80, robot_y - 10),
-                (arrow_tip_x, robot_y - 10),
-                4,
-            )
+            arrow_y = ty(cx, body_lift + body_h // 2)
+            tip_x = rx - 36 if self.direcao == "LEFT" else fx + 36
+            pygame.draw.line(screen, arrow_color, (cx, arrow_y), (tip_x, arrow_y), 4)
+            dx = -1 if self.direcao == "LEFT" else 1
             pygame.draw.polygon(
                 screen,
                 arrow_color,
                 [
-                    (arrow_tip_x, robot_y - 10),
-                    (
-                        arrow_tip_x - 12 * (-1 if arrow_tip_x > robot_x + 80 else 1),
-                        robot_y - 18,
-                    ),
-                    (
-                        arrow_tip_x - 12 * (-1 if arrow_tip_x > robot_x + 80 else 1),
-                        robot_y - 2,
-                    ),
+                    (tip_x, arrow_y),
+                    (tip_x - dx * 14, arrow_y - 8),
+                    (tip_x - dx * 14, arrow_y + 8),
                 ],
             )
 
-        label_font = pygame.font.SysFont("arial", 14, bold=True)
+        # ── ENCODER LABEL ───────────────────────────────────────────────────
+        lbl_font = pygame.font.SysFont("arial", 13, bold=True)
         screen.blit(
-            label_font.render(f"Encoder {self.encoder_count}", True, (226, 232, 240)),
-            (robot_x + 18, robot_y - 30),
+            lbl_font.render(f"Enc {self.encoder_count}", True, (190, 208, 226)),
+            (cx - 30, ty(cx, body_lift + body_h + 32)),
         )
 
     def run(self):
