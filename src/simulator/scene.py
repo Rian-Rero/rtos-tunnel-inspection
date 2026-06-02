@@ -120,9 +120,7 @@ class TunnelScene:
 
         floor_top = [(x, floor_fn(x)) for x in range(-24, width + 25, 24)]
 
-        self._draw_ceiling(
-            screen, path_pts, state.anomaly_marks, state.imu, view, width, height
-        )
+        self._draw_ceiling(screen, path_pts, view, width, height)
 
         self._draw_floor_terrain(
             screen, floor_top, width, height, view, floor_fn, state.visual_pos_x
@@ -306,14 +304,7 @@ class TunnelScene:
             screen.blit(font.render(mark.kind, True, color), (x - 18, y - 38))
 
     def _draw_ceiling(
-        self,
-        screen,
-        path_pts: list,
-        anomaly_marks: list[AnomalyMark],
-        imu: float,
-        view: ViewTransform,
-        width: int,
-        height: int,
+        self, screen, path_pts: list, view: ViewTransform, width: int, height: int
     ) -> None:
         """Realistic rocky tunnel ceiling with integrated anomaly rendering."""
         ROOF_TOP = 78
@@ -393,19 +384,49 @@ class TunnelScene:
                     1,
                 )
 
-        # ── Anomaly effects — no icons, ceiling itself shows the anomaly ──────
-        ROOF_MID = 178
-        for mark in sorted(anomaly_marks, key=lambda m: m.kind == "Buraco"):
-            if not (view.view_start_m <= mark.pos_x <= view.view_end_m):
-                continue
-            mx = view.screen_x(mark.pos_x)
-            my = int(ROOF_MID - (mark.lidar - 2.0) * 82.0)
-            my += int(math.sin(math.radians(imu)) * (mx - width / 2) * 0.045)
-            my = max(86, min(height - 230, my))
-            if mark.kind == "Buraco":
-                self._draw_ceiling_buraco_effect(screen, mx, my)
-            else:
-                self._draw_ceiling_saliencia_effect(screen, mx, my, mark.lidar)
+        # ── Profile-based anomaly shading — emergent from LIDAR geometry ───────
+        # Median y as stable baseline (robust against isolated anomaly segments)
+        sorted_ys = sorted(y for _, y in face_pts)
+        baseline_y = sorted_ys[len(sorted_ys) // 2]
+
+        anom_srf = pygame.Surface((width, height), pygame.SRCALPHA)
+        for i in range(len(face_pts) - 1):
+            x0, y0 = face_pts[i]
+            x1, y1 = face_pts[i + 1]
+            mid_y = (y0 + y1) * 0.5
+            dev = (
+                mid_y - baseline_y
+            )  # positive = saliência (lower), negative = buraco (higher)
+
+            if dev < -10:  # Buraco — ceiling above baseline → dark void opening
+                t = min(1.0, (-dev - 10) / 55.0)
+                alpha = int(80 + t * 155)
+                # Black void fills the face segment
+                pygame.draw.polygon(
+                    anom_srf,
+                    (3, 2, 1, alpha),
+                    [(x0, y0 - FACE_H), (x1, y1 - FACE_H), (x1, y1), (x0, y0)],
+                )
+                # Lit rock rim at opening edge — edge catching ambient light
+                rim_a = int(50 + t * 80)
+                pygame.draw.line(
+                    anom_srf, (126, 114, 101, rim_a), (x0, y0), (x1, y1), 2
+                )
+
+            elif dev > 10:  # Saliência — ceiling below baseline → 3-D protrusion
+                t = min(1.0, (dev - 10) / 40.0)
+                # Shadow on the face of the protrusion (sides face away from light)
+                shd_a = int(30 + t * 55)
+                pygame.draw.polygon(
+                    anom_srf,
+                    (0, 0, 0, shd_a),
+                    [(x0, y0 - FACE_H), (x1, y1 - FACE_H), (x1, y1), (x0, y0)],
+                )
+                # Highlight on bottom edge — underside of protrusion catches tunnel light
+                hl_a = int(35 + t * 60)
+                pygame.draw.line(anom_srf, (200, 190, 178, hl_a), (x0, y0), (x1, y1), 3)
+
+        screen.blit(anom_srf, (0, 0))
 
         # ── Profile edge — the lower boundary of the ceiling face ─────────────
         if len(face_pts) >= 2:
@@ -426,84 +447,6 @@ class TunnelScene:
                 t = (target_x - x0) / (x1 - x0)
                 return int(y0 + t * (y1 - y0))
         return face_pts[0][1] if target_x <= face_pts[0][0] else face_pts[-1][1]
-
-    def _draw_ceiling_buraco_effect(self, screen, x: int, y: int) -> None:
-        """Dark void cavity in the ceiling rock — suggests an opening above."""
-        # Deep void core
-        pygame.draw.ellipse(screen, (5, 3, 2), (x - 44, y - 20, 88, 36))
-        pygame.draw.ellipse(screen, (11, 8, 5), (x - 33, y - 14, 66, 24))
-        # Cracked rock rim framing the opening
-        pygame.draw.ellipse(screen, (92, 85, 78), (x - 46, y - 22, 92, 40), 3)
-        pygame.draw.ellipse(screen, (116, 107, 97), (x - 38, y - 16, 76, 30), 2)
-        # Depth streaks — shadow dripping from the void edge
-        void_srf = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
-        for off, length in [(-28, 16), (-13, 22), (5, 20), (20, 14)]:
-            pygame.draw.line(
-                void_srf,
-                (7, 4, 2, 170),
-                (x + off, y + 10),
-                (x + off + 3, y + 10 + length),
-                2,
-            )
-        screen.blit(void_srf, (0, 0))
-
-    def _draw_ceiling_saliencia_effect(
-        self, screen, x: int, y: int, lidar: float
-    ) -> None:
-        """3-D shaded rock protrusion hanging from the ceiling."""
-        protrude = max(10, min(42, int((2.0 - lidar) * 72)))
-
-        # Main rock body — tapered oval shape
-        body = [
-            (x - 30, y - 16),
-            (x - 38, y + 2),
-            (x - 20, y + protrude),
-            (x, y + protrude + 6),
-            (x + 20, y + protrude),
-            (x + 38, y + 2),
-            (x + 30, y - 16),
-        ]
-        pygame.draw.polygon(screen, (80, 75, 69), body)
-
-        # Left-flank shadow (simulates light coming from below-right)
-        shd_srf = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
-        shd = [
-            (x - 30, y - 16),
-            (x - 38, y + 2),
-            (x - 20, y + protrude),
-            (x, y + protrude + 6),
-            (x - 3, y + protrude + 4),
-            (x - 22, y + protrude - 3),
-            (x - 32, y + 0),
-            (x - 26, y - 14),
-        ]
-        pygame.draw.polygon(shd_srf, (0, 0, 0, 68), shd)
-        screen.blit(shd_srf, (0, 0))
-
-        # Right-flank subtle highlight
-        hl_srf = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
-        hl = [
-            (x + 30, y - 16),
-            (x + 38, y + 2),
-            (x + 20, y + protrude),
-            (x, y + protrude + 6),
-            (x + 3, y + protrude + 4),
-            (x + 22, y + protrude - 3),
-            (x + 32, y + 0),
-            (x + 26, y - 14),
-        ]
-        pygame.draw.polygon(hl_srf, (255, 255, 255, 16), hl)
-        screen.blit(hl_srf, (0, 0))
-
-        # Tip highlight at the lowest point
-        pygame.draw.ellipse(screen, (106, 99, 91), (x - 14, y + protrude - 1, 28, 12))
-
-        # Rock surface detail on face
-        pygame.draw.ellipse(screen, (68, 63, 58), (x - 15, y - 2, 22, 10))
-        pygame.draw.line(screen, (56, 51, 46), (x - 10, y + 9), (x + 8, y + 18), 1)
-
-        # Outline
-        pygame.draw.polygon(screen, (58, 53, 48), body, 2)
 
     def _draw_distance_ruler(self, screen, view: ViewTransform, floor_fn):
         width, _ = screen.get_size()
