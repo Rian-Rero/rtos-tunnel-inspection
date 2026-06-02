@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import logging
 import math
+import time
 
 import paho.mqtt.client as mqtt
 import pygame
@@ -44,7 +45,11 @@ class TunelSimulator:
         self.lidar = 2.0
         self.inspection_active = False
         self.robot_history: list[dict] = []
+        self.anomaly_marks: list[dict] = []
         self.yolo_state = "Aguardando inspeção..."
+        self.yolo_result_expires_at: float | None = None
+        self.last_yolo_type = "Aguardando"
+        self.last_yolo_confidence = 0.0
         self.preview_angle = 0.0
         self.view_start_m = 0.0
         self.view_scale = 60.0
@@ -86,6 +91,22 @@ class TunelSimulator:
             self.lidar = float(
                 data.get("lidar_distance_y", data.get("lidar", self.lidar))
             )
+            deviation = self.lidar - 2.0
+            if abs(deviation) >= 0.35:
+                anomaly_type = "Buraco" if deviation > 0 else "Saliencia"
+                if (
+                    not self.anomaly_marks
+                    or abs(self.target_pos_x - float(self.anomaly_marks[-1]["pos_x"]))
+                    > 0.18
+                ):
+                    self.anomaly_marks.append(
+                        {
+                            "pos_x": self.target_pos_x,
+                            "lidar": self.lidar,
+                            "type": anomaly_type,
+                        }
+                    )
+                    self.anomaly_marks = self.anomaly_marks[-48:]
             self.last_encoder_count = self.encoder_count
             self.encoder_count = int(data.get("encoder", self.encoder_count))
 
@@ -114,12 +135,22 @@ class TunelSimulator:
             )
             confidence = data.get("confianca")
             if isinstance(confidence, (int, float)):
+                self.last_yolo_confidence = float(confidence)
                 self.yolo_state = f"{status} | confiança {confidence:.2f}"
             else:
                 self.yolo_state = status
+            self.last_yolo_type = str(
+                data.get("tipo", data.get("anomalia_visual_simulada", status))
+            )
+            self.yolo_result_expires_at = time.monotonic() + 5.0
 
         if msg.topic == "state/inspection":
             self.inspection_active = payload.strip() == "1"
+            if self.inspection_active:
+                self.yolo_state = "Inspeção em andamento..."
+                self.yolo_result_expires_at = None
+            elif self.yolo_result_expires_at is None:
+                self.yolo_state = "Sistema em regime normal"
 
     def _draw_background(self, screen):
         width, height = screen.get_size()
@@ -306,12 +337,15 @@ class TunelSimulator:
         )
 
         marker_font = pygame.font.SysFont("arial", 13, bold=True)
-        for sample, (x, y) in zip(visible_samples[-10:], path_points[-10:]):
-            lidar = float(sample.get("lidar_distance_y", sample.get("lidar", 2.0)))
-            deviation = lidar - 2.0
-            if abs(deviation) < 0.35:
+        for mark in self.anomaly_marks:
+            mark_x = float(mark["pos_x"])
+            if not (self.view_start_m <= mark_x <= view_end_m):
                 continue
-            if deviation > 0:
+            x = self._screen_x(mark_x)
+            y = roof_mid_y - (float(mark["lidar"]) - 2.0) * 82.0
+            y += math.sin(math.radians(self.imu)) * (x - width / 2) * 0.045
+            y = max(86, min(height - 230, y))
+            if mark["type"] == "Buraco":
                 color = (59, 130, 246)
                 label = "Buraco"
             else:
@@ -339,6 +373,59 @@ class TunelSimulator:
             (width - 120, 26),
         )
         self._draw_unmapped_overlay(screen)
+
+    def _draw_camera_monitor(self, screen):
+        width, _ = screen.get_size()
+        if not self.inspection_active and self.yolo_result_expires_at is None:
+            return
+
+        panel = pygame.Rect(width - 300, 84, 264, 122)
+        monitor = pygame.Surface((panel.width, panel.height), pygame.SRCALPHA)
+        pygame.draw.rect(monitor, (8, 13, 23, 232), monitor.get_rect(), border_radius=6)
+        pygame.draw.rect(
+            monitor, (96, 165, 250, 190), monitor.get_rect(), 2, border_radius=6
+        )
+
+        view_rect = pygame.Rect(12, 18, 154, 76)
+        pygame.draw.rect(monitor, (64, 67, 73), view_rect, border_radius=4)
+        for y in range(view_rect.y + 8, view_rect.bottom - 4, 13):
+            pygame.draw.line(
+                monitor,
+                (92, 96, 104),
+                (view_rect.x + 4, y),
+                (view_rect.right - 4, y + 8),
+                2,
+            )
+
+        if self.inspection_active:
+            beam_color = (96, 165, 250, 95)
+            defect_label = "CAPTURANDO"
+        else:
+            beam_color = (96, 165, 250, 45)
+            defect_label = self.last_yolo_type.upper()
+        pygame.draw.polygon(
+            monitor,
+            beam_color,
+            [(89, 90), (24, 24), (154, 24)],
+        )
+        pygame.draw.circle(monitor, (219, 234, 254), (89, 88), 7)
+        pygame.draw.line(monitor, (15, 23, 42), (44, 48), (132, 58), 5)
+
+        font = pygame.font.SysFont("arial", 12, bold=True)
+        small = pygame.font.SysFont("arial", 11)
+        monitor.blit(font.render("CAMERA DO ROBO", True, (226, 232, 240)), (12, 5))
+        monitor.blit(font.render(defect_label[:16], True, (191, 219, 254)), (178, 28))
+        monitor.blit(
+            small.render(
+                f"conf {self.last_yolo_confidence:.2f}", True, (148, 163, 184)
+            ),
+            (178, 48),
+        )
+        monitor.blit(
+            small.render("imagem sintética", True, (148, 163, 184)),
+            (178, 68),
+        )
+        screen.blit(monitor, panel)
 
     def _draw_robot(self, screen):
         width, _ = screen.get_size()
@@ -512,9 +599,17 @@ class TunelSimulator:
 
             if abs(self.velocidade) > 0.05:
                 self.preview_angle += abs(self.velocidade) * 0.055 * dt * 20.0
+            if (
+                self.yolo_result_expires_at is not None
+                and time.monotonic() >= self.yolo_result_expires_at
+            ):
+                self.yolo_result_expires_at = None
+                if not self.inspection_active:
+                    self.yolo_state = "Sistema em regime normal"
 
             self._draw_background(screen)
             self._draw_tunnel_profile(screen)
+            self._draw_camera_monitor(screen)
             self._draw_robot(screen)
             self._draw_overlay(screen)
 

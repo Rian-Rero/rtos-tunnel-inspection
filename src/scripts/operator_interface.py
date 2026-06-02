@@ -578,7 +578,7 @@ class OperatorGUI:
             path_points = []
             for sample in samples:
                 x = 70 + (sample.pos_x - start_x) * scale_x
-                terrain_wave = math.sin((sample.pos_x / 14.0) + self.preview_phase) * 10
+                terrain_wave = math.sin(sample.pos_x / 8.0) * 4
                 y = track_top + (sample.lidar - 1.2) * 72 + lane_shift + terrain_wave
                 y = max(track_top - 30, min(track_bottom, y))
                 path_points.append((x, y))
@@ -597,23 +597,24 @@ class OperatorGUI:
                 )
 
             for sample, (x, y) in zip(samples[-8:], path_points[-8:]):
-                if sample.lidar > 2.0:
+                deviation = sample.lidar - 2.0
+                if abs(deviation) < 0.35:
+                    continue
+                if deviation > 0:
                     fill = "#60a5fa"
                     label = "Buraco"
-                elif sample.lidar < 2.0:
+                else:
                     fill = "#fb7185"
                     label = "Saliencia"
-                else:
-                    fill = "#94a3b8"
-                    label = "Normal"
                 canvas.create_oval(x - 6, y - 6, x + 6, y + 6, fill=fill, outline="")
                 canvas.create_text(
                     x, y - 18, text=label, fill=fill, font=("Helvetica", 8, "bold")
                 )
 
-            latest_x, latest_y = path_points[-1]
+            latest_x = path_points[-1][0]
+            floor_wave = math.sin(self.telemetry.pos_x / 7.5) * 8
             cart_x = int(latest_x - 66)
-            cart_y = int(latest_y - 78 - imu_tilt * 18)
+            cart_y = int(lane_y - 76 - imu_tilt * 18 - floor_wave)
         else:
             canvas.create_text(
                 70,
