@@ -33,6 +33,7 @@ class OperatorGUI(MqttComponent):
     ) -> None:
         super().__init__(broker, port, "Python_GUI")
         self._root = root
+        self._closed = False
         self._telemetry = RobotTelemetry()
         self._history: list[RobotTelemetry] = []
         self._yolo_state = "Aguardando inspeção..."
@@ -41,7 +42,7 @@ class OperatorGUI(MqttComponent):
         self._configure_window()
         self._setup_styles()
         self._build_ui()
-        self._root.protocol("WM_DELETE_WINDOW", self._on_close)
+        self._root.protocol("WM_DELETE_WINDOW", self.close)
 
         try:
             self.connect_async()
@@ -224,7 +225,10 @@ class OperatorGUI(MqttComponent):
 
     # ── lifecycle ─────────────────────────────────────────────────────────────
 
-    def _on_close(self) -> None:
+    def close(self) -> None:
+        if self._closed:
+            return
+        self._closed = True
         try:
             self.disconnect()
         finally:

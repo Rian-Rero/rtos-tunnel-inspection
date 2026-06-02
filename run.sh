@@ -1,17 +1,22 @@
 #!/bin/bash
 echo "Inicializando Sistema de Inspeção de Túneis (ATR)..."
 
+PIDS=()
+
 cleanup() {
     local exit_code=$?
-    if [ -n "${PID_CPP:-}" ]; then
-        kill "$PID_CPP" 2>/dev/null
+    trap - EXIT INT TERM
+
+    if [ "${#PIDS[@]}" -gt 0 ]; then
+        echo "Encerrando componentes..."
+        for pid in "${PIDS[@]}"; do
+            if kill -0 "$pid" 2>/dev/null; then
+                kill "$pid" 2>/dev/null
+            fi
+        done
+        wait "${PIDS[@]}" 2>/dev/null
     fi
-    if [ -n "${PID_SIM:-}" ]; then
-        kill "$PID_SIM" 2>/dev/null
-    fi
-    if [ -n "${PID_YOLO:-}" ]; then
-        kill "$PID_YOLO" 2>/dev/null
-    fi
+
     exit "$exit_code"
 }
 
@@ -46,8 +51,9 @@ else
 fi
 
 # Executa o C++ em background
-$EXEC_PATH &
+"$EXEC_PATH" &
 PID_CPP=$!
+PIDS+=("$PID_CPP")
 
 # Aguarda 2 segundos para os buffers e o C++ subirem no MQTT
 sleep 2 
@@ -56,11 +62,17 @@ sleep 2
 echo "[2/4] Iniciando Simulador Físico"
 "$PYTHON" src/scripts/tunel_simulator.py &
 PID_SIM=$!
+PIDS+=("$PID_SIM")
 
 echo "[3/4] Iniciando YOLOv8 Daemon"
 "$PYTHON" src/scripts/yolo_mqtt_service.py &
 PID_YOLO=$!
+PIDS+=("$PID_YOLO")
 
-# 3. Inicia a Interface (foreground)
+# 3. Inicia a Interface
 echo "[4/4] Iniciando GUI do Operador"
-"$PYTHON" src/scripts/operator_interface.py
+"$PYTHON" src/scripts/operator_interface.py &
+PID_GUI=$!
+PIDS+=("$PID_GUI")
+
+wait -n "${PIDS[@]}"

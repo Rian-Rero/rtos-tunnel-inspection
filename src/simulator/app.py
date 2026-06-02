@@ -130,77 +130,80 @@ class TunelSimulator(MqttComponent):
 
         self.connect_async()
 
-        running = True
-        while running:
-            dt = clock.tick(60) / 1000.0
+        try:
+            running = True
+            while running:
+                dt = clock.tick(60) / 1000.0
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
 
-            self._tick_animation(dt)
+                self._tick_animation(dt)
 
-            # ── Build scene state snapshot ───────────────────────────────────
-            self._view.update(self._visual_pos_x, screen.get_width())
-            floor_fn = self._view.make_floor_fn(screen.get_height(), self._visual_pos_x)
+                # ── Build scene state snapshot ───────────────────────────────
+                self._view.update(self._visual_pos_x, screen.get_width())
+                floor_fn = self._view.make_floor_fn(
+                    screen.get_height(), self._visual_pos_x
+                )
 
-            scene_state = SceneState(
-                visual_pos_x=self._visual_pos_x,
-                reveal_pos_x=self._reveal_pos_x,
-                imu=self._telemetry.imu,
-                lidar=self._telemetry.lidar,
-                robot_history=self._robot_history,
-                anomaly_marks=self._anomaly_marks,
-                inspection=self._inspection,
-            )
+                scene_state = SceneState(
+                    visual_pos_x=self._visual_pos_x,
+                    reveal_pos_x=self._reveal_pos_x,
+                    imu=self._telemetry.imu,
+                    lidar=self._telemetry.lidar,
+                    robot_history=self._robot_history,
+                    anomaly_marks=self._anomaly_marks,
+                    inspection=self._inspection,
+                )
 
-            # ── Render ───────────────────────────────────────────────────────
-            self._scene.draw_background(screen)
-            self._scene.draw_tunnel_profile(screen, scene_state, self._view)
-            self._scene.draw_camera_monitor(screen, self._inspection)
+                # ── Render ───────────────────────────────────────────────────
+                self._scene.draw_background(screen)
+                self._scene.draw_tunnel_profile(screen, scene_state, self._view)
+                self._scene.draw_camera_monitor(screen, self._inspection)
 
-            width = screen.get_width()
-            rx = int(width / 2 - 88)
-            fx = rx + 176
-            robot_state = RobotRenderState(
-                spin_angle=self._preview_angle,
-                inspection_active=self._inspection.active,
-                direction=self._telemetry.direction,
-                encoder_count=self._telemetry.encoder,
-                velocidade=self._telemetry.velocidade,
-            )
-            self._robot_renderer.render(screen, rx, fx, floor_fn, robot_state)
-            self._scene.draw_overlay(screen)
+                width = screen.get_width()
+                rx = int(width / 2 - 88)
+                fx = rx + 176
+                robot_state = RobotRenderState(
+                    spin_angle=self._preview_angle,
+                    inspection_active=self._inspection.active,
+                    direction=self._telemetry.direction,
+                    encoder_count=self._telemetry.encoder,
+                    velocidade=self._telemetry.velocidade,
+                )
+                self._robot_renderer.render(screen, rx, fx, floor_fn, robot_state)
+                self._scene.draw_overlay(screen)
 
-            # ── HUD ──────────────────────────────────────────────────────────
-            lbl = slope_label(self._telemetry.imu)
-            header = (
-                f"POS {self._telemetry.distance_m:.2f} m | VEL {self._telemetry.velocidade:.1f}% | "
-                f"LIDAR {self._telemetry.lidar:.2f} m | IMU {self._telemetry.imu:+.1f}° {lbl} | "
-                f"MODO {self._telemetry.mode} | DIR {self._telemetry.direction}"
-            )
-            screen.blit(font_hdr.render(header, True, (248, 250, 252)), (28, 18))
-            screen.blit(
-                font_sub.render(
-                    "Visualização guiada somente por MQTT: C++ publica sensores, atuador, IMU e telemetria",
-                    True,
-                    (226, 232, 240),
-                ),
-                (28, 44),
-            )
-            screen.blit(
-                font_sub.render(
-                    f"Inspeção YOLO: {self._inspection.yolo_state} | Encoder {self._telemetry.encoder}",
-                    True,
-                    (148, 163, 184),
-                ),
-                (28, 510),
-            )
+                # ── HUD ──────────────────────────────────────────────────────
+                lbl = slope_label(self._telemetry.imu)
+                header = (
+                    f"POS {self._telemetry.distance_m:.2f} m | VEL {self._telemetry.velocidade:.1f}% | "
+                    f"LIDAR {self._telemetry.lidar:.2f} m | IMU {self._telemetry.imu:+.1f}° {lbl} | "
+                    f"MODO {self._telemetry.mode} | DIR {self._telemetry.direction}"
+                )
+                screen.blit(font_hdr.render(header, True, (248, 250, 252)), (28, 18))
+                screen.blit(
+                    font_sub.render(
+                        "Visualização guiada somente por MQTT: C++ publica sensores, atuador, IMU e telemetria",
+                        True,
+                        (226, 232, 240),
+                    ),
+                    (28, 44),
+                )
+                screen.blit(
+                    font_sub.render(
+                        f"Inspeção YOLO: {self._inspection.yolo_state} | Encoder {self._telemetry.encoder}",
+                        True,
+                        (148, 163, 184),
+                    ),
+                    (28, 510),
+                )
 
-            pygame.display.flip()
-
-        pygame.quit()
-        self.disconnect()
+                pygame.display.flip()
+        finally:
+            pygame.quit()
+            self.disconnect()
 
     # ── helpers ───────────────────────────────────────────────────────────────
 

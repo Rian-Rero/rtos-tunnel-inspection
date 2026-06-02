@@ -75,3 +75,5 @@ __pycache__/
 .vscode/
 .codex/
 .claude/
+
+inspection_log.csv

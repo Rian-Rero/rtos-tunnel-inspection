@@ -1,6 +1,7 @@
 """Entry point for the Tkinter operator GUI."""
 
 import logging
+import signal
 import sys
 import tkinter as tk
 from pathlib import Path
@@ -13,5 +14,11 @@ from gui import OperatorGUI  # noqa: E402
 
 if __name__ == "__main__":
     root = tk.Tk()
-    OperatorGUI(root)
+    app = OperatorGUI(root)
+
+    def request_shutdown(_signum, _frame):
+        root.after(0, app.close)
+
+    signal.signal(signal.SIGINT, request_shutdown)
+    signal.signal(signal.SIGTERM, request_shutdown)
     root.mainloop()

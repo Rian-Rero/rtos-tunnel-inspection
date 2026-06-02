@@ -123,4 +123,9 @@ class YoloInspectionService(MqttComponent):
 
     def run(self) -> None:
         """Block forever, processing inspection triggers."""
-        self.connect_blocking()
+        try:
+            self.connect_blocking()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            self.disconnect()
