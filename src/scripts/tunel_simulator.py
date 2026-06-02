@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import logging
 import math
+import os
 import time
 
 import paho.mqtt.client as mqtt
@@ -53,6 +54,9 @@ class TunelSimulator:
         self.preview_angle = 0.0
         self.view_start_m = 0.0
         self.view_scale = 60.0
+        self.view_left_px = 70.0
+        self.robot_center_px = 600.0
+        self.floor_vertical_scale = 118.0
 
         self._setup_mqtt()
 
@@ -188,10 +192,12 @@ class TunelSimulator:
         screen.blit(shadow, (0, 0))
 
     def _screen_x(self, world_x: float) -> int:
-        return int(70 + (world_x - self.view_start_m) * self.view_scale)
+        return int(self.view_left_px + (world_x - self.view_start_m) * self.view_scale)
 
     def _world_x(self, screen_x: int) -> float:
-        return self.view_start_m + (screen_x - 70) / max(self.view_scale, 1.0)
+        return self.view_start_m + (screen_x - self.view_left_px) / max(
+            self.view_scale, 1.0
+        )
 
     def _floor_elevation(self, world_x: float) -> float:
         return 0.62 * math.sin(world_x / 5.4) + 0.16 * math.sin(world_x / 1.8)
@@ -225,12 +231,11 @@ class TunelSimulator:
         return (148, 163, 184)
 
     def _floor_y(self, screen, x: int) -> int:
-        width, height = screen.get_size()
+        _, height = screen.get_size()
         world_x = self._world_x(x)
         center_elevation = self._floor_elevation(self.visual_pos_x)
         local_elevation = self._floor_elevation(world_x) - center_elevation
-        imu_slope = math.sin(math.radians(self.imu)) * 0.035
-        return int((height - 116) - local_elevation * 82 - (x - width / 2) * imu_slope)
+        return int((height - 116) - local_elevation * self.floor_vertical_scale)
 
     def _draw_slope_scan(self, screen):
         width, height = screen.get_size()
@@ -332,6 +337,14 @@ class TunelSimulator:
         roof_mid_y = 178
         history = self.robot_history
 
+        view_width_m = 18.0
+        self.view_left_px = 70.0
+        self.robot_center_px = width / 2
+        self.view_scale = (width - 140) / view_width_m
+        center_offset_m = (self.robot_center_px - self.view_left_px) / self.view_scale
+        self.view_start_m = self.visual_pos_x - center_offset_m
+        view_end_m = self.view_start_m + view_width_m
+
         if not history:
             font = pygame.font.SysFont("arial", 22, bold=True)
             screen.blit(
@@ -340,12 +353,6 @@ class TunelSimulator:
                 ),
                 (28, 120),
             )
-            return
-
-        view_width_m = 18.0
-        self.view_start_m = max(0.0, self.visual_pos_x - 4.0)
-        self.view_scale = (width - 140) / view_width_m
-        view_end_m = self.view_start_m + view_width_m
 
         visible_samples = [
             sample
@@ -373,14 +380,10 @@ class TunelSimulator:
             smooth_y = sum(point[1] for point in window) / len(window)
             path_points.append((x, smooth_y))
 
-        floor_left_y = self._floor_y(screen, 0)
-        floor_right_y = self._floor_y(screen, width)
-        floor_poly = [
-            (0, floor_left_y),
-            (width, floor_right_y),
-            (width, height),
-            (0, height),
+        floor_top_points = [
+            (x, self._floor_y(screen, x)) for x in range(-24, width + 25, 24)
         ]
+        floor_poly = floor_top_points + [(width + 24, height), (-24, height)]
 
         if path_points:
             ceiling_poly = (
@@ -407,16 +410,10 @@ class TunelSimulator:
                 )
 
         pygame.draw.polygon(screen, (57, 38, 26), floor_poly)
-        pygame.draw.polygon(
-            screen,
-            (80, 52, 32),
-            [
-                (0, floor_left_y),
-                (width, floor_right_y),
-                (width, min(height, floor_right_y + 34)),
-                (0, min(height, floor_left_y + 34)),
-            ],
-        )
+        floor_crust = floor_top_points + [
+            (x, min(height, y + 38)) for x, y in reversed(floor_top_points)
+        ]
+        pygame.draw.polygon(screen, (80, 52, 32), floor_crust)
         for x in range(-40, width + 40, 58):
             y = self._floor_y(screen, x)
             pygame.draw.ellipse(
@@ -426,16 +423,15 @@ class TunelSimulator:
             )
             pygame.draw.circle(screen, (102, 72, 45), (x + 18, y + 8), 3)
             pygame.draw.circle(screen, (128, 88, 53), (x + 34, y + 18), 2)
-        pygame.draw.line(
-            screen, (151, 101, 55), (0, floor_left_y), (width, floor_right_y), 5
-        )
-        pygame.draw.line(
-            screen,
-            (92, 64, 42),
-            (0, floor_left_y + 28),
-            (width, floor_right_y + 28),
-            2,
-        )
+        if len(floor_top_points) >= 2:
+            pygame.draw.lines(screen, (151, 101, 55), False, floor_top_points, 5)
+            pygame.draw.lines(
+                screen,
+                (92, 64, 42),
+                False,
+                [(x, y + 28) for x, y in floor_top_points],
+                2,
+            )
         self._draw_slope_scan(screen)
 
         marker_font = pygame.font.SysFont("arial", 13, bold=True)
@@ -459,7 +455,7 @@ class TunelSimulator:
             )
 
         axis_font = pygame.font.SysFont("arial", 13)
-        for meter in range(int(self.view_start_m), int(view_end_m) + 1, 3):
+        for meter in range(max(0, int(self.view_start_m)), int(view_end_m) + 1, 3):
             x = self._screen_x(float(meter))
             if 0 <= x <= width:
                 y = self._floor_y(screen, x)
@@ -570,17 +566,23 @@ class TunelSimulator:
 
     def _draw_robot(self, screen):
         width, _ = screen.get_size()
-        robot_x = self._screen_x(self.visual_pos_x)
-        robot_x = max(130, min(width - 260, robot_x))
-        floor_y = self._floor_y(screen, robot_x)
-        tilt = math.sin(math.radians(self.imu)) * 10.0
-        robot_y = floor_y - 86
+        robot_x = int(width / 2 - 80)
+        rear_wheel_x = robot_x + 28
+        front_wheel_x = robot_x + 132
+        rear_floor_y = self._floor_y(screen, rear_wheel_x)
+        front_floor_y = self._floor_y(screen, front_wheel_x)
+        floor_y = int((rear_floor_y + front_floor_y) / 2)
+        wheel_radius = 16
+        chassis_rear_y = rear_floor_y - 82
+        chassis_front_y = front_floor_y - 82
+        robot_y = int((chassis_rear_y + chassis_front_y) / 2 - 4)
+        terrain_tilt = max(-18.0, min(18.0, (front_floor_y - rear_floor_y) * 0.36))
 
         body_points = [
-            (robot_x, robot_y + 12 + tilt),
-            (robot_x + 160, robot_y - tilt),
-            (robot_x + 160, robot_y + 54 - tilt),
-            (robot_x, robot_y + 66 + tilt),
+            (robot_x, chassis_rear_y + 4),
+            (robot_x + 160, chassis_front_y - 8),
+            (robot_x + 160, chassis_front_y + 48),
+            (robot_x, chassis_rear_y + 60),
         ]
         shadow = pygame.Surface((220, 80), pygame.SRCALPHA)
         pygame.draw.ellipse(shadow, (0, 0, 0, 90), (8, 28, 196, 34))
@@ -591,16 +593,16 @@ class TunelSimulator:
         pygame.draw.line(
             screen,
             (134, 239, 172),
-            (robot_x + 18, robot_y + 23 + tilt),
-            (robot_x + 146, robot_y + 11 - tilt),
+            (robot_x + 18, chassis_rear_y + 18),
+            (robot_x + 146, chassis_front_y + 3),
             3,
         )
 
         cab_points = [
-            (robot_x + 18, robot_y + 16 + tilt),
-            (robot_x + 128, robot_y + 9 - tilt),
-            (robot_x + 142, robot_y + 34 - tilt),
-            (robot_x + 12, robot_y + 42 + tilt),
+            (robot_x + 18, chassis_rear_y + 12),
+            (robot_x + 128, chassis_front_y + 2),
+            (robot_x + 142, chassis_front_y + 28),
+            (robot_x + 12, chassis_rear_y + 38),
         ]
         pygame.draw.polygon(screen, (15, 23, 42), cab_points)
         pygame.draw.polygon(screen, (51, 65, 85), cab_points, 2)
@@ -609,7 +611,7 @@ class TunelSimulator:
         pygame.draw.ellipse(cockpit_glow, (34, 211, 238, 28), (18, 4, 124, 28))
         screen.blit(cockpit_glow, (robot_x + 6, robot_y + 6))
 
-        camera_mount = (int(robot_x + 96), int(robot_y + 3 - tilt))
+        camera_mount = (int(robot_x + 96), int(robot_y - 3 - terrain_tilt))
         camera_tip = (camera_mount[0], camera_mount[1] - 30)
         camera_rect = pygame.Rect(camera_tip[0] - 22, camera_tip[1] - 12, 44, 24)
         pygame.draw.line(screen, (203, 213, 225), camera_mount, camera_tip, 5)
@@ -648,10 +650,9 @@ class TunelSimulator:
             )
             screen.blit(beam, (0, 0))
 
-        wheel_radius = 16
         wheel_centers = [
-            (robot_x + 28, floor_y - wheel_radius),
-            (robot_x + 132, floor_y - wheel_radius),
+            (rear_wheel_x, rear_floor_y - wheel_radius),
+            (front_wheel_x, front_floor_y - wheel_radius),
         ]
         spin_angle = self.preview_angle * (1 if self.velocidade >= 0 else -1)
         if self.encoder_count != self.last_encoder_count:
@@ -676,8 +677,8 @@ class TunelSimulator:
         pygame.draw.line(
             screen,
             (96, 165, 250),
-            (robot_x + 12, robot_y + 58 + tilt),
-            (robot_x + 148, robot_y + 52 - tilt),
+            (robot_x + 12, chassis_rear_y + 56),
+            (robot_x + 148, chassis_front_y + 44),
             2,
         )
 
@@ -716,7 +717,21 @@ class TunelSimulator:
     def run(self):
         """Loop principal do simulador integrado com Pygame."""
         pygame.init()
-        screen = pygame.display.set_mode((1200, 560))
+        display_info = pygame.display.Info()
+        screen_w = int(getattr(display_info, "current_w", 1920) or 1920)
+        screen_h = int(getattr(display_info, "current_h", 1080) or 1080)
+        window_w = min(1200, max(920, screen_w - 80))
+        window_h = 560
+        if "SDL_VIDEO_WINDOW_POS" not in os.environ:
+            if screen_w >= 2200:
+                window_x, window_y = 1240, 40
+            elif screen_h >= 1260:
+                window_x, window_y = 24, 780
+            else:
+                window_x, window_y = 160, 130
+            os.environ["SDL_VIDEO_WINDOW_POS"] = f"{window_x},{window_y}"
+
+        screen = pygame.display.set_mode((window_w, window_h))
         pygame.display.set_caption("Simulador do Túnel (ATR)")
         clock = pygame.time.Clock()
         font = pygame.font.SysFont("arial", 22, bold=True)

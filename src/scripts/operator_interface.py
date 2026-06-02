@@ -34,8 +34,12 @@ class OperatorGUI:
         self.broker = broker
         self.port = port
         self.root.title("ATR - Operação Remota do Carrinho")
-        self.root.geometry("1280x760")
-        self.root.minsize(1100, 680)
+        screen_w = self.root.winfo_screenwidth()
+        screen_h = self.root.winfo_screenheight()
+        window_w = min(1180, max(980, screen_w - 80))
+        window_h = min(720, max(620, screen_h - 120))
+        self.root.geometry(f"{window_w}x{window_h}+24+40")
+        self.root.minsize(980, 620)
         self.root.configure(bg="#0f172a")
 
         self.telemetry = RobotTelemetry()
