@@ -194,7 +194,21 @@ class TunelSimulator:
         return self.view_start_m + (screen_x - 70) / max(self.view_scale, 1.0)
 
     def _floor_elevation(self, world_x: float) -> float:
-        return 0.32 * math.sin(world_x / 7.5) + 0.08 * math.sin(world_x / 2.4)
+        return 0.62 * math.sin(world_x / 5.4) + 0.16 * math.sin(world_x / 1.8)
+
+    def _slope_label(self) -> str:
+        if self.imu > 0.4:
+            return "SUBIDA"
+        if self.imu < -0.4:
+            return "DESCIDA"
+        return "PLANO"
+
+    def _slope_color(self) -> tuple[int, int, int]:
+        if self.imu > 0.4:
+            return (250, 204, 21)
+        if self.imu < -0.4:
+            return (96, 165, 250)
+        return (148, 163, 184)
 
     def _floor_y(self, screen, x: int) -> int:
         width, height = screen.get_size()
@@ -335,6 +349,34 @@ class TunelSimulator:
             (width, floor_right_y + 28),
             2,
         )
+        slope_label = self._slope_label()
+        slope_color = self._slope_color()
+        slope_alpha = 150 if slope_label != "PLANO" else 85
+        slope_layer = pygame.Surface((width, height), pygame.SRCALPHA)
+        for x in range(34, width - 120, 118):
+            y = self._floor_y(screen, x)
+            next_x = x + 74
+            next_y = self._floor_y(screen, next_x)
+            pygame.draw.line(
+                slope_layer,
+                (*slope_color, slope_alpha),
+                (x, y - 18),
+                (next_x, next_y - 18),
+                5,
+            )
+            arrow_tip = (next_x, next_y - 18)
+            arrow_back = (x + 50, y - 18)
+            direction_sign = 1 if arrow_tip[1] >= arrow_back[1] else -1
+            pygame.draw.polygon(
+                slope_layer,
+                (*slope_color, slope_alpha),
+                [
+                    arrow_tip,
+                    (arrow_tip[0] - 12, arrow_tip[1] - 7 * direction_sign),
+                    (arrow_tip[0] - 12, arrow_tip[1] + 7 * direction_sign),
+                ],
+            )
+        screen.blit(slope_layer, (0, 0))
 
         marker_font = pygame.font.SysFont("arial", 13, bold=True)
         for mark in self.anomaly_marks:
@@ -369,8 +411,45 @@ class TunelSimulator:
 
         info_font = pygame.font.SysFont("arial", 14, bold=True)
         screen.blit(
-            info_font.render(f"IMU {self.imu:.1f}°", True, (191, 219, 254)),
-            (width - 120, 26),
+            info_font.render(
+                f"IMU {self.imu:+.1f}° | {slope_label}", True, slope_color
+            ),
+            (width - 188, 26),
+        )
+        gauge_x = width - 230
+        gauge_y = 58
+        gauge_len = 160
+        slope_pixels = max(-34, min(34, int(self.imu * 5.0)))
+        pygame.draw.line(
+            screen,
+            (71, 85, 105),
+            (gauge_x, gauge_y),
+            (gauge_x + gauge_len, gauge_y),
+            2,
+        )
+        pygame.draw.line(
+            screen,
+            slope_color,
+            (gauge_x, gauge_y + slope_pixels),
+            (gauge_x + gauge_len, gauge_y - slope_pixels),
+            5,
+        )
+        arrow_tip = (gauge_x + gauge_len, gauge_y - slope_pixels)
+        pygame.draw.polygon(
+            screen,
+            slope_color,
+            [
+                arrow_tip,
+                (arrow_tip[0] - 12, arrow_tip[1] - 7),
+                (arrow_tip[0] - 12, arrow_tip[1] + 7),
+            ],
+        )
+        terrain_font = pygame.font.SysFont("arial", 15, bold=True)
+        label_x = min(width - 230, max(38, self._screen_x(self.visual_pos_x) + 185))
+        label_y = self._floor_y(screen, int(label_x)) - 48
+        screen.blit(
+            terrain_font.render(f"{slope_label} {self.imu:+.1f}°", True, slope_color),
+            (label_x, label_y),
         )
         self._draw_unmapped_overlay(screen)
 
@@ -615,7 +694,7 @@ class TunelSimulator:
 
             header = (
                 f"POS {self.distance_m:.2f} m | VEL {self.velocidade:.1f}% | "
-                f"LIDAR {self.lidar:.2f} m | IMU {self.imu:.1f}° | "
+                f"LIDAR {self.lidar:.2f} m | IMU {self.imu:+.1f}° {self._slope_label()} | "
                 f"MODO {self.modo_operacao} | DIR {self.direcao}"
             )
             screen.blit(font.render(header, True, (248, 250, 252)), (28, 18))

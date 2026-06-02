@@ -343,6 +343,20 @@ class OperatorGUI:
     def publish_cmd(self, topic: str, payload: str | float | int):
         self.client.publish(topic, str(payload))
 
+    def _slope_label(self) -> str:
+        if self.telemetry.imu > 0.4:
+            return "SUBIDA"
+        if self.telemetry.imu < -0.4:
+            return "DESCIDA"
+        return "PLANO"
+
+    def _slope_color(self) -> str:
+        if self.telemetry.imu > 0.4:
+            return "#fbbf24"
+        if self.telemetry.imu < -0.4:
+            return "#60a5fa"
+        return "#94a3b8"
+
     def _set_speed_value(self, speed: int):
         speed = max(0, min(100, int(speed)))
         self.updating_speed_programmatically = True
@@ -433,7 +447,7 @@ class OperatorGUI:
         if topic == "sensor/lidar":
             self.root.after(0, lambda: self.lidar_state.set(payload))
         elif topic == "sensor/imu":
-            self.root.after(0, lambda: self.imu_state.set(f"{payload}°"))
+            self.root.after(0, lambda: self.imu_state.set(f"{float(payload):+.1f}°"))
         elif topic == "sensor/encoder":
             self.root.after(0, lambda: self.encoder_state.set(payload))
         elif topic == "state/inspection":
@@ -502,7 +516,7 @@ class OperatorGUI:
         self.mode_state.set(mode)
         self.direction_state.set(direction)
         self.lidar_state.set(f"{lidar:.0f}")
-        self.imu_state.set(f"{imu:.1f}°")
+        self.imu_state.set(f"{imu:+.1f}° | {self._slope_label()}")
         self.encoder_state.set(str(encoder))
         self.confidence_state.set(f"{float(data.get('confidence_level', 0.0)):.2f}")
         if direction == "LEFT":
@@ -539,9 +553,48 @@ class OperatorGUI:
         )
 
         lane_y = height // 2 + 34
-        canvas.create_line(52, lane_y, width - 52, lane_y, fill="#22c55e", width=3)
+        slope_label = self._slope_label()
+        slope_color = self._slope_color()
+        terrain_delta = max(-30, min(30, int(self.telemetry.imu * 5.0)))
+        canvas.create_line(
+            52,
+            lane_y + terrain_delta,
+            width - 52,
+            lane_y - terrain_delta,
+            fill=slope_color,
+            width=5,
+            arrow=tk.LAST,
+        )
+        canvas.create_text(
+            56,
+            lane_y - 34,
+            anchor="w",
+            fill=slope_color,
+            font=("Helvetica", 10, "bold"),
+            text=f"TERRENO: {slope_label}",
+        )
         canvas.create_line(
             52, lane_y + 38, width - 52, lane_y + 38, fill="#334155", width=2
+        )
+        slope_x = width - 166
+        slope_y = 74
+        slope_delta = max(-24, min(24, int(self.telemetry.imu * 4.0)))
+        canvas.create_line(
+            slope_x,
+            slope_y,
+            slope_x + 112,
+            slope_y - slope_delta,
+            fill=slope_color,
+            width=5,
+            arrow=tk.LAST,
+        )
+        canvas.create_text(
+            slope_x,
+            slope_y - 18,
+            anchor="w",
+            fill=slope_color,
+            font=("Helvetica", 9, "bold"),
+            text=f"{slope_label} {self.telemetry.imu:+.1f}°",
         )
         for x in range(52, width - 52, 42):
             canvas.create_line(
@@ -612,7 +665,7 @@ class OperatorGUI:
                 )
 
             latest_x = path_points[-1][0]
-            floor_wave = math.sin(self.telemetry.pos_x / 7.5) * 8
+            floor_wave = math.sin(self.telemetry.pos_x / 5.4) * 14
             cart_x = int(latest_x - 66)
             cart_y = int(lane_y - 76 - imu_tilt * 18 - floor_wave)
         else:
@@ -719,7 +772,7 @@ class OperatorGUI:
             )
 
         info = (
-            f"LIDAR {self.telemetry.lidar:.0f} | IMU {self.telemetry.imu:.1f}° | "
+            f"LIDAR {self.telemetry.lidar:.0f} | IMU {self.telemetry.imu:+.1f}° {slope_label} | "
             f"Encoder {self.telemetry.encoder} | Velocidade {self.telemetry.velocidade:.2f}"
         )
         canvas.create_text(

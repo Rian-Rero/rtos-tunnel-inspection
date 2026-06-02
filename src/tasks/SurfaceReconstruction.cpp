@@ -19,10 +19,10 @@ constexpr double kNominalCeilingDistanceM = 2.0;
 constexpr double kRadiansToDegrees = 57.29577951308232;
 constexpr double kMinSurfaceSampleStepM = 0.04;
 
-double floorElevation(double x) { return 0.32 * std::sin(x / 7.5) + 0.08 * std::sin(x / 2.4); }
+double floorElevation(double x) { return 0.62 * std::sin(x / 5.4) + 0.16 * std::sin(x / 1.8); }
 
 double floorSlope(double x) {
-    return (0.32 / 7.5) * std::cos(x / 7.5) + (0.08 / 2.4) * std::cos(x / 2.4);
+    return (0.62 / 5.4) * std::cos(x / 5.4) + (0.16 / 1.8) * std::cos(x / 1.8);
 }
 
 double naturalCeilingVariation(double x) {
