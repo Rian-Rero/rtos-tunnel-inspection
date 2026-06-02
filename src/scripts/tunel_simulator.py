@@ -31,6 +31,9 @@ class TunelSimulator:
             self.client = mqtt.Client(client_id="Python_Simulador")
 
         self.pos_x = 0.0
+        self.target_pos_x = 0.0
+        self.visual_pos_x = 0.0
+        self.reveal_pos_x = 0.0
         self.distance_m = 0.0
         self.velocidade = 0.0
         self.modo_operacao = "MANUAL"
@@ -72,8 +75,9 @@ class TunelSimulator:
 
             self.robot_history.append(data)
             self.robot_history = self.robot_history[-360:]
-            self.pos_x = float(data.get("pos_x", self.pos_x))
-            self.distance_m = float(data.get("distance_m", self.pos_x))
+            self.target_pos_x = float(data.get("pos_x", self.target_pos_x))
+            self.pos_x = self.target_pos_x
+            self.distance_m = float(data.get("distance_m", self.target_pos_x))
             self.velocidade = float(
                 data.get("current_speed", data.get("velocidade", 0.0))
             )
@@ -164,10 +168,32 @@ class TunelSimulator:
     def _floor_y(self, screen, x: int) -> int:
         width, height = screen.get_size()
         world_x = self._world_x(x)
-        center_elevation = self._floor_elevation(self.pos_x)
+        center_elevation = self._floor_elevation(self.visual_pos_x)
         local_elevation = self._floor_elevation(world_x) - center_elevation
         imu_slope = math.sin(math.radians(self.imu)) * 0.035
         return int((height - 116) - local_elevation * 82 - (x - width / 2) * imu_slope)
+
+    def _draw_unmapped_overlay(self, screen):
+        width, height = screen.get_size()
+        reveal_x = self._screen_x(self.reveal_pos_x)
+        if reveal_x >= width:
+            return
+
+        overlay = pygame.Surface((width, height), pygame.SRCALPHA)
+        fade_width = 190
+        start_x = max(0, reveal_x - 70)
+        for x in range(start_x, width, 6):
+            progress = min(1.0, max(0.0, (x - start_x) / fade_width))
+            alpha = int(82 + progress * 154)
+            pygame.draw.rect(overlay, (3, 7, 18, alpha), (x, 78, 8, height - 154))
+            pygame.draw.rect(
+                overlay, (4, 8, 14, min(245, alpha + 10)), (x, height - 118, 8, 76)
+            )
+
+        edge = pygame.Surface((36, height), pygame.SRCALPHA)
+        pygame.draw.rect(edge, (96, 165, 250, 55), (0, 84, 2, height - 174))
+        screen.blit(overlay, (0, 0))
+        screen.blit(edge, (start_x, 0))
 
     def _draw_tunnel_profile(self, screen):
         width, height = screen.get_size()
@@ -185,21 +211,23 @@ class TunelSimulator:
             return
 
         view_width_m = 18.0
-        self.view_start_m = max(0.0, self.pos_x - 4.0)
+        self.view_start_m = max(0.0, self.visual_pos_x - 4.0)
         self.view_scale = (width - 140) / view_width_m
         view_end_m = self.view_start_m + view_width_m
 
         visible_samples = [
             sample
             for sample in history
-            if self.view_start_m <= float(sample.get("pos_x", self.pos_x)) <= view_end_m
+            if self.view_start_m
+            <= float(sample.get("pos_x", self.visual_pos_x))
+            <= view_end_m
         ]
         if not visible_samples:
             visible_samples = history[-1:]
 
         raw_points = []
         for sample in visible_samples:
-            sample_x = float(sample.get("pos_x", self.pos_x))
+            sample_x = float(sample.get("pos_x", self.visual_pos_x))
             lidar = float(sample.get("lidar_distance_y", sample.get("lidar", 2.0)))
             x = self._screen_x(sample_x)
             roof_y = roof_mid_y - (lidar - 2.0) * 82.0
@@ -310,10 +338,11 @@ class TunelSimulator:
             info_font.render(f"IMU {self.imu:.1f}°", True, (191, 219, 254)),
             (width - 120, 26),
         )
+        self._draw_unmapped_overlay(screen)
 
     def _draw_robot(self, screen):
         width, _ = screen.get_size()
-        robot_x = self._screen_x(self.pos_x)
+        robot_x = self._screen_x(self.visual_pos_x)
         robot_x = max(130, min(width - 260, robot_x))
         floor_y = self._floor_y(screen, robot_x)
         tilt = math.sin(math.radians(self.imu)) * 10.0
@@ -472,6 +501,14 @@ class TunelSimulator:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+
+            position_alpha = min(1.0, max(0.08, dt * 7.0))
+            self.visual_pos_x += (
+                self.target_pos_x - self.visual_pos_x
+            ) * position_alpha
+            reveal_target = max(0.0, self.visual_pos_x + 0.85)
+            reveal_alpha = min(1.0, max(0.04, dt * 4.0))
+            self.reveal_pos_x += (reveal_target - self.reveal_pos_x) * reveal_alpha
 
             if abs(self.velocidade) > 0.05:
                 self.preview_angle += abs(self.velocidade) * 0.055 * dt * 20.0

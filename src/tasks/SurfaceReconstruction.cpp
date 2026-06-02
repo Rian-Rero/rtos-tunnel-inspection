@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <cmath>
+#include <limits>
 #include <thread>
 
 #include "core/TerminalPrinter.hpp"
@@ -16,6 +17,7 @@ namespace {
 
 constexpr double kNominalCeilingDistanceM = 2.0;
 constexpr double kRadiansToDegrees = 57.29577951308232;
+constexpr double kMinSurfaceSampleStepM = 0.04;
 
 double floorElevation(double x) { return 0.32 * std::sin(x / 7.5) + 0.08 * std::sin(x / 2.4); }
 
@@ -65,6 +67,7 @@ SurfaceReconstruction::SurfaceReconstruction(
 void SurfaceReconstruction::run() {
     auto proximo_ciclo = std::chrono::steady_clock::now();
     const auto periodo = std::chrono::milliseconds(100);  // LIDAR varre a 10Hz
+    double last_sample_x = std::numeric_limits<double>::quiet_NaN();
 
     while (context_->is_running) {
         proximo_ciclo += periodo;
@@ -100,6 +103,13 @@ void SurfaceReconstruction::run() {
         }
 
         // 3. Monta o pacote de dados fundindo LIDAR + Odometria
+        const bool first_sample = std::isnan(last_sample_x);
+        const bool moved_enough = std::abs(current_x - last_sample_x) >= kMinSurfaceSampleStepM;
+        if (!first_sample && !moved_enough) {
+            std::this_thread::sleep_until(proximo_ciclo);
+            continue;
+        }
+
         core::SurfaceData data{
             static_cast<uint64_t>(std::chrono::system_clock::now().time_since_epoch().count()),
             current_x, simulated_lidar_y, 0.98};
@@ -107,6 +117,7 @@ void SurfaceReconstruction::run() {
         if (!surface_buffer_->push(data)) {
             break;
         }
+        last_sample_x = current_x;
 
         std::this_thread::sleep_until(proximo_ciclo);
     }
