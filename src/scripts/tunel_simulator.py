@@ -155,10 +155,19 @@ class TunelSimulator:
     def _screen_x(self, world_x: float) -> int:
         return int(70 + (world_x - self.view_start_m) * self.view_scale)
 
+    def _world_x(self, screen_x: int) -> float:
+        return self.view_start_m + (screen_x - 70) / max(self.view_scale, 1.0)
+
+    def _floor_elevation(self, world_x: float) -> float:
+        return 0.32 * math.sin(world_x / 7.5) + 0.08 * math.sin(world_x / 2.4)
+
     def _floor_y(self, screen, x: int) -> int:
         width, height = screen.get_size()
-        slope = math.sin(math.radians(self.imu)) * 0.055
-        return int((height - 116) - (x - width / 2) * slope)
+        world_x = self._world_x(x)
+        center_elevation = self._floor_elevation(self.pos_x)
+        local_elevation = self._floor_elevation(world_x) - center_elevation
+        imu_slope = math.sin(math.radians(self.imu)) * 0.035
+        return int((height - 116) - local_elevation * 82 - (x - width / 2) * imu_slope)
 
     def _draw_tunnel_profile(self, screen):
         width, height = screen.get_size()
@@ -237,20 +246,32 @@ class TunelSimulator:
                     4,
                 )
 
-        pygame.draw.polygon(screen, (15, 23, 42), floor_poly)
+        pygame.draw.polygon(screen, (57, 38, 26), floor_poly)
+        pygame.draw.polygon(
+            screen,
+            (80, 52, 32),
+            [
+                (0, floor_left_y),
+                (width, floor_right_y),
+                (width, min(height, floor_right_y + 34)),
+                (0, min(height, floor_left_y + 34)),
+            ],
+        )
         for x in range(-40, width + 40, 58):
             y = self._floor_y(screen, x)
             pygame.draw.ellipse(
                 screen,
-                (23, 31, 45),
+                (43, 29, 20),
                 (x, y + 12, 44, 12),
             )
+            pygame.draw.circle(screen, (102, 72, 45), (x + 18, y + 8), 3)
+            pygame.draw.circle(screen, (128, 88, 53), (x + 34, y + 18), 2)
         pygame.draw.line(
-            screen, (34, 197, 94), (0, floor_left_y), (width, floor_right_y), 5
+            screen, (151, 101, 55), (0, floor_left_y), (width, floor_right_y), 5
         )
         pygame.draw.line(
             screen,
-            (148, 163, 184),
+            (92, 64, 42),
             (0, floor_left_y + 28),
             (width, floor_right_y + 28),
             2,
@@ -331,34 +352,44 @@ class TunelSimulator:
         pygame.draw.ellipse(cockpit_glow, (34, 211, 238, 28), (18, 4, 124, 28))
         screen.blit(cockpit_glow, (robot_x + 6, robot_y + 6))
 
-        camera_mount = (int(robot_x + 91), int(robot_y + 2 - tilt))
-        camera_tip = (camera_mount[0], camera_mount[1] - 22)
-        pygame.draw.line(screen, (203, 213, 225), camera_mount, camera_tip, 4)
-        pygame.draw.circle(screen, (15, 23, 42), camera_tip, 12)
-        pygame.draw.circle(screen, (96, 165, 250), camera_tip, 7)
+        camera_mount = (int(robot_x + 96), int(robot_y + 3 - tilt))
+        camera_tip = (camera_mount[0], camera_mount[1] - 30)
+        camera_rect = pygame.Rect(camera_tip[0] - 22, camera_tip[1] - 12, 44, 24)
+        pygame.draw.line(screen, (203, 213, 225), camera_mount, camera_tip, 5)
+        pygame.draw.rect(screen, (15, 23, 42), camera_rect, border_radius=6)
+        pygame.draw.rect(screen, (148, 163, 184), camera_rect, 2, border_radius=6)
+        pygame.draw.circle(screen, (96, 165, 250), camera_tip, 9)
         pygame.draw.circle(
             screen, (219, 234, 254), (camera_tip[0] + 2, camera_tip[1] - 2), 2
         )
-
-        beam_alpha = 92 if self.inspection_active else 36
-        beam_color = (96, 165, 250, beam_alpha)
-        beam = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
-        beam_top_y = max(78, camera_tip[1] - 210)
-        beam_points = [
-            (camera_tip[0] - 7, camera_tip[1] - 4),
-            (camera_tip[0] + 7, camera_tip[1] - 4),
-            (camera_tip[0] + 78, beam_top_y),
-            (camera_tip[0] - 78, beam_top_y),
-        ]
-        pygame.draw.polygon(beam, beam_color, beam_points)
-        pygame.draw.line(
-            beam,
-            (191, 219, 254, min(160, beam_alpha + 40)),
-            camera_tip,
-            (camera_tip[0], beam_top_y),
-            2,
+        status_color = (248, 113, 113) if self.inspection_active else (74, 222, 128)
+        pygame.draw.circle(
+            screen, status_color, (camera_tip[0] + 16, camera_tip[1] - 7), 3
         )
-        screen.blit(beam, (0, 0))
+        camera_font = pygame.font.SysFont("arial", 10, bold=True)
+        screen.blit(
+            camera_font.render("CAM", True, (226, 232, 240)),
+            (camera_tip[0] - 11, camera_tip[1] + 13),
+        )
+
+        if self.inspection_active:
+            beam = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+            beam_top_y = max(78, camera_tip[1] - 230)
+            beam_points = [
+                (camera_tip[0] - 8, camera_tip[1] - 3),
+                (camera_tip[0] + 8, camera_tip[1] - 3),
+                (camera_tip[0] + 86, beam_top_y),
+                (camera_tip[0] - 86, beam_top_y),
+            ]
+            pygame.draw.polygon(beam, (96, 165, 250, 108), beam_points)
+            pygame.draw.line(
+                beam,
+                (219, 234, 254, 185),
+                camera_tip,
+                (camera_tip[0], beam_top_y),
+                3,
+            )
+            screen.blit(beam, (0, 0))
 
         wheel_radius = 16
         wheel_centers = [

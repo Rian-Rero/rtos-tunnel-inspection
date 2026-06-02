@@ -18,12 +18,12 @@
 | `sensor/imu`      | C++ IMU        | Inclinação do túnel             |
 | `sensor/encoder`  | C++ encoder    | Contagem de encoder             |
 | `telemetry/robot` | C++ coletor    | Estado visual do carrinho       |
-| `telemetry/yolo`  | YOLO           | Resultado da inspeção           |
-| `state/inspection` | C++/YOLO      | Estado da inspeção em andamento |
+| `telemetry/yolo`  | YOLO           | Resultado da inspeção visual    |
+| `state/inspection` | C++           | Estado da inspeção em andamento |
 
 ## Fluxo
 
 1. A GUI publica comandos no broker MQTT.
 2. O núcleo C++ consome comandos, executa as tarefas de tempo real e publica sensores, atuador e telemetria.
-3. Ao detectar anomalia, o C++ publica `cmd/camera`; o serviço YOLO executa a inferência e devolve `telemetry/yolo`.
+3. Ao detectar anomalia, o C++ publica `state/inspection=1` e `cmd/camera=1`; o serviço YOLO gera uma imagem sintética da câmera embarcada, executa a inferência e devolve `telemetry/yolo`.
 4. A GUI e o simulador Python apenas consomem os tópicos para visualização e operação.

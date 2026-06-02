@@ -3,7 +3,8 @@
 Este projeto implementa um carrinho autônomo para inspeção de túneis com uma arquitetura híbrida:
 
 - Núcleo em C++ para tarefas concorrentes, controle e coleta de dados.
-- Simulador físico em Pygame para a planta do carrinho.
+- Sensores e planta simulados no núcleo C++.
+- Visualizador em Pygame guiado pela telemetria MQTT.
 - Interface do operador em Tkinter para telemetria e comandos.
 - Serviço YOLOv8 para inspeção visual acionada sob demanda.
 
@@ -18,7 +19,7 @@ make run
 
 ## Scripts principais
 
-- `src/scripts/tunel_simulator.py`: simula o túnel e publica telemetria.
+- `src/scripts/tunel_simulator.py`: visualiza o túnel, o carrinho e os sensores a partir da telemetria MQTT.
 - `src/scripts/operator_interface.py`: exibe a GUI do operador e envia comandos.
 - `src/scripts/yolo_mqtt_service.py`: processa o gatilho de câmera e publica o resultado da inspeção.
 

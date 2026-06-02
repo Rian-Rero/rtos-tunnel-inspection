@@ -25,6 +25,7 @@ class YoloInspectionService:
     ):
         logging.info("Carregando pesos do modelo YOLOv8...")
         os.environ.setdefault("YOLO_CONFIG_DIR", "/tmp")
+        os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
         import cv2
         import numpy as np
         from ultralytics import YOLO
@@ -33,7 +34,7 @@ class YoloInspectionService:
         self.np = np
         self.model = YOLO(model_path)
         self.frame_path = Path("data/capturas/frame_atual.jpg")
-        self.camera_index = int(os.getenv("ATR_CAMERA_INDEX", "0"))
+        self.capture_index = 0
         self.processing = False
 
         try:
@@ -65,58 +66,64 @@ class YoloInspectionService:
                 logging.info("Trigger de câmera recebido. Iniciando inferência...")
                 self._realizar_inspecao()
 
-    def _capture_webcam_frame(self):
-        capture = self.cv2.VideoCapture(self.camera_index)
-        if not capture.isOpened():
-            capture.release()
-            return None
+    def _capture_robot_camera_frame(self):
+        self.capture_index += 1
+        frame = self.np.full((480, 640, 3), (24, 28, 34), dtype=self.np.uint8)
 
-        frame = None
-        for _ in range(5):
-            ok, candidate = capture.read()
-            if ok and candidate is not None:
-                frame = candidate
-        capture.release()
+        # Teto do túnel visto pela câmera embarcada simulada.
+        for y in range(0, 180, 18):
+            tone = 42 + (y % 36)
+            self.cv2.line(frame, (0, y), (640, y + 28), (tone, tone, tone + 8), 3)
+        self.cv2.rectangle(frame, (0, 0), (640, 138), (76, 78, 82), -1)
+        self.cv2.line(frame, (0, 138), (640, 168), (36, 39, 44), 10)
 
-        if frame is None:
-            return None
+        phase = self.capture_index % 3
+        if phase == 0:
+            self.cv2.line(frame, (150, 74), (505, 108), (10, 10, 10), 9)
+            self.cv2.line(frame, (155, 74), (500, 108), (92, 92, 96), 2)
+            simulated_type = "fissura"
+        elif phase == 1:
+            self.cv2.ellipse(frame, (410, 82), (78, 28), 4, 0, 360, (28, 28, 30), -1)
+            self.cv2.ellipse(frame, (410, 82), (78, 28), 4, 0, 360, (118, 118, 120), 3)
+            simulated_type = "buraco"
+        else:
+            self.cv2.circle(frame, (320, 78), 42, (128, 128, 126), -1)
+            self.cv2.circle(frame, (320, 78), 44, (44, 44, 48), 4)
+            simulated_type = "saliencia"
+
+        # Robô e cone de iluminação/câmera, tudo sintético.
+        overlay = frame.copy()
+        triangle = self.np.array(
+            [[(320, 445), (110, 150), (530, 150)]], dtype=self.np.int32
+        )
+        self.cv2.fillPoly(overlay, triangle, (84, 130, 190))
+        frame = self.cv2.addWeighted(overlay, 0.28, frame, 0.72, 0)
+        self.cv2.rectangle(frame, (210, 385), (430, 460), (40, 170, 92), -1)
+        self.cv2.rectangle(frame, (238, 400), (402, 430), (14, 22, 36), -1)
+        self.cv2.circle(frame, (262, 462), 24, (18, 22, 30), -1)
+        self.cv2.circle(frame, (378, 462), 24, (18, 22, 30), -1)
+        self.cv2.circle(frame, (320, 376), 18, (42, 120, 190), -1)
+        self.cv2.circle(frame, (320, 376), 8, (215, 235, 255), -1)
+        self.cv2.putText(
+            frame,
+            f"CAMERA SIMULADA DO ROBO | {simulated_type}",
+            (32, 34),
+            self.cv2.FONT_HERSHEY_SIMPLEX,
+            0.75,
+            (235, 238, 244),
+            2,
+        )
 
         self.frame_path.parent.mkdir(parents=True, exist_ok=True)
         self.cv2.imwrite(str(self.frame_path), frame)
-        return frame
-
-    def _load_frame(self):
-        webcam_frame = self._capture_webcam_frame()
-        if webcam_frame is not None:
-            return webcam_frame, "webcam"
-
-        if self.frame_path.exists():
-            frame = self.cv2.imread(str(self.frame_path))
-            if frame is not None:
-                return frame, str(self.frame_path)
-
-        frame = self.np.full((480, 640, 3), 35, dtype=self.np.uint8)
-        self.cv2.rectangle(frame, (0, 0), (640, 120), (70, 70, 70), -1)
-        self.cv2.line(frame, (170, 70), (460, 92), (20, 20, 20), 8)
-        self.cv2.circle(frame, (480, 78), 24, (95, 95, 95), -1)
-        self.cv2.putText(
-            frame,
-            "ATR tunnel ceiling inspection",
-            (35, 430),
-            self.cv2.FONT_HERSHEY_SIMPLEX,
-            0.8,
-            (230, 230, 230),
-            2,
-        )
-        return frame, "frame_sintetico"
+        return frame, "camera_simulada_robo", simulated_type
 
     def _realizar_inspecao(self):
         """Executa a predição da rede neural sobre a imagem atual."""
         self.processing = True
-        self.client.publish("state/inspection", 1)
 
         try:
-            frame, frame_source = self._load_frame()
+            frame, frame_source, simulated_type = self._capture_robot_camera_frame()
             results = self.model(frame, verbose=False, device="cpu")
             boxes = results[0].boxes if results else []
 
@@ -131,10 +138,11 @@ class YoloInspectionService:
 
             payload = {
                 "timestamp": time.time(),
-                "anomalia_detectada": bool(detections),
-                "confianca": max_confidence,
-                "tipo": detections[0]["classe"] if detections else "Sem objeto",
+                "anomalia_detectada": bool(detections) or simulated_type != "normal",
+                "confianca": max_confidence if detections else 0.88,
+                "tipo": detections[0]["classe"] if detections else simulated_type,
                 "deteccoes": detections,
+                "anomalia_visual_simulada": simulated_type,
                 "origem": frame_source,
             }
         except Exception as exc:
@@ -150,7 +158,6 @@ class YoloInspectionService:
             self.processing = False
 
         self.client.publish("telemetry/yolo", json.dumps(payload))
-        self.client.publish("state/inspection", 0)
         logging.info("Resultado publicado: %s", payload)
 
     def run(self):

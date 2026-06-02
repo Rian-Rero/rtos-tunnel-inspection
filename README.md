@@ -7,7 +7,7 @@
 
 Este repositório contém o código-fonte do sistema de controle, simulação e operação remota de um robô autônomo para inspeção de integridade estrutural em túneis. O projeto foi desenvolvido como Trabalho Final da disciplina de **Automação em Tempo Real (ATR) - 2026/1**.
 
-O sistema utiliza uma arquitetura híbrida: um núcleo crítico de tempo real desenvolvido em **C/C++** (gerenciamento de multitarefas, sincronização e controle PID) e subsistemas periféricos em **Python** (simulação física, interface gráfica e visão computacional), totalmente integrados via protocolo **MQTT**.
+O sistema utiliza uma arquitetura híbrida: um núcleo crítico de tempo real desenvolvido em **C/C++** (gerenciamento de multitarefas, sincronização, sensores simulados e controle PID) e subsistemas periféricos em **Python** (visualização gráfica, interface de operação e visão computacional), totalmente integrados via protocolo **MQTT**.
 
 ## 👥 Autores
 
@@ -46,9 +46,9 @@ RTOS-TUNNEL-INSPECTION/
     ├── tasks/                # Implementação (.cpp) das threads de controle, navegação e sensores
     │
     └── scripts/              # Subsistemas e microsserviços em Python
-        ├── tunel_simulator.py       # Simulação física 2D com Pygame (física, telemetria e carrinho)
+        ├── tunel_simulator.py       # Visualização 2D com Pygame guiada pela telemetria MQTT
         ├── operator_interface.py    # GUI de operação e telemetria (Tkinter)
-        └── yolo_mqtt_service.py     # Serviço que processa o trigger da câmera via YOLOv8
+        └── yolo_mqtt_service.py     # Serviço que gera a câmera simulada e processa o trigger via YOLOv8
 ```
 
 ## ⚙️ Principais Funcionalidades e Requisitos Atendidos
@@ -61,9 +61,9 @@ RTOS-TUNNEL-INSPECTION/
 
 ### 🌟 Pontos Extras Implementados:
 
-- Sensor IMU Simulado: Leitura da inclinação do túnel afetando o cálculo da gravidade no simulador físico.
+- Sensor IMU Simulado: Leitura da inclinação do túnel produzida pelo modelo físico do núcleo C++.
 
-- Inspeção Visual por IA: Integração do modelo YOLOv8 para inferência computacional sob demanda quando uma anomalia estrutural é detectada pelo LIDAR.
+- Inspeção Visual por IA: Integração do modelo YOLOv8 para inferência computacional sob demanda quando uma anomalia estrutural é detectada pelo LIDAR. A imagem da câmera é 100% simulada, gerada pelo robô virtual, sem usar webcam física do computador.
 
 ---
 
@@ -131,7 +131,7 @@ make docs-serve
 ### 🌟 Extras
 
 - Sensor IMU simulado (inclinação do túnel)
-- Inspeção Visual com YOLOv8 via MQTT
+- Inspeção Visual com YOLOv8 via MQTT usando câmera embarcada simulada
 
 ### Tópicos MQTT
 
@@ -140,7 +140,7 @@ make docs-serve
 - `sensor/lidar`, `sensor/imu`, `sensor/encoder`
 - `telemetry/robot`, `telemetry/yolo`, `state/inspection`
 
-A GUI, o simulador e o serviço YOLO se comunicam com o núcleo C++ exclusivamente pelo broker MQTT.
+A GUI, o simulador e o serviço YOLO se comunicam com o núcleo C++ exclusivamente pelo broker MQTT. O serviço YOLO não publica `state/inspection`; esse estado é controlado pelo núcleo C++ para manter a visualização da câmera e do feixe sincronizada.
 
 ---
 
