@@ -126,7 +126,6 @@ class TunnelScene:
             screen, floor_top, width, height, view, floor_fn, state.visual_pos_x
         )
         self._draw_slope_scan(screen, view, state.imu)
-        self._draw_anomaly_marks(screen, state, view, roof_mid_y)
         self._draw_distance_ruler(screen, view, floor_fn)
         self._draw_imu_gauge(screen, state.imu)
         self._draw_unmapped_overlay(screen, view, state.reveal_pos_x)
