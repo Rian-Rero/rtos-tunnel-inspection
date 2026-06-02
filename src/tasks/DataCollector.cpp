@@ -93,6 +93,15 @@ void DataCollector::run() {
         last_x = data.position_x;
         const double imu_degrees = context_->imu_degrees.load();
         const int encoder_count = static_cast<int>(std::llround(data.position_x * 100.0));
+        const bool manual_mode = context_->manual_mode.load();
+        const int manual_speed_setpoint = context_->speed_setpoint.load();
+        const double current_speed = context_->current_speed.load();
+        const int command_direction = context_->direction.load();
+        const int display_direction =
+            manual_mode ? command_direction
+                        : (current_speed < -0.5 ? -1 : (current_speed > 0.5 ? 1 : 0));
+        const int effective_speed_setpoint = manual_mode ? display_direction * manual_speed_setpoint
+                                                         : (context_->isAnomalyActive() ? 15 : 50);
 
         // --- FIM DA ANÁLISE ---
 
@@ -113,17 +122,19 @@ void DataCollector::run() {
                   << "\"lidar\":" << data.lidar_distance_y << ","
                   << "\"imu\":" << imu_degrees << ","
                   << "\"confidence_level\":" << data.confidence_level << ","
-                  << "\"current_speed\":" << context_->current_speed.load() << ","
-                  << "\"velocidade\":" << context_->current_speed.load() << ","
-                  << "\"manual_mode\":" << (context_->manual_mode.load() ? "true" : "false") << ","
-                  << "\"mode\":\"" << (context_->manual_mode.load() ? "MANUAL" : "AUTO") << "\","
+                  << "\"current_speed\":" << current_speed << ","
+                  << "\"velocidade\":" << current_speed << ","
+                  << "\"manual_mode\":" << (manual_mode ? "true" : "false") << ","
+                  << "\"mode\":\"" << (manual_mode ? "MANUAL" : "AUTO") << "\","
                   << "\"encoder\":" << encoder_count << ","
-                  << "\"speed_setpoint\":" << context_->speed_setpoint.load() << ","
-                  << "\"direction\":" << context_->direction.load() << ","
+                  << "\"speed_setpoint\":" << effective_speed_setpoint << ","
+                  << "\"manual_speed_setpoint\":" << manual_speed_setpoint << ","
+                  << "\"direction\":" << display_direction << ","
+                  << "\"command_direction\":" << command_direction << ","
                   << "\"direction_label\":\""
-                  << (context_->direction.load() < 0   ? "LEFT"
-                      : context_->direction.load() > 0 ? "RIGHT"
-                                                       : "STOP")
+                  << (display_direction < 0   ? "LEFT"
+                      : display_direction > 0 ? "RIGHT"
+                                              : "STOP")
                   << "\"}";
 
         telemetry_pub.publish(telemetry.str());

@@ -7,6 +7,8 @@
 #include <sys/select.h>
 #include <unistd.h>
 
+#include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -31,7 +33,11 @@ void MqttBridge::handleMessage(const std::string& topic, const std::string& payl
 
     if (topic == "cmd/speed_sp") {
         try {
-            context_->speed_setpoint.store(std::stoi(payload));
+            const int requested = std::clamp(std::stoi(payload), -100, 100);
+            if (requested < 0) {
+                context_->direction.store(-1);
+            }
+            context_->speed_setpoint.store(std::abs(requested));
         } catch (...) {
             core::TerminalPrinter::Log(core::TerminalPrinter::Level::Warning, "MQTT",
                                        "Setpoint inválido recebido: " + payload);

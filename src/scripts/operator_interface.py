@@ -46,13 +46,14 @@ class OperatorGUI:
         self.lidar_state = tk.StringVar(value="---")
         self.imu_state = tk.StringVar(value="---")
         self.encoder_state = tk.StringVar(value="---")
-        self.speed_state = tk.StringVar(value="0")
+        self.speed_state = tk.StringVar(value="0 %")
         self.position_state = tk.StringVar(value="0.0 m")
         self.confidence_state = tk.StringVar(value="0.00")
         self.tunnel_state = tk.StringVar(value="Túnel ativo")
         self.preview_angle = 0.0
         self.preview_direction = 1
         self.preview_phase = 0.0
+        self.updating_speed_programmatically = False
         self.robot_history: list[RobotTelemetry] = []
 
         self.client = self._create_client()
@@ -196,13 +197,13 @@ class OperatorGUI:
             modes,
             text="Modo AUTO",
             style="Accent.TButton",
-            command=lambda: self.publish_cmd("cmd/mode", "AUTO"),
+            command=self._set_auto_mode,
         ).pack(side="left", expand=True, fill="x", padx=(0, 6))
         ttk.Button(
             modes,
             text="Modo MANUAL",
             style="Accent.TButton",
-            command=lambda: self.publish_cmd("cmd/mode", "MANUAL"),
+            command=self._set_manual_mode,
         ).pack(side="left", expand=True, fill="x", padx=(6, 0))
 
         direction = ttk.Frame(self.controls_card, style="Card.TFrame")
@@ -211,25 +212,27 @@ class OperatorGUI:
             direction,
             text="Esquerda",
             style="Accent.TButton",
-            command=lambda: self.publish_cmd("cmd/direction", "LEFT"),
+            command=lambda: self._set_manual_direction("LEFT"),
         ).pack(side="left", expand=True, fill="x", padx=(0, 6))
         ttk.Button(
             direction,
             text="Parar",
             style="Accent.TButton",
-            command=lambda: self.publish_cmd("cmd/direction", "STOP"),
+            command=lambda: self._set_manual_direction("STOP"),
         ).pack(side="left", expand=True, fill="x", padx=6)
         ttk.Button(
             direction,
             text="Direita",
             style="Accent.TButton",
-            command=lambda: self.publish_cmd("cmd/direction", "RIGHT"),
+            command=lambda: self._set_manual_direction("RIGHT"),
         ).pack(side="left", expand=True, fill="x", padx=(6, 0))
 
         slider_box = ttk.Frame(self.controls_card, style="Card.TFrame")
         slider_box.pack(fill="x", pady=(0, 14))
         ttk.Label(
-            slider_box, text="Setpoint de velocidade", style="MetricLabel.TLabel"
+            slider_box,
+            text="Intensidade manual do setpoint (0-100%)",
+            style="MetricLabel.TLabel",
         ).pack(anchor="w")
         self.speed_slider = tk.Scale(
             slider_box,
@@ -340,11 +343,59 @@ class OperatorGUI:
     def publish_cmd(self, topic: str, payload: str | float | int):
         self.client.publish(topic, str(payload))
 
+    def _set_speed_value(self, speed: int):
+        speed = max(0, min(100, int(speed)))
+        self.updating_speed_programmatically = True
+        try:
+            self.speed_slider.set(speed)
+        finally:
+            self.updating_speed_programmatically = False
+        self.speed_state.set(f"{speed} %")
+        self.publish_cmd("cmd/speed_sp", speed)
+
+    def _set_auto_mode(self):
+        self.publish_cmd("cmd/mode", "AUTO")
+        self.mode_state.set("AUTO")
+        self.telemetry.mode = "AUTO"
+        self._draw_robot_preview()
+
+    def _set_manual_mode(self):
+        self.publish_cmd("cmd/mode", "MANUAL")
+        self.publish_cmd("cmd/direction", "STOP")
+        self._set_speed_value(0)
+        self.mode_state.set("MANUAL")
+        self.direction_state.set("STOP")
+        self.telemetry.direction = "STOP"
+        self.telemetry.mode = "MANUAL"
+        self.preview_direction = 1
+        self._draw_robot_preview()
+
+    def _set_manual_direction(self, direction: str):
+        self.publish_cmd("cmd/mode", "MANUAL")
+        if direction == "STOP":
+            self.publish_cmd("cmd/direction", "STOP")
+            self._set_speed_value(0)
+            self.direction_state.set("STOP")
+            self.telemetry.direction = "STOP"
+            self.telemetry.mode = "MANUAL"
+            self._draw_robot_preview()
+            return
+
+        current_speed = int(float(self.speed_slider.get()))
+        if current_speed == 0:
+            self._set_speed_value(40)
+        self.publish_cmd("cmd/direction", direction)
+        self.direction_state.set(direction)
+        self.telemetry.direction = direction
+        self.telemetry.mode = "MANUAL"
+        self.preview_direction = -1 if direction == "LEFT" else 1
+        self._draw_robot_preview()
+
     def _update_speed(self, value):
         speed = int(float(value))
-        self.speed_state.set(str(speed))
-        self.publish_cmd("cmd/speed_sp", speed)
-        self.preview_direction = 1 if speed >= 0 else -1
+        self.speed_state.set(f"{speed} %")
+        if not self.updating_speed_programmatically:
+            self.publish_cmd("cmd/speed_sp", speed)
         self._draw_robot_preview()
 
     def _trigger_camera(self):
@@ -461,10 +512,11 @@ class OperatorGUI:
         self._draw_robot_preview()
 
     def _start_preview_animation(self):
-        self.preview_phase += max(0.04, abs(self.telemetry.velocidade) * 0.06)
-        self.preview_angle += (
-            max(0.08, abs(self.telemetry.velocidade) * 0.12) * self.preview_direction
-        )
+        if abs(self.telemetry.velocidade) > 0.05:
+            self.preview_phase += abs(self.telemetry.velocidade) * 0.06
+            self.preview_angle += (
+                abs(self.telemetry.velocidade) * 0.12 * self.preview_direction
+            )
         self._draw_robot_preview()
         self.root.after(40, self._start_preview_animation)
 
@@ -651,18 +703,19 @@ class OperatorGUI:
                 outline="",
             )
 
-        direction_arrow = 1 if self.preview_direction >= 0 else -1
-        arrow_color = "#fbbf24" if direction_arrow > 0 else "#60a5fa"
-        arrow_end = cart_x + 160 if direction_arrow > 0 else cart_x - 28
-        canvas.create_line(
-            cart_x + 68,
-            cart_y - 12,
-            arrow_end,
-            cart_y - 12,
-            fill=arrow_color,
-            width=4,
-            arrow=tk.LAST,
-        )
+        if self.telemetry.direction != "STOP":
+            direction_arrow = -1 if self.telemetry.direction == "LEFT" else 1
+            arrow_color = "#60a5fa" if direction_arrow < 0 else "#fbbf24"
+            arrow_end = cart_x - 28 if direction_arrow < 0 else cart_x + 160
+            canvas.create_line(
+                cart_x + 68,
+                cart_y - 12,
+                arrow_end,
+                cart_y - 12,
+                fill=arrow_color,
+                width=4,
+                arrow=tk.LAST,
+            )
 
         info = (
             f"LIDAR {self.telemetry.lidar:.0f} | IMU {self.telemetry.imu:.1f}° | "

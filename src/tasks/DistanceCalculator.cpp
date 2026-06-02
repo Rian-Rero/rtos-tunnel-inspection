@@ -41,17 +41,16 @@ void DistanceCalculator::run() {
         // 1. Lê o giro real do motor (Simulado pela planta via SharedContext)
         double speed_percent = context_->current_speed.load();
         double speed_ms = (speed_percent / 100.0) * 2.0;  // Assume 100% = 2.0 m/s
-        if (speed_ms < 0.0)
-            speed_ms = 0.0;  // Ignora recuo negativo do freio na contagem
 
         // 2. Calcula delta físico e gera "ticks" de hardware virtual
         double delta_dist = speed_ms * 0.020;  // d = v * t (t = 20ms)
-        double delta_ticks = (delta_dist / wheel_circumference) * ticks_per_rev;
-
-        simulated_ticks += delta_ticks;
+        total_distance_ += delta_dist;
+        if (total_distance_ < 0.0) {
+            total_distance_ = 0.0;
+        }
 
         // 3. O driver processa os ticks e atualiza a odometria do sistema
-        total_distance_ = (simulated_ticks / ticks_per_rev) * wheel_circumference;
+        simulated_ticks = (total_distance_ / wheel_circumference) * ticks_per_rev;
 
         // 4. Publica a odometria para o restante do robô (Tópico: /sensor/odometria)
         context_->current_odometry.store(total_distance_);

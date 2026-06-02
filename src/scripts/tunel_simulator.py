@@ -424,30 +424,31 @@ class TunelSimulator:
             2,
         )
 
-        arrow_color = (250, 204, 21) if self.direcao != "LEFT" else (96, 165, 250)
-        arrow_tip_x = robot_x + 190 if self.direcao != "LEFT" else robot_x - 30
-        pygame.draw.line(
-            screen,
-            arrow_color,
-            (robot_x + 80, robot_y - 10),
-            (arrow_tip_x, robot_y - 10),
-            4,
-        )
-        pygame.draw.polygon(
-            screen,
-            arrow_color,
-            [
+        if self.direcao != "STOP":
+            arrow_color = (96, 165, 250) if self.direcao == "LEFT" else (250, 204, 21)
+            arrow_tip_x = robot_x - 30 if self.direcao == "LEFT" else robot_x + 190
+            pygame.draw.line(
+                screen,
+                arrow_color,
+                (robot_x + 80, robot_y - 10),
                 (arrow_tip_x, robot_y - 10),
-                (
-                    arrow_tip_x - 12 * (-1 if arrow_tip_x > robot_x + 80 else 1),
-                    robot_y - 18,
-                ),
-                (
-                    arrow_tip_x - 12 * (-1 if arrow_tip_x > robot_x + 80 else 1),
-                    robot_y - 2,
-                ),
-            ],
-        )
+                4,
+            )
+            pygame.draw.polygon(
+                screen,
+                arrow_color,
+                [
+                    (arrow_tip_x, robot_y - 10),
+                    (
+                        arrow_tip_x - 12 * (-1 if arrow_tip_x > robot_x + 80 else 1),
+                        robot_y - 18,
+                    ),
+                    (
+                        arrow_tip_x - 12 * (-1 if arrow_tip_x > robot_x + 80 else 1),
+                        robot_y - 2,
+                    ),
+                ],
+            )
 
         label_font = pygame.font.SysFont("arial", 14, bold=True)
         screen.blit(
@@ -472,7 +473,8 @@ class TunelSimulator:
                 if event.type == pygame.QUIT:
                     running = False
 
-            self.preview_angle += max(0.04, abs(self.velocidade) * 0.055) * dt * 20.0
+            if abs(self.velocidade) > 0.05:
+                self.preview_angle += abs(self.velocidade) * 0.055 * dt * 20.0
 
             self._draw_background(screen)
             self._draw_tunnel_profile(screen)

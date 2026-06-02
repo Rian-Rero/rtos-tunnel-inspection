@@ -4,7 +4,9 @@
  */
 #include "tasks/NavigationCommand.hpp"
 
+#include <algorithm>
 #include <chrono>
+#include <cstdlib>
 #include <thread>
 
 namespace tasks {
@@ -34,7 +36,9 @@ void NavigationCommand::run() {
         core::NavigationSetpoint sp;
 
         if (context_->manual_mode.load()) {
-            sp.speed_setpoint = context_->speed_setpoint.load();
+            const int speed = std::clamp(std::abs(context_->speed_setpoint.load()), 0, 100);
+            const int direction = std::clamp(context_->direction.load(), -1, 1);
+            sp.speed_setpoint = direction * speed;
             sp.is_automatic = false;
         } else if (context_->isAnomalyActive()) {
             sp.speed_setpoint = 15;
