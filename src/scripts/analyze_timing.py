@@ -143,19 +143,75 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = GANTT_WINDOW_MS) 
     for yi, name in enumerate(task_names):
         r = results[name]
         color = COLORS[yi % len(COLORS)]
+        period_ns = r["period_ms"] * 1_000_000
+
         start_ms = (r["actual"] - t_start) / 1e6
         end_ms = (r["exec_end"] - t_start) / 1e6
-        mask = start_ms < window_ms
-        for s, e in zip(start_ms[mask], end_ms[mask]):
-            dur = max(e - s, 0.15)
+        sched_ms = (r["scheduled"] - t_start) / 1e6
+        dl_ms = (r["scheduled"] + period_ns - t_start) / 1e6
+        is_miss = r["exec_end"] > r["scheduled"] + period_ns
+
+        # Ciclos que sobrepõem a janela [0, window_ms]
+        mask = (start_ms < window_ms) & (end_ms >= 0)
+
+        # Execuções reais são sub-ms (µs). Mínimo proporcional garante visibilidade.
+        min_exec_ms = r["period_ms"] * 0.15
+
+        for s, e, sched, dl, miss in zip(
+            start_ms[mask], end_ms[mask], sched_ms[mask], dl_ms[mask], is_miss[mask]
+        ):
+            # 1. □ Slot alocado pelo escalonador (outline)
+            if dl > 0 and sched < window_ms:
+                ax.barh(
+                    yi,
+                    dl - sched,
+                    left=sched,
+                    height=0.70,
+                    color="none",
+                    edgecolor=color,
+                    linewidth=2.0,
+                    alpha=0.80,
+                    zorder=2,
+                )
+
+            # 2. ■ Execução real (mín. 15% do período para ser visível)
+            exec_w = max(e - s, min_exec_ms)
             ax.barh(
-                yi, dur, left=s, height=0.55, color=color, alpha=0.85, edgecolor="none"
+                yi,
+                exec_w,
+                left=s,
+                height=0.46,
+                color="crimson" if miss else color,
+                alpha=0.90,
+                edgecolor="white",
+                linewidth=0.4,
+                zorder=3,
             )
+
+            # 3. ▼ Seta no deadline
+            if 0 <= dl <= window_ms:
+                ax.vlines(
+                    dl, yi + 0.35, yi + 0.85, colors=color, linewidth=1.8, zorder=5
+                )
+                ax.plot(
+                    dl,
+                    yi + 0.35,
+                    "v",
+                    color=color,
+                    markersize=9,
+                    zorder=6,
+                    clip_on=True,
+                )
 
     ax.set_yticks(range(len(task_names)))
     ax.set_yticklabels(task_names)
+    ax.set_xlim(0, window_ms)
     ax.set_xlabel("Tempo (ms)")
-    ax.set_title(f"Gantt de Execução — primeiros {window_ms} ms")
+    ax.set_title(
+        f"Gantt — primeiros {window_ms} ms\n"
+        f"□ slot alocado  |  ■ execução (mín. 15% do período*)  |  ▼ deadline\n"
+        f"*barras de execução não estão em escala real (execuções reais: µs)"
+    )
     ax.grid(True, axis="x", alpha=0.25)
 
 

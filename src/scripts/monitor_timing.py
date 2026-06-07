@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 
 LOG_PATH = Path("data/logs/task_timing.csv")
 UPDATE_S = 0.5  # intervalo de redesenho (segundos)
-GANTT_WINDOW_MS = 500  # janela deslizante do Gantt
+GANTT_WINDOW_MS = 300  # janela deslizante do Gantt
 MAX_CYCLES = 300  # ciclos visíveis nos gráficos de série temporal
 
 COLORS = plt.cm.tab10.colors
@@ -150,33 +150,66 @@ def _draw_gantt(ax: plt.Axes, tasks: dict, window_ms: float) -> None:
         d = tasks[name]
         color = COLORS[yi % len(COLORS)]
         period_ns = d["period_ms"] * 1_000_000
-        mask = d["actual"] >= win_start
+
+        # Inclui ciclos que SOBREPÕEM a janela, não só os que começam dentro dela.
+        # Garante que a tarefa de 100ms mostre todas as 5 execuções em 500ms.
+        mask = d["exec_end"] >= win_start
         if not mask.any():
             continue
 
         s_ms = (d["actual"][mask] - win_start) / 1e6
         e_ms = (d["exec_end"][mask] - win_start) / 1e6
+        sched_ms = (d["scheduled"][mask] - win_start) / 1e6
         dl_ms = (d["scheduled"][mask] + period_ns - win_start) / 1e6
         miss = d["exec_end"][mask] > d["scheduled"][mask] + period_ns
 
-        for s, e, dl, is_miss in zip(s_ms, e_ms, dl_ms, miss):
+        # Execuções reais são sub-ms (µs). Usamos mínimo proporcional ao
+        # período para garantir visibilidade. A barra não está em escala real.
+        min_exec_ms = d["period_ms"] * 0.15
+
+        for s, e, sched, dl, is_miss in zip(s_ms, e_ms, sched_ms, dl_ms, miss):
+            # 1. □ Retângulo do período — slot alocado pelo escalonador
+            if dl > 0 and sched < window_ms:
+                ax.barh(
+                    yi,
+                    dl - sched,
+                    left=sched,
+                    height=0.70,
+                    color="none",
+                    edgecolor=color,
+                    linewidth=2.0,
+                    alpha=0.80,
+                    zorder=2,
+                )
+
+            # 2. ■ Caixa de execução — preenchida, mais estreita que o slot
+            #    largura mínima = 15% do período para ser sempre visível
+            exec_w = max(e - s, min_exec_ms)
             ax.barh(
                 yi,
-                max(e - s, 0.1),
+                exec_w,
                 left=s,
-                height=0.55,
+                height=0.46,
                 color="crimson" if is_miss else color,
-                alpha=0.85,
-                edgecolor="none",
+                alpha=0.90,
+                edgecolor="white",
+                linewidth=0.4,
+                zorder=3,
             )
+
+            # 3. ▼ Seta no deadline — linha + triângulo ▼
             if 0 <= dl <= window_ms:
+                ax.vlines(
+                    dl, yi + 0.35, yi + 0.85, colors=color, linewidth=1.8, zorder=5
+                )
                 ax.plot(
-                    [dl, dl],
-                    [yi - 0.35, yi + 0.35],
+                    dl,
+                    yi + 0.35,
+                    "v",
                     color=color,
-                    linewidth=0.9,
-                    linestyle=":",
-                    alpha=0.7,
+                    markersize=9,
+                    zorder=6,
+                    clip_on=True,
                 )
 
     ax.set_yticks(range(len(task_names)))
@@ -184,7 +217,9 @@ def _draw_gantt(ax: plt.Axes, tasks: dict, window_ms: float) -> None:
     ax.set_xlim(0, window_ms)
     ax.set_xlabel("Tempo relativo (ms)")
     ax.set_title(
-        f"Gantt — últimos {window_ms} ms  (vermelho = miss | pontilhado = deadline)"
+        f"Gantt — últimos {window_ms} ms\n"
+        f"□ slot alocado  |  ■ execução (mín. 15% do período*)  |  ▼ deadline\n"
+        f"*barras de execução não estão em escala real (execuções reais: µs)"
     )
     ax.grid(True, axis="x", alpha=0.25)
 
