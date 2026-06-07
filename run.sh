@@ -7,41 +7,31 @@ PID_MONITOR=""
 
 cleanup() {
     local exit_code=$?
-    # Ignora novos sinais durante o cleanup (segundo Ctrl+C não interrompe)
     trap '' EXIT INT TERM
 
     echo ""
     echo "Encerrando sistema..."
 
-    # Agrupa todos os PIDs filhos
-    local all_pids=()
-    [ -n "$PID_CPP"     ] && all_pids+=("$PID_CPP")
-    [ -n "$PID_MONITOR" ] && all_pids+=("$PID_MONITOR")
+    # SIGKILL imediato nos serviços Python e monitor (sem estado crítico para salvar)
+    local kill_now=()
+    [ -n "$PID_MONITOR" ] && kill_now+=("$PID_MONITOR")
     for p in "${PIDS[@]}"; do
-        [ "$p" != "$PID_CPP" ] && all_pids+=("$p")
+        [ "$p" != "$PID_CPP" ] && kill_now+=("$p")
     done
+    [ "${#kill_now[@]}" -gt 0 ] && kill -KILL "${kill_now[@]}" 2>/dev/null
 
-    # 1) SIGTERM → dá chance de shutdown gracioso (C++ faz join() e flush do CSV)
-    for pid in "${all_pids[@]}"; do
-        kill -TERM "$pid" 2>/dev/null
-    done
-
-    # 2) Aguarda até 3 s — necessário para o C++ encerrar threads e fechar o CSV
-    local deadline=$(( SECONDS + 3 ))
-    while [ $SECONDS -lt $deadline ]; do
-        local alive=false
-        for pid in "${all_pids[@]}"; do
-            kill -0 "$pid" 2>/dev/null && alive=true && break
+    # Aguarda o C++ encerrar graciosamente — ele já recebeu SIGINT do terminal
+    # e está fazendo join() das threads + flush do CSV de timing.
+    if [ -n "$PID_CPP" ]; then
+        local i
+        for i in 1 2 3 4 5 6 7 8 9 10; do   # até 1 s
+            kill -0 "$PID_CPP" 2>/dev/null || break
+            sleep 0.1
         done
-        $alive || break
-        sleep 0.2
-    done
+        kill -KILL "$PID_CPP" 2>/dev/null
+    fi
 
-    # 3) SIGKILL em qualquer sobrevivente
-    for pid in "${all_pids[@]}"; do
-        kill -KILL "$pid" 2>/dev/null
-    done
-    wait "${all_pids[@]}" 2>/dev/null
+    wait 2>/dev/null   # reap todos os zombies
 
     # ── Análise de timing estática (gráfico final de alta qualidade) ────────────
     local py="${PYTHON:-python3}"
@@ -50,7 +40,8 @@ cleanup() {
         echo "════════════════════════════════════════════════════════"
         echo "  Análise de Timing RTOS — Prova de Conformidade        "
         echo "════════════════════════════════════════════════════════"
-        "$py" src/scripts/analyze_timing.py
+        "$py" src/scripts/analyze_timing.py &
+        disown $!
         echo ""
         echo "Gráfico salvo em: data/logs/timing_analysis.png"
     fi
@@ -128,5 +119,17 @@ echo "[4/4] Iniciando GUI do Operador"
 "$PYTHON" src/scripts/operator_interface.py &
 PIDS+=("$!")
 
-# Bloqueia até que qualquer componente crítico encerre (ou Ctrl+C)
-wait -n "${PIDS[@]}"
+# Bloqueia até Ctrl+C ou até que um componente crítico encerre.
+#
+# IMPORTANTE: usa `wait $!` em um sleep em background — não `wait -n`.
+# `wait -n` tem um bug em bash onde o trap INT pode não disparar na
+# primeira vez se um filho morre antes de o sinal ser processado.
+# `wait $!` em um sleep é GARANTIDAMENTE interrompido por um único Ctrl+C.
+while true; do
+    sleep 1 &
+    wait $!
+    # Verifica se algum componente crítico encerrou por conta própria
+    for pid in "${PIDS[@]}"; do
+        kill -0 "$pid" 2>/dev/null || break 2
+    done
+done
