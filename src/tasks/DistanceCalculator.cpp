@@ -8,6 +8,7 @@
 #include <string>
 #include <thread>
 
+#include "core/TaskTimingLogger.hpp"
 #include "core/TerminalPrinter.hpp"
 
 namespace tasks {
@@ -34,8 +35,11 @@ void DistanceCalculator::run() {
     double simulated_ticks = 0.0;
 
     int log_divider = 0;
+    uint64_t cycle_num = 0;
 
     while (context_->is_running) {
+        auto scheduled = next_wakeup;
+        auto actual = std::chrono::steady_clock::now();
         next_wakeup += cycle_time;
 
         // 1. Lê o giro real do motor (Simulado pela planta via SharedContext)
@@ -63,6 +67,11 @@ void DistanceCalculator::run() {
                                            " ticks lidos)");
             log_divider = 0;
         }
+
+        core::TaskTimingLogger::instance().log(
+            {"DistanceCalc", 20, cycle_num++, core::TaskTimingLogger::toNs(scheduled),
+             core::TaskTimingLogger::toNs(actual),
+             core::TaskTimingLogger::toNs(std::chrono::steady_clock::now())});
 
         std::this_thread::sleep_until(next_wakeup);
     }

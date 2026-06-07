@@ -10,6 +10,7 @@
 #include <limits>
 #include <thread>
 
+#include "core/TaskTimingLogger.hpp"
 #include "core/TerminalPrinter.hpp"
 
 namespace tasks {
@@ -105,8 +106,11 @@ void SurfaceReconstruction::run() {
     auto proximo_ciclo = std::chrono::steady_clock::now();
     const auto periodo = std::chrono::milliseconds(100);  // LIDAR varre a 10Hz
     double last_sample_x = std::numeric_limits<double>::quiet_NaN();
+    uint64_t cycle_num = 0;
 
     while (context_->is_running) {
+        auto scheduled = proximo_ciclo;
+        auto actual = std::chrono::steady_clock::now();
         proximo_ciclo += periodo;
 
         // 1. Consome Odometria do "Broker" (/sensor/odometria)
@@ -143,6 +147,10 @@ void SurfaceReconstruction::run() {
         const bool first_sample = std::isnan(last_sample_x);
         const bool moved_enough = std::abs(current_x - last_sample_x) >= kMinSurfaceSampleStepM;
         if (!first_sample && !moved_enough) {
+            core::TaskTimingLogger::instance().log(
+                {"SurfaceRecon", 100, cycle_num++, core::TaskTimingLogger::toNs(scheduled),
+                 core::TaskTimingLogger::toNs(actual),
+                 core::TaskTimingLogger::toNs(std::chrono::steady_clock::now())});
             std::this_thread::sleep_until(proximo_ciclo);
             continue;
         }
@@ -155,6 +163,11 @@ void SurfaceReconstruction::run() {
             break;
         }
         last_sample_x = current_x;
+
+        core::TaskTimingLogger::instance().log(
+            {"SurfaceRecon", 100, cycle_num++, core::TaskTimingLogger::toNs(scheduled),
+             core::TaskTimingLogger::toNs(actual),
+             core::TaskTimingLogger::toNs(std::chrono::steady_clock::now())});
 
         std::this_thread::sleep_until(proximo_ciclo);
     }

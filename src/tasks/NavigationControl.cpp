@@ -11,6 +11,7 @@
 #include <thread>
 
 #include "core/MqttPublisher.hpp"
+#include "core/TaskTimingLogger.hpp"
 #include "core/TerminalPrinter.hpp"
 
 namespace tasks {
@@ -65,12 +66,14 @@ void NavigationControl::run() {
     auto next_wakeup = std::chrono::steady_clock::now();
     const auto cycle_time = std::chrono::milliseconds(80);
     const double Ts = 0.08;  // Tempo de amostragem fixo e garantido pelo RTOS (80ms)
+    uint64_t cycle_num = 0;
 
     while (context_->is_running) {
+        auto scheduled = next_wakeup;
+        auto actual = std::chrono::steady_clock::now();
         next_wakeup += cycle_time;
 
         core::NavigationSetpoint sp;
-        // Consome a mensagem via IPC de forma segura
         if (!cmd_queue_->tryPop(sp)) {
             if (cmd_queue_->isClosed()) {
                 break;
@@ -80,10 +83,8 @@ void NavigationControl::run() {
 
         int o_aceleracao = computePID(sp.speed_setpoint, current_simulated_speed, Ts);
 
-        // Simulação básica da planta
         current_simulated_speed += (o_aceleracao - current_simulated_speed) * 0.15;
 
-        // Publica a velocidade na variável atômica global
         context_->current_speed.store(current_simulated_speed);
         motor_pub.publish(std::to_string(o_aceleracao));
 
@@ -93,7 +94,11 @@ void NavigationControl::run() {
             << "% | OUT: " << o_aceleracao << "%";
         core::TerminalPrinter::Log(core::TerminalPrinter::Level::Debug, "CTRL", oss.str());
 
-        // Dorme até o instante exato do próximo ciclo
+        core::TaskTimingLogger::instance().log(
+            {"NavControl", 80, cycle_num++, core::TaskTimingLogger::toNs(scheduled),
+             core::TaskTimingLogger::toNs(actual),
+             core::TaskTimingLogger::toNs(std::chrono::steady_clock::now())});
+
         std::this_thread::sleep_until(next_wakeup);
     }
 }

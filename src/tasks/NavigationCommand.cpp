@@ -9,6 +9,8 @@
 #include <cstdlib>
 #include <thread>
 
+#include "core/TaskTimingLogger.hpp"
+
 namespace tasks {
 
 /**
@@ -28,9 +30,11 @@ void NavigationCommand::run() {
     // Define o ponto de partida do relógio monotônico
     auto next_wakeup = std::chrono::steady_clock::now();
     const auto cycle_time = std::chrono::milliseconds(80);
+    uint64_t cycle_num = 0;
 
     while (context_->is_running) {
-        // Atualiza o instante do próximo despertar antes de rodar a lógica
+        auto scheduled = next_wakeup;
+        auto actual = std::chrono::steady_clock::now();
         next_wakeup += cycle_time;
 
         core::NavigationSetpoint sp;
@@ -48,12 +52,15 @@ void NavigationCommand::run() {
             sp.is_automatic = true;
         }
 
-        // Operação IPC de escrita (não bloqueante se a fila não estiver cheia)
         if (!cmd_queue_->push(sp)) {
             break;
         }
 
-        // Suspensão da thread até o tempo exato calculado, descontando o tempo de processamento
+        core::TaskTimingLogger::instance().log(
+            {"NavCommand", 80, cycle_num++, core::TaskTimingLogger::toNs(scheduled),
+             core::TaskTimingLogger::toNs(actual),
+             core::TaskTimingLogger::toNs(std::chrono::steady_clock::now())});
+
         std::this_thread::sleep_until(next_wakeup);
     }
 }

@@ -2,8 +2,13 @@
  * @file main.cpp
  * @brief Ponto de entrada do sistema de inspeção ATR.
  */
+#include <pthread.h>
+#include <sched.h>
+#include <sys/mman.h>
+
 #include <atomic>
 #include <csignal>
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <thread>
@@ -11,6 +16,7 @@
 
 #include "core/DataTypes.hpp"
 #include "core/SharedContext.hpp"
+#include "core/TaskTimingLogger.hpp"
 #include "core/TerminalPrinter.hpp"
 #include "core/ThreadSafeQueue.hpp"
 #include "tasks/CameraInspection.hpp"
@@ -40,6 +46,20 @@ void signalHandler(int signum) {
  * @brief Função principal do sistema.
  * @return Código de status de encerramento.
  */
+/**
+ * @brief Define política de scheduling SCHED_FIFO para uma thread std::thread.
+ * @param t Thread alvo.
+ * @param priority Prioridade RT (1=baixa, 99=alta). Rate-Monotonic: período menor = prioridade
+ * maior.
+ */
+static void setThreadRT(std::thread& t, int priority) {
+    sched_param param{priority};
+    if (pthread_setschedparam(t.native_handle(), SCHED_FIFO, &param) != 0) {
+        core::TerminalPrinter::Log(core::TerminalPrinter::Level::Warning, "RT",
+                                   "pthread_setschedparam falhou (rode como root para RT real).");
+    }
+}
+
 int main() {
     // Registro dos tratadores de sinal
     std::signal(SIGINT, signalHandler);
@@ -49,6 +69,10 @@ int main() {
 #endif
 
     core::TerminalPrinter::Banner("Sistema de Inspeção ATR", "Etapa 1 - Inicialização");
+
+    // ── Logger de timing: grava ciclo-a-ciclo para análise de jitter/deadline ───
+    std::filesystem::create_directories("data/logs");
+    core::TaskTimingLogger::instance().open("data/logs/task_timing.csv");
 
     // Instanciação isolada de contextos e buffers
     auto global_context = std::make_shared<core::SharedContext>();
@@ -69,13 +93,32 @@ int main() {
 
     // Lançamento das Threads
     std::vector<std::thread> thread_pool;
-    thread_pool.emplace_back([task_reconstruction]() { task_reconstruction->run(); });
-    thread_pool.emplace_back([task_camera]() { task_camera->run(); });
-    thread_pool.emplace_back([task_nav_cmd]() { task_nav_cmd->run(); });
-    thread_pool.emplace_back([task_nav_ctrl]() { task_nav_ctrl->run(); });
-    thread_pool.emplace_back([task_dist_calc]() { task_dist_calc->run(); });
-    thread_pool.emplace_back([task_collector]() { task_collector->run(); });
-    thread_pool.emplace_back([task_mqtt_bridge]() { task_mqtt_bridge->run(); });
+    thread_pool.emplace_back([task_reconstruction]() { task_reconstruction->run(); });  // [0]
+    thread_pool.emplace_back([task_camera]() { task_camera->run(); });                  // [1]
+    thread_pool.emplace_back([task_nav_cmd]() { task_nav_cmd->run(); });                // [2]
+    thread_pool.emplace_back([task_nav_ctrl]() { task_nav_ctrl->run(); });              // [3]
+    thread_pool.emplace_back([task_dist_calc]() { task_dist_calc->run(); });            // [4]
+    thread_pool.emplace_back([task_collector]() { task_collector->run(); });            // [5]
+    thread_pool.emplace_back([task_mqtt_bridge]() { task_mqtt_bridge->run(); });        // [6]
+
+    // ── RT Linux: mlockall APÓS criar threads (stacks já alocados → sem EAGAIN) ──
+    if (mlockall(MCL_CURRENT | MCL_FUTURE) != 0) {
+        core::TerminalPrinter::Log(core::TerminalPrinter::Level::Warning, "RT",
+                                   "mlockall falhou — rode como root para melhor determinismo.");
+    } else {
+        core::TerminalPrinter::Log(core::TerminalPrinter::Level::Success, "RT",
+                                   "Memória travada (mlockall OK).");
+    }
+
+    // ── RT Linux: prioridades Rate-Monotonic (período menor = prioridade maior) ──
+    // SCHED_FIFO prio [1,99]: DistanceCalc(20ms)>NavCmd/Ctrl(80ms)>SurfaceRecon(100ms)
+    setThreadRT(thread_pool[4], 50);  // DistanceCalculator   — 20ms
+    setThreadRT(thread_pool[2], 40);  // NavigationCommand    — 80ms
+    setThreadRT(thread_pool[3], 39);  // NavigationControl    — 80ms
+    setThreadRT(thread_pool[0], 30);  // SurfaceReconstruction— 100ms
+    setThreadRT(thread_pool[5], 20);  // DataCollector        — event
+    setThreadRT(thread_pool[1], 15);  // CameraInspection     — event
+    setThreadRT(thread_pool[6], 10);  // MqttBridge           — 200ms
 
     // A thread principal atua como Watchdog. Dorme até que um CTRL+C seja pressionado.
     while (!global_shutdown_requested) {
