@@ -9,6 +9,10 @@ paho-mqtt>=1.6.1
 ultralytics>=8.2.0
 opencv-python>=4.9.0
 
+# --- Análise de Timing RTOS ---
+matplotlib>=3.8.0
+numpy>=1.26.0
+
 # --- Qualidade de Código (Linting & Formatting) ---
 pre-commit>=3.7.0
 black>=24.4.2
