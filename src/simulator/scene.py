@@ -1,14 +1,15 @@
 """Renderizador da cena Pygame: tudo exceto o modelo do robô.
 
 *TunnelScene* recebe um retrato *SceneState* por quadro e desenha:
-  - grade e painéis de fundo
-  - perfil do teto do túnel (guiado por LIDAR)
-  - geologia do piso
+  - caverna natural: terra compactada, rocha e escuridão profunda
+  - perfil do teto com estratos geológicos reais e textura rochosa
+  - anomalias visuais: buraco (void escuro) e saliência (volume 3-D)
+  - geologia do piso: terra batida e pedras espalhadas
+  - efeito de tocha: zona iluminada central, escuridão nas bordas
   - sobreposição de varredura de inclinação
   - marcadores de anomalia
   - régua de distância
   - painel do monitor da câmera
-  - vinheta escura de sobreposição
   - névoa de áreas ainda não mapeadas
 """
 
@@ -39,45 +40,112 @@ class SceneState:
 
 
 class TunnelScene:
-    """Renderizador Pygame sem estado para o ambiente do túnel."""
+    """Renderizador Pygame sem estado para o ambiente do túnel natural."""
+
+    # ── Paleta geológica ─────────────────────────────────────────────────────
+    _C_CAVE_AIR = (3, 2, 1)
+    _C_ROCK_DEEP = (28, 16, 6)
+    _C_ROCK_BODY = (44, 28, 12)
+    _C_ROCK_MID = (56, 36, 16)
+    _C_EARTH_DARK = (70, 46, 22)
+    _C_FACE_BASE = (76, 56, 34)
+    _C_FACE_LIT = (108, 80, 48)
+    _C_CRACK = (20, 11, 5)
+    _C_OCHRE = (105, 76, 38)
+
+    # ── público ──────────────────────────────────────────────────────────────
 
     def draw_background(self, screen: pygame.Surface) -> None:
         width, height = screen.get_size()
-        screen.fill((7, 13, 24))
-        pygame.draw.rect(screen, (12, 19, 32), (0, 0, width, height))
-        pygame.draw.rect(screen, (16, 24, 39), (0, 78, width, height - 154))
-        pygame.draw.rect(screen, (5, 10, 18), (0, height - 76, width, 76))
 
-        for i, x in enumerate(range(-80, width + 120, 110)):
-            color = (22, 31, 46) if i % 2 else (28, 38, 54)
-            pygame.draw.polygon(
-                screen,
-                color,
-                [
-                    (x, 78),
-                    (x + 72, 78),
-                    (x + 118, height - 104),
-                    (x + 18, height - 104),
-                ],
-            )
+        # Escuridão absoluta da caverna
+        screen.fill(self._C_CAVE_AIR)
 
-        for x in range(40, width, 80):
-            pygame.draw.line(screen, (31, 41, 55), (x, 92), (x, height - 100), 1)
-        for y in range(120, height - 92, 60):
-            pygame.draw.line(screen, (31, 41, 55), (0, y), (width, y), 1)
+        # ── Massa rochosa superior (y 0–78): estratos geológicos ─────────────
+        upper_strata = [
+            (0, 13, (26, 15, 6)),
+            (13, 25, (40, 24, 10)),
+            (25, 37, (52, 33, 15)),
+            (37, 50, (46, 29, 13)),
+            (50, 62, (38, 24, 10)),
+            (62, 78, (28, 17, 7)),
+        ]
+        for y0, y1, col in upper_strata:
+            pygame.draw.rect(screen, col, (0, y0, width, y1 - y0))
 
-        for x in range(20, width, 46):
-            y = 98 + int(18 * math.sin(x * 0.031))
-            pygame.draw.circle(screen, (55, 65, 81), (x, y), 2)
-        for x in range(0, width, 64):
-            y = height - 92 + int(8 * math.sin(x * 0.04))
-            pygame.draw.line(screen, (30, 41, 59), (x, y), (x + 34, y - 7), 2)
+        # Textura rochosa na massa superior: nódulos, fissuras, pedras expostas
+        top_srf = pygame.Surface((width, 80), pygame.SRCALPHA)
+        n_samples = max(1, width // 5)
+        for i in range(n_samples * 6):
+            a = ((i * 1664525 + 1013904223) >> 4) & 0xFF
+            b = ((i * 22695477 + 12345678) >> 5) & 0xFF
+            c = ((i * 134775813 + 1) >> 6) & 0xFF
+            px = (a * 4 + b * 3 + i * 11) % width
+            py = 3 + (c % 68)
+            kind = i % 6
+            if kind < 3:  # nódulo rochoso
+                pr = 1 + (b % 4)
+                col = (46 + a % 32, 30 + b % 22, 12 + c % 14, 75 + a % 95)
+                pygame.draw.ellipse(
+                    top_srf, col, (px - pr, py - pr // 2, pr * 2, max(1, pr))
+                )
+            elif kind == 3:  # fissura
+                x2 = px + (b % 32) - 16
+                y2 = py + (c % 16) - 5
+                pygame.draw.line(
+                    top_srf, (14, 8, 3, 115 + b % 75), (px, py), (x2, y2), 1
+                )
+            elif kind == 4:  # pedra exposta de granito / sílex
+                pr = 2 + (b % 5)
+                lum = 58 + c % 35
+                pygame.draw.ellipse(
+                    top_srf,
+                    (lum, lum - 12, lum - 26, 88 + a % 70),
+                    (px - pr, py - pr // 2, pr * 2, max(1, pr)),
+                )
+            else:  # mancha de argila avermelhada
+                pr = 3 + (a % 6)
+                pygame.draw.ellipse(
+                    top_srf,
+                    (80 + b % 28, 40 + c % 18, 18 + a % 10, 55 + b % 55),
+                    (px - pr, py - pr // 2, pr * 2, max(1, pr)),
+                )
+        screen.blit(top_srf, (0, 0))
+
+        # Sutil separação inferior da massa (onde o teto começa)
+        pygame.draw.rect(screen, (20, 12, 5), (0, 75, width, 3))
+
+        # Interior do túnel: ar da caverna, quase preto com leve calor
+        pygame.draw.rect(screen, (5, 3, 2), (0, 78, width, height - 154))
 
     def draw_overlay(self, screen: pygame.Surface) -> None:
         width, height = screen.get_size()
-        srf = pygame.Surface((width, height), pygame.SRCALPHA)
-        pygame.draw.rect(srf, (3, 7, 18, 42), (0, 0, width, height))
-        screen.blit(srf, (0, 0))
+
+        # ── Escuridão da caverna com efeito de tocha do robô ─────────────────
+        cx = width // 2
+        cy = height - 195  # posição aproximada do robô / piso
+
+        dark = pygame.Surface((width, height), pygame.SRCALPHA)
+        dark.fill((2, 1, 0, 220))
+
+        # Gradiente radial: transparente no centro → opaco nas bordas
+        max_r = int(min(width * 0.52, height * 0.82))
+        step = 3
+        for r in range(max_r, 0, -step):
+            t = r / max_r
+            alpha = int(216 * (t**1.60))
+            pygame.draw.circle(dark, (2, 1, 0, alpha), (cx, cy), r)
+
+        screen.blit(dark, (0, 0))
+
+        # Reflexo âmbar da tocha (calor no núcleo iluminado)
+        glow = pygame.Surface((width, height), pygame.SRCALPHA)
+        gr = max_r // 4
+        for r in range(gr, 0, -3):
+            t = 1.0 - r / gr
+            alpha = int(24 * (t**2.4))
+            pygame.draw.circle(glow, (188, 122, 44, alpha), (cx, cy + 28), r)
+        screen.blit(glow, (0, 0))
 
     def draw_tunnel_profile(
         self, screen: pygame.Surface, state: SceneState, view: ViewTransform
@@ -121,7 +189,6 @@ class TunnelScene:
         floor_top = [(x, floor_fn(x)) for x in range(-24, width + 25, 24)]
 
         self._draw_ceiling(screen, path_pts, view, width, height)
-
         self._draw_floor_terrain(
             screen, floor_top, width, height, view, floor_fn, state.visual_pos_x
         )
@@ -184,22 +251,26 @@ class TunnelScene:
         floor_fn,
         visual_pos_x: float,
     ) -> None:
-        """Renderiza um piso realista em camadas com detalhes fixos no mundo."""
-        # ── Preenchimento de rocha-base: camada mais profunda ───────────────
+        """Piso natural: terra compactada em camadas com pedras espalhadas."""
+
+        # Camada de rocha-base profunda
         floor_poly = floor_top + [(width + 24, height), (-24, height)]
-        pygame.draw.polygon(screen, (42, 25, 11), floor_poly)
+        pygame.draw.polygon(screen, (40, 23, 9), floor_poly)
 
-        # ── Faixa de argila subsuperficial ───────────────────────────────────
-        clay_bot = [(x, min(height, y + 72)) for x, y in reversed(floor_top)]
-        pygame.draw.polygon(screen, (64, 40, 19), floor_top + clay_bot)
+        # Faixa de argila subsuperficial
+        clay_bot = [(x, min(height, y + 70)) for x, y in reversed(floor_top)]
+        pygame.draw.polygon(screen, (62, 38, 17), floor_top + clay_bot)
 
-        # ── Crosta superficial do solo ───────────────────────────────────────
-        top_bot = [(x, min(height, y + 26)) for x, y in reversed(floor_top)]
-        pygame.draw.polygon(screen, (92, 58, 31), floor_top + top_bot)
+        # Crosta superficial de terra compactada
+        top_bot = [(x, min(height, y + 25)) for x, y in reversed(floor_top)]
+        pygame.draw.polygon(screen, (88, 56, 29), floor_top + top_bot)
 
-        # ── Pedras fixas no mundo ────────────────────────────────────────────
-        # Ancoradas no X do mundo para não se deslocarem com a câmera.
-        w_step = 0.18  # metros entre posições de pedra
+        # Faixa de transição superior (terra mais clara e avermelhada)
+        thin_bot = [(x, min(height, y + 8)) for x, y in reversed(floor_top)]
+        pygame.draw.polygon(screen, (105, 68, 36), floor_top + thin_bot)
+
+        # ── Pedras e fragmentos fixos no mundo ──────────────────────────────
+        w_step = 0.16
         wi_start = int(view.view_start_m / w_step) - 1
         wi_end = int(view.view_end_m / w_step) + 2
 
@@ -210,45 +281,66 @@ class TunnelScene:
                 continue
             sy = floor_fn(sx)
 
-            # Mistura determinística a partir do índice do mundo (estilo LCG).
             a = ((wi * 1664525 + 1013904223) >> 4) & 0xFF
             b = ((wi * 22695477 + 12345678) >> 5) & 0xFF
             c = ((wi * 134775813 + 1) >> 6) & 0xFF
 
-            # Pedra pequena na superfície
-            px = sx + (a % 34) - 17
+            # Fragmento fino na superfície
+            px = sx + (a % 36) - 18
             py = sy + 2 + (b % 5)
-            pw = 2 + (c % 3)
+            pw = 2 + (c % 4)
             ph = max(1, pw - 1)
             pygame.draw.ellipse(
                 screen,
-                (76 + a % 34, 50 + b % 26, 31 + c % 18),
+                (72 + a % 36, 48 + b % 28, 28 + c % 18),
                 (px - pw, py - ph, pw * 2, ph * 2),
             )
 
-            # Rocha média, a cada ~3 posições, com pequeno deslocamento
+            # Pedra média, a cada ~3 posições
             if a % 3 == 0:
-                rx = sx + (b % 44) - 22
-                ry = sy + 5 + (c % 7)
-                rw = 7 + (a % 9)
-                rh = 4 + (b % 4)
-                pygame.draw.ellipse(
+                rx = sx + (b % 46) - 23
+                ry = sy + 4 + (c % 8)
+                rw = 6 + (a % 11)
+                rh = 4 + (b % 5)
+                # Variação de cor da pedra (cinza, marrom, ocre)
+                tone = (65 + c % 26, 50 + a % 20, 32 + b % 14)
+                pygame.draw.ellipse(screen, tone, (rx - rw // 2, ry - rh // 2, rw, rh))
+                # Sombra pequena
+                pygame.draw.line(
                     screen,
-                    (68 + c % 24, 46 + a % 20, 29 + b % 14),
-                    (rx - rw // 2, ry - rh // 2, rw, rh),
+                    (28, 16, 6),
+                    (rx - rw // 2, ry + rh // 2),
+                    (rx + rw // 2, ry + rh // 2),
+                    1,
                 )
 
-            # Fissura fina rara na superfície
-            if c % 11 == 0:
-                cx1, cy1 = sx + (a % 22) - 11, sy
-                cx2, cy2 = cx1 + (b % 14) - 7, sy + 2 + (c % 4)
-                pygame.draw.line(screen, (33, 19, 7), (cx1, cy1), (cx2, cy2), 1)
+            # Pedra grande rara (sedimento)
+            if c % 9 == 0:
+                bx = sx + (a % 50) - 25
+                by = sy + 6 + (b % 6)
+                bw = 12 + (b % 14)
+                bh = 7 + (c % 6)
+                btone = (58 + a % 22, 44 + b % 16, 28 + c % 10)
+                pygame.draw.ellipse(screen, btone, (bx - bw // 2, by - bh // 2, bw, bh))
+                pygame.draw.line(
+                    screen,
+                    (22, 12, 5),
+                    (bx - bw // 2, by + bh // 2),
+                    (bx + bw // 2, by + bh // 2),
+                    1,
+                )
 
-        # ── Borda da superfície com limite nítido e sombra ───────────────────
+            # Fissura superficial
+            if c % 11 == 0:
+                cx1, cy1 = sx + (a % 24) - 12, sy
+                cx2, cy2 = cx1 + (b % 16) - 8, sy + 3 + (c % 4)
+                pygame.draw.line(screen, (30, 16, 6), (cx1, cy1), (cx2, cy2), 1)
+
+        # Borda superior do piso: limite nítido com sombra
         if len(floor_top) >= 2:
-            pygame.draw.lines(screen, (148, 96, 52), False, floor_top, 4)
-            shadow = [(x, y + 9) for x, y in floor_top]
-            pygame.draw.lines(screen, (30, 17, 6), False, shadow, 2)
+            pygame.draw.lines(screen, (140, 92, 50), False, floor_top, 4)
+            shadow = [(x, y + 10) for x, y in floor_top]
+            pygame.draw.lines(screen, (28, 14, 5), False, shadow, 2)
 
     def _draw_slope_scan(self, screen, view: ViewTransform, imu: float):
         width, height = screen.get_size()
@@ -305,9 +397,9 @@ class TunnelScene:
     def _draw_ceiling(
         self, screen, path_pts: list, view: ViewTransform, width: int, height: int
     ) -> None:
-        """Renderiza teto rochoso realista com anomalias integradas."""
+        """Teto rochoso natural com estratos geológicos e anomalias realistas."""
         ROOF_TOP = 78
-        FACE_H = 22  # espessura visível da face, em px
+        FACE_H = 24
 
         if not path_pts:
             return
@@ -315,40 +407,61 @@ class TunnelScene:
         face_pts = [(int(x), int(y)) for x, y in path_pts]
         if len(face_pts) < 2:
             if face_pts:
-                pygame.draw.circle(screen, (82, 76, 70), face_pts[0], 5)
+                pygame.draw.circle(screen, self._C_FACE_BASE, face_pts[0], 5)
             return
+
         body_bot = [(x, y - FACE_H) for x, y in face_pts]
 
-        # ── Corpo rochoso: massa escura do topo até a face do teto ──────────
+        # ── Corpo rochoso: massa escura do ROOF_TOP até a face ───────────────
         body_poly = [(0, ROOF_TOP)] + body_bot + [(width, ROOF_TOP)]
-        pygame.draw.polygon(screen, (66, 62, 57), body_poly)
+        pygame.draw.polygon(screen, self._C_ROCK_BODY, body_poly)
 
-        # Camada de profundidade mais escura para simular massa rochosa espessa
-        inner_top = ROOF_TOP + 12
+        # Núcleo mais escuro (simula espessura e profundidade da rocha)
         inner_bot = [(x, max(ROOF_TOP + 14, y - FACE_H - 8)) for x, y in face_pts]
         depth_srf = pygame.Surface((width, height), pygame.SRCALPHA)
         pygame.draw.polygon(
             depth_srf,
-            (28, 24, 20, 130),
-            [(0, inner_top)] + inner_bot + [(width, inner_top)],
+            (20, 11, 4, 145),
+            [(0, ROOF_TOP + 8)] + inner_bot + [(width, ROOF_TOP + 8)],
         )
         screen.blit(depth_srf, (0, 0))
 
-        # Estratos rochosos: faixas geológicas horizontais sutis no corpo
+        # ── Estratos geológicos: faixas de cor no corpo rochoso ──────────────
+        strata_defs = [
+            (5, 12, (52, 33, 14, 165)),  # marrom escuro
+            (17, 24, (70, 48, 21, 130)),  # marrom médio
+            (29, 36, (82, 56, 25, 110)),  # marrom-ocre
+            (41, 48, (62, 42, 18, 140)),  # marrom avermelhado
+            (53, 58, (48, 30, 13, 120)),  # areia compactada
+            (63, 69, (74, 52, 23, 95)),  # ocre quente
+            (74, 79, (34, 21, 9, 130)),  # rocha densa
+        ]
         strata_srf = pygame.Surface((width, height), pygame.SRCALPHA)
-        for si in range(7):
-            ofs = 8 + si * 11
-            pts = [(x, min(y - FACE_H, ROOF_TOP + ofs)) for x, y in face_pts]
-            if len(pts) >= 2:
-                alpha = 18 + (si % 3) * 14
-                pygame.draw.lines(strata_srf, (18, 14, 11, alpha), False, pts, 1)
+        for ofs_top, ofs_bot, scol in strata_defs:
+            pts_top = [(x, min(y - FACE_H, ROOF_TOP + ofs_top)) for x, y in face_pts]
+            pts_bot = [(x, min(y - FACE_H, ROOF_TOP + ofs_bot)) for x, y in face_pts]
+            band = pts_top + list(reversed(pts_bot))
+            if len(band) >= 3:
+                pygame.draw.polygon(strata_srf, scol, band)
         screen.blit(strata_srf, (0, 0))
 
-        # ── Face visível: lado inferior da rocha voltado ao interior do túnel ─
+        # ── Face visível: superfície inferior exposta ao interior do túnel ───
         face_poly = body_bot + [(x, y) for x, y in reversed(face_pts)]
-        pygame.draw.polygon(screen, (82, 76, 70), face_poly)
+        pygame.draw.polygon(screen, self._C_FACE_BASE, face_poly)
 
-        # ── Detalhes da face rochosa ancorados no mundo ──────────────────────
+        # Gradiente de luz na face: borda inferior mais iluminada pela tocha
+        lit_srf = pygame.Surface((width, height), pygame.SRCALPHA)
+        for i in range(len(face_pts) - 1):
+            x0, y0 = face_pts[i]
+            x1, y1 = face_pts[i + 1]
+            pygame.draw.polygon(
+                lit_srf,
+                (145, 108, 64, 58),
+                [(x0, y0 - 8), (x1, y1 - 8), (x1, y1), (x0, y0)],
+            )
+        screen.blit(lit_srf, (0, 0))
+
+        # ── Detalhes da face: pedras embutidas, nódulos, fissuras ────────────
         w_step = 0.20
         wi_start = int(view.view_start_m / w_step) - 1
         wi_end = int(view.view_end_m / w_step) + 2
@@ -364,27 +477,54 @@ class TunnelScene:
             b = ((wi * 22695477 + 12345678) >> 5) & 0xFF
             c = ((wi * 134775813 + 1) >> 6) & 0xFF
 
-            # Nódulo rochoso na face
-            px, py = sx + (a % 28) - 14, cy - 5 - (b % 7)
-            pr = 2 + (c % 4)
-            pygame.draw.ellipse(
+            # Pedra exposta / nódulo na face
+            px, py = sx + (a % 30) - 15, cy - 7 - (b % 9)
+            pr = 2 + (c % 5)
+            if a % 3 == 0:  # rocha mais dura: quartzo, sílex (mais clara)
+                sc = (82 + a % 44, 64 + b % 32, 40 + c % 22)
+            else:  # terra compactada
+                sc = (60 + a % 24, 44 + b % 17, 24 + c % 12)
+            pygame.draw.ellipse(screen, sc, (px - pr, py - pr // 2, pr * 2, max(1, pr)))
+            # Sombra do nódulo
+            pygame.draw.line(
                 screen,
-                (74 + a % 28, 69 + b % 24, 63 + c % 20),
-                (px - pr, py - pr // 2, pr * 2, pr),
+                (18, 9, 3),
+                (px - pr, py + max(1, pr // 2)),
+                (px + pr, py + max(1, pr // 2)),
+                1,
             )
 
-            # Rachadura fina / fissura
-            if b % 5 == 0:
+            # Fissura / rachadura (mais frequente que antes)
+            if b % 4 == 0:
+                dep = 5 + (a % 12)
+                ex = sx + (c % 22) - 11
+                ey = cy - dep
                 pygame.draw.line(
-                    screen,
-                    (48, 43, 39),
-                    (sx + (a % 18) - 9, cy - 2),
-                    (sx + (c % 16) - 8, cy - 10 - (a % 10)),
-                    1,
+                    screen, self._C_CRACK, (sx + (a % 18) - 9, cy - 2), (ex, ey), 1
+                )
+                if c % 3 == 0:  # fissura ramificada
+                    mx = (sx + (a % 18) - 9 + ex) // 2
+                    my = cy - dep // 2
+                    pygame.draw.line(
+                        screen,
+                        (14, 7, 2),
+                        (mx, my),
+                        (mx + (b % 10) - 5, my - (c % 7)),
+                        1,
+                    )
+
+            # Pedra embutida maior (rara — bloco de rocha)
+            if c % 8 == 0:
+                brx = sx + (b % 40) - 20
+                bry = cy - FACE_H + 5 + (a % 10)
+                brw = 6 + (b % 8)
+                brh = 4 + (a % 4)
+                brc = (68 + c % 32, 54 + a % 24, 34 + b % 18)
+                pygame.draw.ellipse(
+                    screen, brc, (brx - brw // 2, bry - brh // 2, brw, brh)
                 )
 
-        # ── Sombreamento de anomalias derivado da geometria LIDAR ───────────
-        # Mediana em y como linha-base estável contra segmentos isolados.
+        # ── Anomalias: buraco e saliência com renderização volumétrica ───────
         sorted_ys = sorted(y for _, y in face_pts)
         baseline_y = sorted_ys[len(sorted_ys) // 2]
 
@@ -393,45 +533,125 @@ class TunnelScene:
             x0, y0 = face_pts[i]
             x1, y1 = face_pts[i + 1]
             mid_y = (y0 + y1) * 0.5
-            dev = (
-                mid_y - baseline_y
-            )  # positivo = saliência (mais baixo); negativo = buraco (mais alto)
+            # dev > 0: saliência (teto mais baixo); dev < 0: buraco (teto mais alto)
+            dev = mid_y - baseline_y
 
-            if dev < -10:  # Buraco: teto acima da linha-base, abertura escura
+            if dev < -10:
+                # ── BURACO: cavidade no teto, void escuro com bordas rochosas ──
                 t = min(1.0, (-dev - 10) / 55.0)
-                alpha = int(80 + t * 155)
-                # Vazio escuro preenchendo o segmento da face
+
+                # Void interior — quase completamente preto
+                void_a = int(225 + t * 30)
                 pygame.draw.polygon(
                     anom_srf,
-                    (3, 2, 1, alpha),
-                    [(x0, y0 - FACE_H), (x1, y1 - FACE_H), (x1, y1), (x0, y0)],
-                )
-                # Borda iluminada da abertura captando luz ambiente
-                rim_a = int(50 + t * 80)
-                pygame.draw.line(
-                    anom_srf, (126, 114, 101, rim_a), (x0, y0), (x1, y1), 2
+                    (1, 0, 0, void_a),
+                    [
+                        (x0, y0 - FACE_H - 4),
+                        (x1, y1 - FACE_H - 4),
+                        (x1, y1 + 4),
+                        (x0, y0 + 4),
+                    ],
                 )
 
-            elif dev > 10:  # Saliência: teto abaixo da linha-base, volume 3D
-                t = min(1.0, (dev - 10) / 40.0)
-                # Sombra na face da saliência, voltada para longe da luz
-                shd_a = int(30 + t * 55)
+                # Gradiente de profundidade: ainda mais escuro no fundo
                 pygame.draw.polygon(
                     anom_srf,
-                    (0, 0, 0, shd_a),
+                    (0, 0, 0, 245),
+                    [
+                        (x0, y0 - FACE_H - 4),
+                        (x1, y1 - FACE_H - 4),
+                        (x1, y1 - FACE_H + 6),
+                        (x0, y0 - FACE_H + 6),
+                    ],
+                )
+
+                # Fragmentos de rocha nas bordas da abertura
+                if t > 0.22:
+                    rim_a = int(115 + t * 110)
+                    frag_col = (85, 62, 38, rim_a)
+                    # Bordas esquerda e direita da abertura
+                    pygame.draw.line(anom_srf, frag_col, (x0, y0), (x0 + 6, y0 - 9), 2)
+                    pygame.draw.line(anom_srf, frag_col, (x1, y1), (x1 - 6, y1 - 9), 2)
+                    # Borda irregular superior da cavidade
+                    pygame.draw.line(
+                        anom_srf,
+                        (60, 44, 25, rim_a - 35),
+                        (x0, y0 - FACE_H),
+                        (x1, y1 - FACE_H),
+                        2,
+                    )
+                    # Fragmento extra assimétrico
+                    mid_x = (x0 + x1) // 2
+                    mid_y_pt = (y0 + y1) // 2
+                    pygame.draw.line(
+                        anom_srf,
+                        (72, 52, 30, int(rim_a * 0.7)),
+                        (mid_x, mid_y_pt),
+                        (mid_x + (int(t * 8) - 4), mid_y_pt - 7),
+                        2,
+                    )
+
+                # Reflexo âmbar de umidade nas paredes do buraco
+                if t > 0.48:
+                    gw_a = int(16 + t * 26)
+                    pygame.draw.line(
+                        anom_srf, (172, 108, 36, gw_a), (x0, y0), (x1, y1), 3
+                    )
+
+            elif dev > 10:
+                # ── SALIÊNCIA: protuberância rochosa projetada para o interior ──
+                t = min(1.0, (dev - 10) / 40.0)
+
+                # Corpo da saliência — mesma rocha, mais escura (menos iluminada)
+                body_a = int(110 + t * 90)
+                pygame.draw.polygon(
+                    anom_srf,
+                    (36, 22, 9, body_a),
                     [(x0, y0 - FACE_H), (x1, y1 - FACE_H), (x1, y1), (x0, y0)],
                 )
-                # Realce na borda inferior, onde a saliência capta luz do túnel
-                hl_a = int(35 + t * 60)
-                pygame.draw.line(anom_srf, (200, 190, 178, hl_a), (x0, y0), (x1, y1), 3)
+
+                # Face inferior da saliência captando luz da tocha
+                face_a = int(38 + t * 58)
+                pygame.draw.polygon(
+                    anom_srf,
+                    (122, 92, 54, face_a),
+                    [(x0, y0 - 10), (x1, y1 - 10), (x1, y1), (x0, y0)],
+                )
+
+                # Sombra lateral esquerda (contra-luz)
+                sh_a = int(55 + t * 110)
+                pygame.draw.polygon(
+                    anom_srf,
+                    (0, 0, 0, sh_a),
+                    [
+                        (x0, y0 - FACE_H),
+                        (x0, y0),
+                        (x0 + 6, y0 - 4),
+                        (x0 + 6, y0 - FACE_H + 3),
+                    ],
+                )
+
+                # Realce na borda inferior da protuberância (capta luz)
+                hl_a = int(52 + t * 90)
+                pygame.draw.line(anom_srf, (145, 110, 62, hl_a), (x0, y0), (x1, y1), 3)
+
+                # Acúmulo de sedimento na ponta da saliência (gotícula)
+                if t > 0.55:
+                    drip_a = int(68 + t * 88)
+                    mx = (x0 + x1) // 2
+                    my = (y0 + y1) // 2
+                    pygame.draw.ellipse(
+                        anom_srf, (60, 42, 20, drip_a), (mx - 3, my, 7, 5)
+                    )
 
         screen.blit(anom_srf, (0, 0))
 
-        # ── Borda do perfil: limite inferior da face do teto ─────────────────
+        # ── Borda inferior da face: contorno com brilho de toque ────────────
         if len(face_pts) >= 2:
-            pygame.draw.lines(screen, (96, 90, 83), False, face_pts, 3)
+            pygame.draw.lines(screen, (102, 75, 44), False, face_pts, 3)
+            pygame.draw.lines(screen, (145, 108, 62), False, face_pts, 1)
         elif face_pts:
-            pygame.draw.circle(screen, (96, 90, 83), face_pts[0], 4)
+            pygame.draw.circle(screen, (102, 75, 44), face_pts[0], 4)
 
     def _interp_path_y(self, face_pts: list, target_x: float) -> int:
         """Interpolação linear do y da face do teto em target_x."""
