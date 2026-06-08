@@ -84,7 +84,7 @@ def analyze(tasks: dict) -> dict:
 
 def print_stats(results: dict) -> None:
     print("\n╔══════════════════════════════════════════════════════════════════╗")
-    print("║          Análise de Timing RTOS — Resumo Estatístico            ║")
+    print("║          Análise de Timing RTOS — Resumo Estatístico             ║")
     print("╚══════════════════════════════════════════════════════════════════╝\n")
     hdr = f"{'Tarefa':<20} {'Período':>8} {'Jitter Max':>12} {'Jitter Méd':>12} {'ExecMax':>10} {'Misses':>8}"
     print(hdr)
