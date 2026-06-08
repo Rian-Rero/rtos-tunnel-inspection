@@ -8,6 +8,7 @@
 #include <thread>
 
 #include "core/MqttPublisher.hpp"
+#include "core/TaskTimingLogger.hpp"
 #include "core/TerminalPrinter.hpp"
 
 namespace tasks {
@@ -25,6 +26,7 @@ CameraInspection::CameraInspection(std::shared_ptr<core::SharedContext> context)
 void CameraInspection::run() {
     core::MqttPublisher camera_cmd_pub("cmd/camera");
     core::MqttPublisher inspection_state_pub("state/inspection");
+    uint64_t invocation_num = 0;
 
     while (context_->is_running) {
         // Fica bloqueada aqui (sleeping) até a anomalia ser detectada
@@ -32,6 +34,8 @@ void CameraInspection::run() {
 
         if (!context_->is_running)
             break;
+
+        auto actual = std::chrono::steady_clock::now();
 
         core::TerminalPrinter::Log(core::TerminalPrinter::Level::Info, "Câmera",
                                    "Iniciando inspeção detalhada (carga pesada)...");
@@ -45,6 +49,11 @@ void CameraInspection::run() {
                    .count() < 1500) {
             // Busy wait simulando uso de CPU
         }
+        core::TaskTimingLogger::instance().log(
+            {"CameraYOLO", 0, invocation_num++, core::TaskTimingLogger::toNs(actual),
+             core::TaskTimingLogger::toNs(actual),
+             core::TaskTimingLogger::toNs(std::chrono::steady_clock::now())});
+
         camera_cmd_pub.publish("0");
         inspection_state_pub.publish("0");
 

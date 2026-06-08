@@ -14,6 +14,7 @@
 #include <string>
 
 #include "core/MqttPublisher.hpp"
+#include "core/TaskTimingLogger.hpp"
 #include "core/TerminalPrinter.hpp"
 
 namespace tasks {
@@ -54,6 +55,7 @@ DataCollector::~DataCollector() {
  */
 void DataCollector::run() {
     double last_x = 0.0;
+    uint64_t invocation_num = 0;
     core::MqttPublisher telemetry_pub("telemetry/robot");
     core::MqttPublisher lidar_pub("sensor/lidar");
     core::MqttPublisher imu_pub("sensor/imu");
@@ -71,6 +73,8 @@ void DataCollector::run() {
         if (!context_->is_running) {
             break;
         }
+
+        auto actual = std::chrono::steady_clock::now();
 
         // --- INÍCIO DA ANÁLISE CONTÍNUA DE CONFIABILIDADE ---
 
@@ -141,6 +145,11 @@ void DataCollector::run() {
         lidar_pub.publish(std::to_string(data.lidar_distance_y));
         imu_pub.publish(std::to_string(imu_degrees));
         encoder_pub.publish(std::to_string(encoder_count));
+
+        core::TaskTimingLogger::instance().log(
+            {"DataIMU", 0, invocation_num++, core::TaskTimingLogger::toNs(actual),
+             core::TaskTimingLogger::toNs(actual),
+             core::TaskTimingLogger::toNs(std::chrono::steady_clock::now())});
 
         // Impressão no terminal para monitoramento e depuração (Debug)
         core::TerminalPrinter::Log(core::TerminalPrinter::Level::Info, "Coletor",

@@ -57,17 +57,24 @@ def analyze(tasks: dict) -> dict:
     results = {}
     for name, d in tasks.items():
         period_ns = d["period_ms"] * 1_000_000
+        is_periodic = d["period_ms"] > 0
         jitter_us = (d["actual"] - d["scheduled"]) / 1e3
         exec_time_us = (d["exec_end"] - d["actual"]) / 1e3
-        deadline_ns = d["scheduled"] + period_ns
-        slack_us = (deadline_ns - d["exec_end"]) / 1e3
+        if is_periodic:
+            deadline_ns = d["scheduled"] + period_ns
+            slack_us = (deadline_ns - d["exec_end"]) / 1e3
+            miss = d["exec_end"] > deadline_ns
+        else:
+            slack_us = np.zeros(len(d["scheduled"]))
+            miss = np.zeros(len(d["scheduled"]), dtype=bool)
         results[name] = {
             "period_ms": d["period_ms"],
+            "is_periodic": is_periodic,
             "cycles": d["cycles"],
             "jitter_us": jitter_us,
             "exec_time_us": exec_time_us,
             "slack_us": slack_us,
-            "miss": d["exec_end"] > deadline_ns,
+            "miss": miss,
             "scheduled": d["scheduled"],
             "actual": d["actual"],
             "exec_end": d["exec_end"],
@@ -82,15 +89,27 @@ def print_stats(results: dict) -> None:
     hdr = f"{'Tarefa':<20} {'Período':>8} {'Jitter Max':>12} {'Jitter Méd':>12} {'ExecMax':>10} {'Misses':>8}"
     print(hdr)
     print("─" * len(hdr))
-    for name, r in sorted(results.items(), key=lambda x: x[1]["period_ms"]):
-        j = r["jitter_us"][1:]  # ignora ciclo 0 (sem sleep anterior)
-        e = r["exec_time_us"][1:]
-        misses = int(r["miss"][1:].sum())
-        miss_str = f"{'✗ ' + str(misses) if misses else '✓ 0':>8}"
-        print(
-            f"{name:<20} {r['period_ms']:>7}ms {j.max():>10.1f}µs {j.mean():>10.1f}µs "
-            f"{e.max():>8.1f}µs {miss_str}"
-        )
+
+    def _sort_key(item):
+        p = item[1]["period_ms"]
+        return (p == 0, p)  # periódicas primeiro (por período), event-driven no fim
+
+    for name, r in sorted(results.items(), key=_sort_key):
+        e = r["exec_time_us"][1:] if len(r["exec_time_us"]) > 1 else r["exec_time_us"]
+        if r["is_periodic"]:
+            j = r["jitter_us"][1:]
+            misses = int(r["miss"][1:].sum())
+            miss_str = f"{'✗ ' + str(misses) if misses else '✓ 0':>8}"
+            print(
+                f"{name:<20} {r['period_ms']:>7}ms {j.max():>10.1f}µs {j.mean():>10.1f}µs "
+                f"{e.max():>8.1f}µs {miss_str}"
+            )
+        else:
+            n_inv = len(e)
+            print(
+                f"{name:<20} {'evento':>8}   {'—':>10}   {'—':>10}   "
+                f"{e.max():>8.1f}µs {'N/A':>8}  ({n_inv} invocações)"
+            )
     print()
 
 
@@ -101,6 +120,8 @@ COLORS = plt.cm.tab10.colors
 
 def plot_jitter(results: dict, ax: plt.Axes) -> None:
     for i, (name, r) in enumerate(results.items()):
+        if not r["is_periodic"]:
+            continue  # jitter não se aplica a tarefas event-driven (scheduled = actual)
         cyc = r["cycles"][1:]
         jit = r["jitter_us"][1:]
         ax.plot(
@@ -122,15 +143,29 @@ def plot_jitter(results: dict, ax: plt.Axes) -> None:
 def plot_exec(results: dict, ax: plt.Axes) -> None:
     for i, (name, r) in enumerate(results.items()):
         color = COLORS[i % len(COLORS)]
-        cyc = r["cycles"][1:]
-        et = r["exec_time_us"][1:]
-        deadline_us = r["period_ms"] * 1000.0
-        ax.plot(cyc, et, label=f"{name}", color=color, linewidth=0.8, alpha=0.85)
-        ax.axhline(deadline_us, color=color, linestyle=":", linewidth=0.7)
-    ax.set_xlabel("Número do Ciclo")
+        cyc = r["cycles"][1:] if len(r["cycles"]) > 1 else r["cycles"]
+        et = r["exec_time_us"][1:] if len(r["exec_time_us"]) > 1 else r["exec_time_us"]
+        if r["is_periodic"]:
+            ax.plot(cyc, et, label=f"{name}", color=color, linewidth=0.8, alpha=0.85)
+            ax.axhline(
+                r["period_ms"] * 1000.0, color=color, linestyle=":", linewidth=0.7
+            )
+        else:
+            # Tarefas event-driven: marcadores maiores, sem linha de deadline
+            ax.plot(
+                cyc,
+                et,
+                "o",
+                label=f"{name} (evento)",
+                color=color,
+                markersize=4,
+                alpha=0.80,
+                markeredgewidth=0,
+            )
+    ax.set_xlabel("Número do Ciclo / Invocação")
     ax.set_ylabel("Tempo de Execução (µs)")
     ax.set_title(
-        "Tempo de Execução por Ciclo  (linha pontilhada = deadline do período)"
+        "Tempo de Execução  (pontilhado = deadline das periódicas | ○ = event-driven)"
     )
     ax.legend(fontsize=8, loc="upper right")
     ax.grid(True, alpha=0.25)
@@ -138,7 +173,11 @@ def plot_exec(results: dict, ax: plt.Axes) -> None:
 
 def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = GANTT_WINDOW_MS) -> None:
     t_start = min(r["actual"][0] for r in results.values())
-    task_names = sorted(results.keys(), key=lambda n: results[n]["period_ms"])
+    # Periódicas primeiro (ordenadas por período), event-driven ao final
+    task_names = sorted(
+        results.keys(),
+        key=lambda n: (results[n]["period_ms"] == 0, results[n]["period_ms"]),
+    )
 
     for yi, name in enumerate(task_names):
         r = results[name]
@@ -154,54 +193,56 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = GANTT_WINDOW_MS) 
         # Ciclos que sobrepõem a janela [0, window_ms]
         mask = (start_ms < window_ms) & (end_ms >= 0)
 
-        # Execuções reais são sub-ms (µs). Mínimo proporcional garante visibilidade.
-        min_exec_ms = r["period_ms"] * 0.15
+        # Mínimo de visibilidade: 15% do período (periódicas) ou 20ms fixo (event-driven)
+        min_exec_ms = r["period_ms"] * 0.15 if r["is_periodic"] else 20.0
 
         for s, e, sched, dl, miss in zip(
             start_ms[mask], end_ms[mask], sched_ms[mask], dl_ms[mask], is_miss[mask]
         ):
-            # 1. □ Slot alocado pelo escalonador (outline)
-            if dl > 0 and sched < window_ms:
-                ax.barh(
-                    yi,
-                    dl - sched,
-                    left=sched,
-                    height=0.70,
-                    color="none",
-                    edgecolor=color,
-                    linewidth=2.0,
-                    alpha=0.80,
-                    zorder=2,
-                )
+            if r["is_periodic"]:
+                # 1. □ Slot alocado pelo escalonador (outline)
+                if dl > 0 and sched < window_ms:
+                    ax.barh(
+                        yi,
+                        dl - sched,
+                        left=sched,
+                        height=0.70,
+                        color="none",
+                        edgecolor=color,
+                        linewidth=2.0,
+                        alpha=0.80,
+                        zorder=2,
+                    )
 
-            # 2. ■ Execução real (mín. 15% do período para ser visível)
+            # 2. ■ Execução real (mín. 15% do período para periódicas, 20ms para event-driven)
             exec_w = max(e - s, min_exec_ms)
             ax.barh(
                 yi,
                 exec_w,
                 left=s,
                 height=0.46,
-                color="crimson" if miss else color,
+                color="crimson" if (miss and r["is_periodic"]) else color,
                 alpha=0.90,
                 edgecolor="white",
                 linewidth=0.4,
                 zorder=3,
             )
 
-            # 3. ▼ Seta no deadline
-            if 0 <= dl <= window_ms:
-                ax.vlines(
-                    dl, yi + 0.35, yi + 0.85, colors=color, linewidth=1.8, zorder=5
-                )
-                ax.plot(
-                    dl,
-                    yi + 0.35,
-                    "v",
-                    color=color,
-                    markersize=9,
-                    zorder=6,
-                    clip_on=True,
-                )
+            if r["is_periodic"]:
+                # 3. ▼ Seta no deadline
+                if 0 <= dl <= window_ms:
+                    ax.vlines(
+                        dl, yi + 0.35, yi + 0.85, colors=color, linewidth=1.8, zorder=5
+                    )
+                    ax.plot(
+                        dl,
+                        yi + 0.35,
+                        "v",
+                        color=color,
+                        markersize=9,
+                        zorder=6,
+                        clip_on=True,
+                    )
 
     ax.set_yticks(range(len(task_names)))
     ax.set_yticklabels(task_names)
@@ -209,7 +250,7 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = GANTT_WINDOW_MS) 
     ax.set_xlabel("Tempo (ms)")
     ax.set_title(
         f"Gantt — primeiros {window_ms} ms\n"
-        f"□ slot alocado  |  ■ execução (mín. 15% do período*)  |  ▼ deadline\n"
+        f"□ slot alocado  |  ■ execução (mín. 15%*)  |  ▼ deadline  |  sem □▼ = event-driven\n"
         f"*barras de execução não estão em escala real (execuções reais: µs)"
     )
     ax.grid(True, axis="x", alpha=0.25)
