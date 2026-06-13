@@ -230,7 +230,7 @@ class TunnelScene:
 
         font = pygame.font.SysFont("arial", 12, bold=True)
         small = pygame.font.SysFont("arial", 11)
-        srf.blit(font.render("CAMERA DO ROBO", True, (226, 232, 240)), (12, 5))
+        srf.blit(font.render("CÂMERA DO ROBÔ", True, (226, 232, 240)), (12, 5))
         srf.blit(font.render(label[:16], True, (191, 219, 254)), (178, 28))
         srf.blit(
             small.render(f"conf {insp.last_confidence:.2f}", True, (148, 163, 184)),

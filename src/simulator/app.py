@@ -160,6 +160,7 @@ class TunelSimulator(MqttComponent):
                 # ── Renderização ────────────────────────────────────────────
                 self._scene.draw_background(screen)
                 self._scene.draw_tunnel_profile(screen, scene_state, self._view)
+                self._scene.draw_overlay(screen)
                 self._scene.draw_camera_monitor(screen, self._inspection)
 
                 width = screen.get_width()
@@ -173,7 +174,6 @@ class TunelSimulator(MqttComponent):
                     velocidade=self._telemetry.velocidade,
                 )
                 self._robot_renderer.render(screen, rx, fx, floor_fn, robot_state)
-                self._scene.draw_overlay(screen)
 
                 # ── HUD ──────────────────────────────────────────────────────
                 lbl = slope_label(self._telemetry.imu)
