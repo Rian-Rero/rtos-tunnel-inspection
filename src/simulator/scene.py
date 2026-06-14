@@ -198,45 +198,69 @@ class TunnelScene:
         self._draw_unmapped_overlay(screen, view, state.reveal_pos_x)
 
     def draw_camera_monitor(
-        self, screen: pygame.Surface, insp: InspectionState
+        self, screen: pygame.Surface, insp: InspectionState, camera_image: pygame.Surface | None = None
     ) -> None:
         width, _ = screen.get_size()
         if not insp.active and insp.result_expires_at is None:
             return
 
+        # Fundo e borda do painel flutuante
         rect = pygame.Rect(width - 300, 84, 264, 122)
         srf = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
         pygame.draw.rect(srf, (8, 13, 23, 232), srf.get_rect(), border_radius=6)
         pygame.draw.rect(srf, (96, 165, 250, 190), srf.get_rect(), 2, border_radius=6)
 
-        view_rect = pygame.Rect(12, 18, 154, 76)
-        pygame.draw.rect(srf, (64, 67, 73), view_rect, border_radius=4)
-        for y in range(view_rect.y + 8, view_rect.bottom - 4, 13):
-            pygame.draw.line(
-                srf,
-                (92, 96, 104),
-                (view_rect.x + 4, y),
-                (view_rect.right - 4, y + 8),
-                2,
-            )
+        # Área exata onde a imagem da câmera será desenhada
+        view_rect = pygame.Rect(20, 30, 154, 76)
 
-        beam_alpha = 95 if insp.active else 45
+        if camera_image is not None:
+            scaled_image = pygame.transform.smoothscale(camera_image, (view_rect.width, view_rect.height))
+            
+            # 1. NIGHT VISION BOOST: Clarear artificialmente a rocha escura
+            boost = pygame.Surface(scaled_image.get_size())
+            boost.fill((60, 60, 60))
+            scaled_image.blit(boost, (0, 0), special_flags=pygame.BLEND_RGB_ADD)
+            
+            if not insp.active and insp.last_type:
+                box_color = (34, 197, 94)
+                
+                # Desenha o quadrado no centro da foto
+                bw, bh = 80, 40
+                bx = (view_rect.width - bw) // 2
+                by = (view_rect.height - bh) // 2
+                pygame.draw.rect(scaled_image, box_color, (bx, by, bw, bh), 2)
+                
+                # Fundo do texto da etiqueta
+                pygame.draw.rect(scaled_image, box_color, (bx, by - 12, bw, 12))
+                
+                # Escreve a anomalia na etiqueta
+                tiny_font = pygame.font.SysFont("arial", 9, bold=True)
+                yolo_text = f"{insp.last_type} {insp.last_confidence:.2f}"
+                text_surf = tiny_font.render(yolo_text, True, (0, 0, 0))
+                scaled_image.blit(text_surf, (bx + 2, by - 12))
+            
+            srf.blit(scaled_image, view_rect.topleft)
+            
+            # Indicador de "REC"
+            if insp.active and (pygame.time.get_ticks() % 1000 < 500):
+                pygame.draw.circle(srf, (239, 68, 68), (view_rect.right - 12, view_rect.top + 12), 4)
+                
+        else:
+            # Estado inativo / sem sinal (linhas cinzas diagonais)
+            pygame.draw.rect(srf, (64, 67, 73), view_rect, border_radius=4)
+            for y in range(view_rect.y + 8, view_rect.bottom - 4, 13):
+                pygame.draw.line(srf, (92, 96, 104), (view_rect.x + 4, y), (view_rect.right - 4, y + 8), 2)
+
+        # ── Textos do painel ──────────────────────────────────────────────
         label = "CAPTURANDO" if insp.active else insp.last_type.upper()
-        pygame.draw.polygon(
-            srf, (96, 165, 250, beam_alpha), [(89, 90), (24, 24), (154, 24)]
-        )
-        pygame.draw.circle(srf, (219, 234, 254), (89, 88), 7)
-        pygame.draw.line(srf, (15, 23, 42), (44, 48), (132, 58), 5)
-
         font = pygame.font.SysFont("arial", 12, bold=True)
         small = pygame.font.SysFont("arial", 11)
+        
         srf.blit(font.render("CÂMERA DO ROBÔ", True, (226, 232, 240)), (12, 5))
         srf.blit(font.render(label[:16], True, (191, 219, 254)), (178, 28))
-        srf.blit(
-            small.render(f"conf {insp.last_confidence:.2f}", True, (148, 163, 184)),
-            (178, 48),
-        )
-        srf.blit(small.render("imagem sintética", True, (148, 163, 184)), (178, 68))
+        srf.blit(small.render(f"conf {insp.last_confidence:.2f}", True, (148, 163, 184)), (178, 48))
+        srf.blit(small.render("imagem real", True, (148, 163, 184)), (178, 68))
+        
         screen.blit(srf, rect)
 
     # ── auxiliares privados ─────────────────────────────────────────────────

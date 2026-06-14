@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import math
 import time
 
 import pygame
@@ -48,6 +49,9 @@ class TunelSimulator(MqttComponent):
         # ── Renderizadores ───────────────────────────────────────────────────
         self._scene = TunnelScene()
         self._robot_renderer = PygameRobotRenderer()
+
+        self._last_camera_shot = None
+        self._perfect_anomaly_shot = None
 
     # ── ganchos MQTT ─────────────────────────────────────────────────────────
 
@@ -95,20 +99,21 @@ class TunelSimulator(MqttComponent):
         except json.JSONDecodeError:
             self._inspection.yolo_state = payload
             return
-        status = (
-            "Anomalia detectada" if data.get("anomalia_detectada") else "Sem anomalia"
-        )
+            
+        status = "Anomalia detectada" if data.get("anomalia_detectada") else "Sem anomalia"
         conf = data.get("confianca")
-        self._inspection.last_confidence = (
-            float(conf) if isinstance(conf, (int, float)) else 0.0
-        )
+        self._inspection.last_confidence = float(conf) if isinstance(conf, (int, float)) else 0.0
+        
+        # Se o YOLO achou algo, cruza a informação com o Lidar para exibir o nome correto da geologia (BURACO ou SALIENCIA)
+        if data.get("anomalia_detectada") and self._anomaly_marks:
+            self._inspection.last_type = self._anomaly_marks[-1].kind.upper()
+        else:
+            self._inspection.last_type = str(data.get("tipo", data.get("anomalia_visual_simulada", status)))
+            
         self._inspection.yolo_state = (
             f"{status} | confiança {self._inspection.last_confidence:.2f}"
             if isinstance(conf, (int, float))
             else status
-        )
-        self._inspection.last_type = str(
-            data.get("tipo", data.get("anomalia_visual_simulada", status))
         )
         self._inspection.result_expires_at = time.monotonic() + Limits.YOLO_RESULT_TTL_S
 
@@ -160,12 +165,70 @@ class TunelSimulator(MqttComponent):
                 # ── Renderização ────────────────────────────────────────────
                 self._scene.draw_background(screen)
                 self._scene.draw_tunnel_profile(screen, scene_state, self._view)
-                self._scene.draw_overlay(screen)
-                self._scene.draw_camera_monitor(screen, self._inspection)
 
                 width = screen.get_width()
+                height = screen.get_height()
                 rx = int(width / 2 - 88)
                 fx = rx + 176
+
+                # Vídeo ao vivo: Continua a gravar à frente do robô enquanto inspeciona
+                if self._inspection.active:
+                    camera_target_x = rx + 40
+                    lidar_val = self._telemetry.lidar
+                    imu_val = self._telemetry.imu
+                    
+                    roof_y = 178 - (lidar_val - 2.0) * 82.0
+                    roof_y += math.sin(math.radians(imu_val)) * (camera_target_x - width / 2) * 0.045
+                    camera_target_y = max(86, min(height - 230, int(roof_y)))
+                    
+                    live_rect = pygame.Rect(0, 0, 240, 120)
+                    live_rect.center = (camera_target_x, camera_target_y - 15)
+                    safe_live = live_rect.clip(screen.get_rect())
+                    
+                    if safe_live.width > 0 and safe_live.height > 0:
+                        self._last_camera_shot = screen.subsurface(safe_live).copy()
+
+                # A "Foto Perfeita": Evolui enquanto o robô constrói a anomalia
+                if self._anomaly_marks:
+                    last_mark = self._anomaly_marks[-1]
+                    # Calcula a distância que o robô já andou após detectar a anomalia
+                    dist_passed = self._telemetry.pos_x - last_mark.pos_x
+
+                    # Continua a fotografar a anomalia até o robô passar 1.2 metros por ela.
+                    # Isso dá tempo do LIDAR desenhar a anomalia completa na tela
+                    if 0.0 <= dist_passed <= 1.2:
+                        mark_x = self._view.screen_x(last_mark.pos_x)
+                        mark_y = 178 - (last_mark.lidar - 2.0) * 82.0
+                        mark_y += math.sin(math.radians(self._telemetry.imu)) * (mark_x - width / 2) * 0.045
+                        
+                        anom_rect = pygame.Rect(0, 0, 240, 120)
+                        anom_rect.center = (int(mark_x), int(mark_y) - 10)
+                        safe_anom = anom_rect.clip(screen.get_rect())
+                        
+                        if safe_anom.width == 240 and safe_anom.height == 120:
+                            self._perfect_anomaly_shot = screen.subsurface(safe_anom).copy()
+
+                # Aplica a sombra geral do túnel
+                self._scene.draw_overlay(screen)
+                
+                # Se está inspecionando: Mostra o vídeo ao vivo se mexendo.
+                # Se terminou (YOLO deu resultado): Mostra a foto da anomalia já desenhada inteira!
+                if self._inspection.active:
+                    display_img = self._last_camera_shot
+                else:
+                    display_img = self._perfect_anomaly_shot if self._perfect_anomaly_shot else self._last_camera_shot
+
+                self._scene.draw_camera_monitor(screen, self._inspection, display_img)
+
+                # Desenha o robô por cima de tudo
+                robot_state = RobotRenderState(
+                    spin_angle=self._preview_angle,
+                    inspection_active=self._inspection.active,
+                    direction=self._telemetry.direction,
+                    encoder_count=self._telemetry.encoder,
+                    velocidade=self._telemetry.velocidade,
+                )
+
                 robot_state = RobotRenderState(
                     spin_angle=self._preview_angle,
                     inspection_active=self._inspection.active,
@@ -224,6 +287,8 @@ class TunelSimulator(MqttComponent):
             self._inspection.result_expires_at = None
             if not self._inspection.active:
                 self._inspection.yolo_state = "Sistema em regime normal"
+                self._last_camera_shot = None
+                self._perfect_anomaly_shot = None
 
     def _create_window(self) -> tuple[pygame.Surface, pygame.time.Clock]:
         info = pygame.display.Info()
