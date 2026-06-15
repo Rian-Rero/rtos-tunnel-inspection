@@ -57,7 +57,7 @@ class ControlsPanel:
         dirs.pack(fill="x", pady=(0, 14))
         ttk.Button(
             dirs,
-            text="◀ LEFT",
+            text="◀",
             style="Accent.TButton",
             command=lambda: self._set_direction("LEFT"),
         ).pack(side="left", expand=True, fill="x", padx=(0, 4))
@@ -69,7 +69,7 @@ class ControlsPanel:
         ).pack(side="left", expand=True, fill="x", padx=4)
         ttk.Button(
             dirs,
-            text="RIGHT ▶",
+            text="▶",
             style="Accent.TButton",
             command=lambda: self._set_direction("RIGHT"),
         ).pack(side="right", expand=True, fill="x", padx=(4, 0))
@@ -336,6 +336,37 @@ class PreviewPanel:
             60, h - 28, anchor="w", fill="#cbd5e1", font=("Helvetica", 10), text=info
         )
 
+    def _path_transform(self, w: int, h: int, imu_tilt: float):
+        """Calcula pontos do caminho ordenados espacialmente a partir do histórico.
+
+        Ordenar por pos_x (não por tempo) garante que o perfil do túnel seja
+        desenhado corretamente independente da direção de navegação.
+        Retorna (path_pts, min_x, scale_x); lista vazia quando não há histórico.
+        """
+        samples = self._history
+        if not samples:
+            return [], 0.0, 1.0
+
+        min_x = min(s.pos_x for s in samples)
+        max_x = max(s.pos_x for s in samples)
+        span = max(1.0, max_x - min_x)
+        scale_x = (w - 140) / span
+        track_top, track_bot = 118, h - 118
+        lane_shift = imu_tilt * 34.0
+
+        path_pts = []
+        for s in sorted(samples, key=lambda s: s.pos_x):
+            x = 70.0 + (s.pos_x - min_x) * scale_x
+            y = (
+                track_top
+                + (s.lidar - 1.2) * 72.0
+                + lane_shift
+                + math.sin(s.pos_x / 8.0) * 4.0
+            )
+            path_pts.append((x, max(track_top - 30, min(track_bot, y))))
+
+        return path_pts, min_x, scale_x
+
     def _compute_cart_position(self, w, h, lane_y, imu_tilt):
         samples = self._history
         if not samples:
@@ -343,24 +374,10 @@ class PreviewPanel:
             cart_y = lane_y - 30 - int(imu_tilt * 18)
             return cart_x, cart_y
 
-        track_top, track_bot = 118, h - 118
-        lane_shift = imu_tilt * 34
-        start_x = samples[0].pos_x
-        span = max(1.0, max(s.pos_x for s in samples) - start_x)
-        scale_x = (w - 140) / span
-        path_pts = []
-        for s in samples:
-            x = 70 + (s.pos_x - start_x) * scale_x
-            y = (
-                track_top
-                + (s.lidar - 1.2) * 72
-                + lane_shift
-                + math.sin(s.pos_x / 8.0) * 4
-            )
-            path_pts.append((x, max(track_top - 30, min(track_bot, y))))
-        latest_x = path_pts[-1][0]
-        floor_wave = math.sin(self._telemetry.pos_x / 5.4) * 14
-        return int(latest_x - 66), int(lane_y - 76 - imu_tilt * 18 - floor_wave)
+        _, min_x, scale_x = self._path_transform(w, h, imu_tilt)
+        latest_px = 70.0 + (samples[-1].pos_x - min_x) * scale_x
+        floor_wave = math.sin(self._telemetry.pos_x / 5.4) * 14.0
+        return int(latest_px) - 70, int(lane_y - 76 - imu_tilt * 18 - floor_wave)
 
     def _draw_tunnel_path(self, canvas, w, h, imu_tilt, cart_x, cart_y):
         samples = self._history
@@ -375,21 +392,7 @@ class PreviewPanel:
             )
             return
 
-        track_top, track_bot = 118, h - 118
-        lane_shift = imu_tilt * 34
-        start_x = samples[0].pos_x
-        span = max(1.0, max(s.pos_x for s in samples) - start_x)
-        scale_x = (w - 140) / span
-        path_pts = []
-        for s in samples:
-            x = 70 + (s.pos_x - start_x) * scale_x
-            y = (
-                track_top
-                + (s.lidar - 1.2) * 72
-                + lane_shift
-                + math.sin(s.pos_x / 8.0) * 4
-            )
-            path_pts.append((x, max(track_top - 30, min(track_bot, y))))
+        path_pts, min_x, scale_x = self._path_transform(w, h, imu_tilt)
 
         outline = (
             [(40, 34)] + [(x, y - 18) for x, y in path_pts] + [(w - 40, 34), (40, 34)]
@@ -398,12 +401,22 @@ class PreviewPanel:
         if len(path_pts) > 1:
             canvas.create_line(*sum(path_pts, ()), fill="#22c55e", width=4, smooth=True)
 
-        for s, (x, y) in zip(samples[-8:], path_pts[-8:]):
+        track_top, track_bot = 118, h - 118
+        lane_shift = imu_tilt * 34.0
+        for s in samples[-8:]:
             dev = s.lidar - 2.0
             if abs(dev) < 0.35:
                 continue
+            x = int(70.0 + (s.pos_x - min_x) * scale_x)
+            y_raw = (
+                track_top
+                + (s.lidar - 1.2) * 72.0
+                + lane_shift
+                + math.sin(s.pos_x / 8.0) * 4.0
+            )
+            y = int(max(track_top - 30, min(track_bot, y_raw)))
             fill = "#60a5fa" if dev > 0 else "#fb7185"
-            label = "Buraco" if dev > 0 else "Saliencia"
+            label = "Buraco" if dev > 0 else "Saliência"
             canvas.create_oval(x - 6, y - 6, x + 6, y + 6, fill=fill, outline="")
             canvas.create_text(
                 x, y - 18, text=label, fill=fill, font=("Helvetica", 8, "bold")

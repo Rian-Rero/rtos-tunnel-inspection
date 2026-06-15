@@ -26,6 +26,8 @@ __all__ = ["TunelSimulator"]
 
 logger = logging.getLogger(__name__)
 
+_DIR_ICON: dict[str, str] = {"LEFT": "←", "RIGHT": "→", "STOP": "■"}
+
 
 class TunelSimulator(MqttComponent):
     """Visualizador 2D de túnel em Pygame guiado só por telemetria MQTT."""
@@ -99,17 +101,23 @@ class TunelSimulator(MqttComponent):
         except json.JSONDecodeError:
             self._inspection.yolo_state = payload
             return
-            
-        status = "Anomalia detectada" if data.get("anomalia_detectada") else "Sem anomalia"
+
+        status = (
+            "Anomalia detectada" if data.get("anomalia_detectada") else "Sem anomalia"
+        )
         conf = data.get("confianca")
-        self._inspection.last_confidence = float(conf) if isinstance(conf, (int, float)) else 0.0
-        
+        self._inspection.last_confidence = (
+            float(conf) if isinstance(conf, (int, float)) else 0.0
+        )
+
         # Se o YOLO achou algo, cruza a informação com o Lidar para exibir o nome correto da geologia (BURACO ou SALIENCIA)
         if data.get("anomalia_detectada") and self._anomaly_marks:
             self._inspection.last_type = self._anomaly_marks[-1].kind.upper()
         else:
-            self._inspection.last_type = str(data.get("tipo", data.get("anomalia_visual_simulada", status)))
-            
+            self._inspection.last_type = str(
+                data.get("tipo", data.get("anomalia_visual_simulada", status))
+            )
+
         self._inspection.yolo_state = (
             f"{status} | confiança {self._inspection.last_confidence:.2f}"
             if isinstance(conf, (int, float))
@@ -176,15 +184,19 @@ class TunelSimulator(MqttComponent):
                     camera_target_x = rx + 40
                     lidar_val = self._telemetry.lidar
                     imu_val = self._telemetry.imu
-                    
+
                     roof_y = 178 - (lidar_val - 2.0) * 82.0
-                    roof_y += math.sin(math.radians(imu_val)) * (camera_target_x - width / 2) * 0.045
+                    roof_y += (
+                        math.sin(math.radians(imu_val))
+                        * (camera_target_x - width / 2)
+                        * 0.045
+                    )
                     camera_target_y = max(86, min(height - 230, int(roof_y)))
-                    
+
                     live_rect = pygame.Rect(0, 0, 240, 120)
                     live_rect.center = (camera_target_x, camera_target_y - 15)
                     safe_live = live_rect.clip(screen.get_rect())
-                    
+
                     if safe_live.width > 0 and safe_live.height > 0:
                         self._last_camera_shot = screen.subsurface(safe_live).copy()
 
@@ -199,24 +211,34 @@ class TunelSimulator(MqttComponent):
                     if 0.0 <= dist_passed <= 1.2:
                         mark_x = self._view.screen_x(last_mark.pos_x)
                         mark_y = 178 - (last_mark.lidar - 2.0) * 82.0
-                        mark_y += math.sin(math.radians(self._telemetry.imu)) * (mark_x - width / 2) * 0.045
-                        
+                        mark_y += (
+                            math.sin(math.radians(self._telemetry.imu))
+                            * (mark_x - width / 2)
+                            * 0.045
+                        )
+
                         anom_rect = pygame.Rect(0, 0, 240, 120)
                         anom_rect.center = (int(mark_x), int(mark_y) - 10)
                         safe_anom = anom_rect.clip(screen.get_rect())
-                        
+
                         if safe_anom.width == 240 and safe_anom.height == 120:
-                            self._perfect_anomaly_shot = screen.subsurface(safe_anom).copy()
+                            self._perfect_anomaly_shot = screen.subsurface(
+                                safe_anom
+                            ).copy()
 
                 # Aplica a sombra geral do túnel
                 self._scene.draw_overlay(screen)
-                
+
                 # Se está inspecionando: Mostra o vídeo ao vivo se mexendo.
                 # Se terminou (YOLO deu resultado): Mostra a foto da anomalia já desenhada inteira!
                 if self._inspection.active:
                     display_img = self._last_camera_shot
                 else:
-                    display_img = self._perfect_anomaly_shot if self._perfect_anomaly_shot else self._last_camera_shot
+                    display_img = (
+                        self._perfect_anomaly_shot
+                        if self._perfect_anomaly_shot
+                        else self._last_camera_shot
+                    )
 
                 self._scene.draw_camera_monitor(screen, self._inspection, display_img)
 
@@ -228,22 +250,17 @@ class TunelSimulator(MqttComponent):
                     encoder_count=self._telemetry.encoder,
                     velocidade=self._telemetry.velocidade,
                 )
-
-                robot_state = RobotRenderState(
-                    spin_angle=self._preview_angle,
-                    inspection_active=self._inspection.active,
-                    direction=self._telemetry.direction,
-                    encoder_count=self._telemetry.encoder,
-                    velocidade=self._telemetry.velocidade,
-                )
                 self._robot_renderer.render(screen, rx, fx, floor_fn, robot_state)
 
                 # ── HUD ──────────────────────────────────────────────────────
                 lbl = slope_label(self._telemetry.imu)
+                dir_icon = _DIR_ICON.get(
+                    self._telemetry.direction, self._telemetry.direction
+                )
                 header = (
                     f"POS {self._telemetry.distance_m:.2f} m | VEL {self._telemetry.velocidade:.1f}% | "
                     f"LIDAR {self._telemetry.lidar:.2f} m | IMU {self._telemetry.imu:+.1f}° {lbl} | "
-                    f"MODO {self._telemetry.mode} | DIR {self._telemetry.direction}"
+                    f"MODO {self._telemetry.mode} | DIR {dir_icon}"
                 )
                 screen.blit(font_hdr.render(header, True, (248, 250, 252)), (28, 18))
                 screen.blit(
@@ -274,10 +291,11 @@ class TunelSimulator(MqttComponent):
         alpha = min(1.0, max(0.08, dt * 7.0))
         self._visual_pos_x += (self._target_pos_x - self._visual_pos_x) * alpha
 
-        reveal_target = max(0.0, self._visual_pos_x + 0.85)
-        self._reveal_pos_x += (reveal_target - self._reveal_pos_x) * min(
-            1.0, max(0.04, dt * 4.0)
-        )
+        reveal_target = self._visual_pos_x + 0.85
+        if reveal_target > self._reveal_pos_x:
+            self._reveal_pos_x += (reveal_target - self._reveal_pos_x) * min(
+                1.0, max(0.04, dt * 4.0)
+            )
 
         if abs(self._telemetry.velocidade) > 0.05:
             self._preview_angle += abs(self._telemetry.velocidade) * 0.055 * dt * 20.0
