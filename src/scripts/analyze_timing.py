@@ -20,7 +20,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 LOG_PATH = Path("data/logs/task_timing.csv")
-GANTT_WINDOW_MS = 500  # primeiros N ms exibidos no Gantt
 
 
 # ── Leitura ──────────────────────────────────────────────────────────────────
@@ -171,13 +170,26 @@ def plot_exec(results: dict, ax: plt.Axes) -> None:
     ax.grid(True, alpha=0.25)
 
 
-def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = GANTT_WINDOW_MS) -> None:
+def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = None) -> None:
     t_start = min(r["actual"][0] for r in results.values())
     # Periódicas primeiro (ordenadas por período), event-driven ao final
     task_names = sorted(
         results.keys(),
         key=lambda n: (results[n]["period_ms"] == 0, results[n]["period_ms"]),
     )
+
+    # Auto-escala: janela escolhida para que a maior barra de execução real
+    # ocupe ≥ 1% do eixo X; mostra pelo menos um período completo da tarefa mais rápida.
+    if window_ms is None:
+        all_exec_ms = np.concatenate(
+            [(r["exec_end"] - r["actual"]) / 1e6 for r in results.values()]
+        )
+        max_exec_ms = float(all_exec_ms.max())
+        min_period_ms = min(
+            (r["period_ms"] for r in results.values() if r["period_ms"] > 0),
+            default=100.0,
+        )
+        window_ms = max(max_exec_ms * 100.0, float(min_period_ms))
 
     for yi, name in enumerate(task_names):
         r = results[name]
@@ -192,9 +204,6 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = GANTT_WINDOW_MS) 
 
         # Ciclos que sobrepõem a janela [0, window_ms]
         mask = (start_ms < window_ms) & (end_ms >= 0)
-
-        # Mínimo de visibilidade: 15% do período (periódicas) ou 20ms fixo (event-driven)
-        min_exec_ms = r["period_ms"] * 0.15 if r["is_periodic"] else 20.0
 
         for s, e, sched, dl, miss in zip(
             start_ms[mask], end_ms[mask], sched_ms[mask], dl_ms[mask], is_miss[mask]
@@ -214,8 +223,8 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = GANTT_WINDOW_MS) 
                         zorder=2,
                     )
 
-            # 2. ■ Execução real (mín. 15% do período para periódicas, 20ms para event-driven)
-            exec_w = max(e - s, min_exec_ms)
+            # 2. ■ Execução real — tempo verdadeiro sem padding
+            exec_w = e - s
             ax.barh(
                 yi,
                 exec_w,
@@ -249,9 +258,8 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = GANTT_WINDOW_MS) 
     ax.set_xlim(0, window_ms)
     ax.set_xlabel("Tempo (ms)")
     ax.set_title(
-        f"Gantt — primeiros {window_ms} ms\n"
-        f"□ slot alocado  |  ■ execução (mín. 15%*)  |  ▼ deadline  |  sem □▼ = event-driven\n"
-        f"*barras de execução não estão em escala real (execuções reais: µs)"
+        f"Gantt — primeiros {window_ms:.3f} ms  (escala automática, tempo real)\n"
+        f"□ slot alocado  |  ■ execução (escala real)  |  ▼ deadline  |  sem □▼ = event-driven"
     )
     ax.grid(True, axis="x", alpha=0.25)
 
