@@ -45,16 +45,6 @@ cleanup() {
         echo ""
         echo "Gráfico salvo em: data/logs/timing_analysis.png"
     fi
-
-    echo ""
-    echo "─── Dica: Linux de Tempo Real (PREEMPT_RT) ─────────────────"
-    echo "  Para reduzir jitter de ~500µs para <50µs:"
-    echo "    sudo apt install linux-image-rt-amd64 linux-headers-rt-amd64"
-    echo "    sudo reboot   # selecionar kernel RT no GRUB"
-    echo "  Depois execute com prioridades RT ativas:"
-    echo "    sudo make run   (ou: sudo ./run.sh)"
-    echo "────────────────────────────────────────────────────────────"
-
     exit "$exit_code"
 }
 

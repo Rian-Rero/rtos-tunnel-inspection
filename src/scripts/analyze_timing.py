@@ -37,6 +37,10 @@ def load(path: Path) -> dict:
     )
     with open(path, newline="") as f:
         for row in csv.DictReader(f):
+            if not all(
+                row.get(k) for k in ("actual_ns", "exec_end_ns", "scheduled_ns")
+            ):
+                continue  # linha incompleta (escrita interrompida pelo Ctrl+C)
             name = row["task_name"]
             tasks[name]["period_ms"] = int(row["period_ms"])
             tasks[name]["cycles"].append(int(row["cycle_num"]))
@@ -178,13 +182,21 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = None) -> None:
         key=lambda n: (results[n]["period_ms"] == 0, results[n]["period_ms"]),
     )
 
-    # Auto-escala: janela escolhida para que a maior barra de execução real
-    # ocupe ≥ 1% do eixo X; mostra pelo menos um período completo da tarefa mais rápida.
+    # Auto-escala: usa apenas tarefas periódicas — event-driven (ex: YOLO ~1.5s) distorceriam o eixo.
+    # A janela é calculada para que a maior barra periódica ocupe ≥ 1% do eixo X,
+    # garantindo pelo menos um período completo da tarefa mais rápida.
     if window_ms is None:
-        all_exec_ms = np.concatenate(
-            [(r["exec_end"] - r["actual"]) / 1e6 for r in results.values()]
+        periodic_execs = [
+            (r["exec_end"] - r["actual"]) / 1e6
+            for r in results.values()
+            if r["is_periodic"]
+        ]
+        exec_arrays = (
+            periodic_execs
+            if periodic_execs
+            else [(r["exec_end"] - r["actual"]) / 1e6 for r in results.values()]
         )
-        max_exec_ms = float(all_exec_ms.max())
+        max_exec_ms = float(np.concatenate(exec_arrays).max())
         min_period_ms = min(
             (r["period_ms"] for r in results.values() if r["period_ms"] > 0),
             default=100.0,

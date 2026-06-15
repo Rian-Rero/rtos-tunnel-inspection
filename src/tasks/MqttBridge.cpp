@@ -4,6 +4,7 @@
  */
 #include "tasks/MqttBridge.hpp"
 
+#include <signal.h>
 #include <sys/select.h>
 #include <unistd.h>
 
@@ -60,13 +61,23 @@ void MqttBridge::handleMessage(const std::string& topic, const std::string& payl
 }
 
 void MqttBridge::run() {
+    // Wraps the command so the shell prints its own PID before exec'ing mosquitto_sub.
+    // After exec, the PID is reused by mosquitto_sub — gives us a handle to kill it on shutdown.
     const char* command =
-        "mosquitto_sub -h localhost -v -t cmd/mode -t cmd/speed_sp -t cmd/direction";
+        "sh -c 'echo $$; exec mosquitto_sub -h localhost -v"
+        " -t cmd/mode -t cmd/speed_sp -t cmd/direction'";
     FILE* pipe = popen(command, "r");
     if (!pipe) {
         core::TerminalPrinter::Log(core::TerminalPrinter::Level::Error, "MQTT",
                                    "Falha ao iniciar mosquitto_sub.");
         return;
+    }
+
+    // First line is the child PID (printed before exec)
+    char pid_buf[32] = {};
+    pid_t child_pid = -1;
+    if (fgets(pid_buf, sizeof(pid_buf), pipe)) {
+        child_pid = static_cast<pid_t>(std::atoi(pid_buf));
     }
 
     int fd = fileno(pipe);
@@ -100,11 +111,13 @@ void MqttBridge::run() {
             continue;
         }
 
-        const std::string topic = line.substr(0, separator);
-        const std::string payload = line.substr(separator + 1);
-        handleMessage(topic, payload);
+        handleMessage(line.substr(0, separator), line.substr(separator + 1));
     }
 
+    // Kill mosquitto_sub before pclose() so it doesn't block waiting for the child to exit
+    if (child_pid > 0) {
+        kill(child_pid, SIGKILL);
+    }
     pclose(pipe);
 }
 
