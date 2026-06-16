@@ -14,10 +14,17 @@ Por padrão lê: data/logs/task_timing.csv
 import sys
 import csv
 from collections import defaultdict
+from functools import reduce
+from math import gcd
 from pathlib import Path
 
 import numpy as np
 import matplotlib.pyplot as plt
+
+
+def _lcm(a: int, b: int) -> int:
+    return a * b // gcd(a, b)
+
 
 LOG_PATH = Path("data/logs/task_timing.csv")
 
@@ -175,43 +182,38 @@ def plot_exec(results: dict, ax: plt.Axes) -> None:
 
 
 def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = None) -> None:
-    t_start = min(r["actual"][0] for r in results.values())
     # Periódicas primeiro (ordenadas por período), event-driven ao final
     task_names = sorted(
         results.keys(),
         key=lambda n: (results[n]["period_ms"] == 0, results[n]["period_ms"]),
     )
 
-    # Auto-escala: usa apenas tarefas periódicas — event-driven (ex: YOLO ~1.5s) distorceriam o eixo.
-    # A janela é calculada para que a maior barra periódica ocupe ≥ 1% do eixo X,
-    # garantindo pelo menos um período completo da tarefa mais rápida.
+    # Janela = MMC dos períodos das tarefas periódicas (hiperperíodo)
     if window_ms is None:
-        periodic_execs = [
-            (r["exec_end"] - r["actual"]) / 1e6
+        periods = [
+            r["period_ms"]
             for r in results.values()
-            if r["is_periodic"]
+            if r["is_periodic"] and r["period_ms"] > 0
         ]
-        exec_arrays = (
-            periodic_execs
-            if periodic_execs
-            else [(r["exec_end"] - r["actual"]) / 1e6 for r in results.values()]
-        )
-        max_exec_ms = float(np.concatenate(exec_arrays).max())
-        min_period_ms = min(
-            (r["period_ms"] for r in results.values() if r["period_ms"] > 0),
-            default=100.0,
-        )
-        window_ms = max(max_exec_ms * 100.0, float(min_period_ms))
+        window_ms = float(reduce(_lcm, periods)) if periods else 100.0
+
+    # Âncora da janela: centro da gravação — evita ciclo 0 (inicialização) e ciclos finais (teardown)
+    t_all_start = min(r["actual"][0] for r in results.values())
+    t_all_end = max(r["exec_end"][-1] for r in results.values())
+    t_mid_ns = (t_all_start + t_all_end) // 2
+    t_win_start_ns = t_mid_ns - int(window_ms * 0.5 * 1_000_000)
+    # Garante que a janela não começa antes do início da gravação
+    t_win_start_ns = max(t_win_start_ns, t_all_start)
 
     for yi, name in enumerate(task_names):
         r = results[name]
         color = COLORS[yi % len(COLORS)]
         period_ns = r["period_ms"] * 1_000_000
 
-        start_ms = (r["actual"] - t_start) / 1e6
-        end_ms = (r["exec_end"] - t_start) / 1e6
-        sched_ms = (r["scheduled"] - t_start) / 1e6
-        dl_ms = (r["scheduled"] + period_ns - t_start) / 1e6
+        start_ms = (r["actual"] - t_win_start_ns) / 1e6
+        end_ms = (r["exec_end"] - t_win_start_ns) / 1e6
+        sched_ms = (r["scheduled"] - t_win_start_ns) / 1e6
+        dl_ms = (r["scheduled"] + period_ns - t_win_start_ns) / 1e6
         is_miss = r["exec_end"] > r["scheduled"] + period_ns
 
         # Ciclos que sobrepõem a janela [0, window_ms]
@@ -270,7 +272,7 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = None) -> None:
     ax.set_xlim(0, window_ms)
     ax.set_xlabel("Tempo (ms)")
     ax.set_title(
-        f"Gantt — primeiros {window_ms:.3f} ms  (escala automática, tempo real)\n"
+        f"Gantt — hiperperíodo (MMC = {window_ms:.0f} ms)  |  janela central da gravação\n"
         f"□ slot alocado  |  ■ execução (escala real)  |  ▼ deadline  |  sem □▼ = event-driven"
     )
     ax.grid(True, axis="x", alpha=0.25)

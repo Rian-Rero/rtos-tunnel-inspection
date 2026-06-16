@@ -127,18 +127,25 @@ void SurfaceReconstruction::run() {
         double variacao = std::abs(simulated_lidar_y - base_lidar_y);
         double limite_variacao = std::abs(threshold_anomaly_ - kNominalCeilingDistanceM);
 
+        // Detecta mudança de estado da anomalia (só muda flag, não imprime ainda)
+        std::string deferred_log_msg;
+        core::TerminalPrinter::Level deferred_log_level{};
+        bool has_deferred_log = false;
+
         if (variacao >= limite_variacao) {
             if (!context_->isAnomalyActive()) {
-                core::TerminalPrinter::Log(core::TerminalPrinter::Level::Warning, "Sensor LIDAR",
-                                           "ALERTA: Variação estrutural (" +
-                                               std::to_string(simulated_lidar_y) +
-                                               "m)! Disparando flag global.");
+                deferred_log_msg = "ALERTA: Variação estrutural (" +
+                                   std::to_string(simulated_lidar_y) +
+                                   "m)! Disparando flag global.";
+                deferred_log_level = core::TerminalPrinter::Level::Warning;
+                has_deferred_log = true;
                 context_->triggerAnomaly();
             }
         } else {
             if (context_->isAnomalyActive()) {
-                core::TerminalPrinter::Log(core::TerminalPrinter::Level::Info, "Sensor LIDAR",
-                                           "Superfície normalizada. Desativando flag.");
+                deferred_log_msg = "Superfície normalizada. Desativando flag.";
+                deferred_log_level = core::TerminalPrinter::Level::Info;
+                has_deferred_log = true;
                 context_->resetAnomaly();
             }
         }
@@ -147,10 +154,14 @@ void SurfaceReconstruction::run() {
         const bool first_sample = std::isnan(last_sample_x);
         const bool moved_enough = std::abs(current_x - last_sample_x) >= kMinSurfaceSampleStepM;
         if (!first_sample && !moved_enough) {
+            // exec_end antes do print — TerminalPrinter usa mutex e adiciona latência variável
             core::TaskTimingLogger::instance().log(
                 {"SurfaceRecon", 100, cycle_num++, core::TaskTimingLogger::toNs(scheduled),
                  core::TaskTimingLogger::toNs(actual),
                  core::TaskTimingLogger::toNs(std::chrono::steady_clock::now())});
+            if (has_deferred_log) {
+                core::TerminalPrinter::Log(deferred_log_level, "Sensor LIDAR", deferred_log_msg);
+            }
             std::this_thread::sleep_until(proximo_ciclo);
             continue;
         }
@@ -164,10 +175,14 @@ void SurfaceReconstruction::run() {
         }
         last_sample_x = current_x;
 
+        // exec_end antes do print
         core::TaskTimingLogger::instance().log(
             {"SurfaceRecon", 100, cycle_num++, core::TaskTimingLogger::toNs(scheduled),
              core::TaskTimingLogger::toNs(actual),
              core::TaskTimingLogger::toNs(std::chrono::steady_clock::now())});
+        if (has_deferred_log) {
+            core::TerminalPrinter::Log(deferred_log_level, "Sensor LIDAR", deferred_log_msg);
+        }
 
         std::this_thread::sleep_until(proximo_ciclo);
     }

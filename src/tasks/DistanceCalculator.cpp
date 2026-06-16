@@ -59,7 +59,13 @@ void DistanceCalculator::run() {
         // 4. Publica a odometria para o restante do robô (Tópico: /sensor/odometria)
         context_->current_odometry.store(total_distance_);
 
-        // Imprime log a cada 1 segundo (50 ciclos de 20ms)
+        // exec_end antes do print — TerminalPrinter usa mutex e adiciona latência variável
+        core::TaskTimingLogger::instance().log(
+            {"DistanceCalc", 20, cycle_num++, core::TaskTimingLogger::toNs(scheduled),
+             core::TaskTimingLogger::toNs(actual),
+             core::TaskTimingLogger::toNs(std::chrono::steady_clock::now())});
+
+        // Imprime log a cada 1 segundo (50 ciclos de 20ms) — fora da janela de medição
         if (++log_divider >= 50) {
             core::TerminalPrinter::Log(core::TerminalPrinter::Level::Info, "Encoder",
                                        "Odometria: " + std::to_string(total_distance_) + "m (" +
@@ -67,11 +73,6 @@ void DistanceCalculator::run() {
                                            " ticks lidos)");
             log_divider = 0;
         }
-
-        core::TaskTimingLogger::instance().log(
-            {"DistanceCalc", 20, cycle_num++, core::TaskTimingLogger::toNs(scheduled),
-             core::TaskTimingLogger::toNs(actual),
-             core::TaskTimingLogger::toNs(std::chrono::steady_clock::now())});
 
         std::this_thread::sleep_until(next_wakeup);
     }

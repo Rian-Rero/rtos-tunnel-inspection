@@ -86,6 +86,14 @@ void NavigationControl::run() {
         current_simulated_speed += (o_aceleracao - current_simulated_speed) * 0.15;
 
         context_->current_speed.store(current_simulated_speed);
+
+        // exec_end captura só o trabalho RT (PID + atomic store) — antes de qualquer I/O
+        core::TaskTimingLogger::instance().log(
+            {"NavControl", 80, cycle_num++, core::TaskTimingLogger::toNs(scheduled),
+             core::TaskTimingLogger::toNs(actual),
+             core::TaskTimingLogger::toNs(std::chrono::steady_clock::now())});
+
+        // I/O fora da janela de medição (publish pode bloquear em fflush sob carga)
         motor_pub.publish(std::to_string(o_aceleracao));
 
         std::ostringstream oss;
@@ -93,11 +101,6 @@ void NavigationControl::run() {
         oss << "SP: " << sp.speed_setpoint << "% | PV: " << current_simulated_speed
             << "% | OUT: " << o_aceleracao << "%";
         core::TerminalPrinter::Log(core::TerminalPrinter::Level::Debug, "CTRL", oss.str());
-
-        core::TaskTimingLogger::instance().log(
-            {"NavControl", 80, cycle_num++, core::TaskTimingLogger::toNs(scheduled),
-             core::TaskTimingLogger::toNs(actual),
-             core::TaskTimingLogger::toNs(std::chrono::steady_clock::now())});
 
         std::this_thread::sleep_until(next_wakeup);
     }
