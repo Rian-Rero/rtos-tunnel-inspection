@@ -37,27 +37,54 @@ def _hyperperiod_ms(records: dict) -> float:
     return float(reduce(_lcm, periods)) if periods else 100.0
 
 
-def _middle_hyperperiod_window(records: dict, window_ms: float) -> int:
-    """Retorna o início de um hiperperíodo completo no meio da gravação."""
+def _worst_hyperperiod_window(records: dict, window_ms: float) -> int:
+    """Retorna o início da janela de hiperperíodo com o pior comportamento de temporização.
+
+    Critério primário: maior número de misses de prazo na janela.
+    Critério secundário: maior soma normalizada de tempo de execução (exec/período).
+    """
     window_ns = int(window_ms * 1_000_000)
     periodic = [r for r in records.values() if r["is_periodic"]]
     t_all_start = min(r["actual"][0] for r in records.values())
     t_all_end = max(r["exec_end"][-1] for r in records.values())
-    t_mid = (t_all_start + t_all_end) // 2
 
     if not periodic or t_all_end - t_all_start <= window_ns:
-        return max(t_all_start, t_mid - window_ns // 2)
+        return max(t_all_start, (t_all_start + t_all_end) // 2 - window_ns // 2)
 
     anchor = min(r["scheduled"][0] for r in periodic)
     first_k = max(0, (t_all_start - anchor + window_ns - 1) // window_ns)
     last_k = (t_all_end - anchor - window_ns) // window_ns
 
-    if last_k >= first_k:
-        target_k = round((t_mid - anchor - window_ns // 2) / window_ns)
-        k = min(max(target_k, first_k), last_k)
-        return anchor + k * window_ns
+    if last_k < first_k:
+        t_mid = (t_all_start + t_all_end) // 2
+        return min(max(t_mid - window_ns // 2, t_all_start), t_all_end - window_ns)
 
-    return min(max(t_mid - window_ns // 2, t_all_start), t_all_end - window_ns)
+    best_k = first_k
+    best_score = (-1, -1.0)
+
+    for k in range(first_k, last_k + 1):
+        win_start = anchor + k * window_ns
+        win_end = win_start + window_ns
+
+        misses = 0
+        exec_score = 0.0
+        for r in records.values():
+            if not r["is_periodic"]:
+                continue
+            period_ns = r["period_ms"] * 1_000_000
+            in_win = (r["scheduled"] >= win_start) & (r["scheduled"] < win_end)
+            deadlines = r["scheduled"][in_win] + period_ns
+            exec_ends = r["exec_end"][in_win]
+            exec_starts = r["actual"][in_win]
+            misses += int(np.sum(exec_ends > deadlines))
+            exec_score += float(np.sum((exec_ends - exec_starts) / period_ns))
+
+        score = (misses, exec_score)
+        if score > best_score:
+            best_score = score
+            best_k = k
+
+    return anchor + best_k * window_ns
 
 
 ## Caminho padrão do CSV de temporização gerado pelo núcleo C++.
@@ -226,7 +253,7 @@ def plot_exec(results: dict, ax: plt.Axes) -> None:
 
 
 def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = None) -> None:
-    """Plota o diagrama de Gantt no hiperperíodo central da amostra."""
+    """Plota o diagrama de Gantt no pior hiperperíodo da amostra."""
     # Periódicas primeiro (ordenadas por período), orientadas a evento ao final.
     task_names = sorted(
         results.keys(),
@@ -237,7 +264,7 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = None) -> None:
     if window_ms is None:
         window_ms = _hyperperiod_ms(results)
 
-    t_win_start_ns = _middle_hyperperiod_window(results, window_ms)
+    t_win_start_ns = _worst_hyperperiod_window(results, window_ms)
     t_all_start = min(r["actual"][0] for r in results.values())
     win_rel_start_ms = (t_win_start_ns - t_all_start) / 1e6
     win_rel_end_ms = win_rel_start_ms + window_ms
@@ -317,7 +344,7 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = None) -> None:
     ax.set_xlim(0, window_ms)
     ax.set_xlabel("Tempo (ms)")
     ax.set_title(
-        f"Gantt — hiperperíodo central (MMC = {window_ms:.0f} ms; "
+        f"Gantt — PIOR hiperperíodo (MMC = {window_ms:.0f} ms; "
         f"amostra t={win_rel_start_ms / 1000:.3f}s..{win_rel_end_ms / 1000:.3f}s)\n"
         f"□ janela alocada  |  ■ execução (mín. visual {MIN_EXEC_FRACTION:.0%}; tempo real acima)  |  ▼ prazo"
     )

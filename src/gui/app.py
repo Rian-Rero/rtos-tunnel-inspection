@@ -62,11 +62,11 @@ class OperatorGUI(MqttComponent):
     def _configure_window(self) -> None:
         """Define título, tamanho e restrições da janela principal."""
         sw, sh = self._root.winfo_screenwidth(), self._root.winfo_screenheight()
-        ww = min(1180, max(980, sw - 80))
-        wh = min(720, max(620, sh - 120))
+        ww = min(1280, max(1080, sw - 80))
+        wh = min(780, max(660, sh - 120))
         self._root.title("ATR - Operação Remota do Carrinho")
         self._root.geometry(f"{ww}x{wh}+24+40")
-        self._root.minsize(980, 620)
+        self._root.minsize(1080, 660)
         self._root.configure(bg="#0f172a")
 
     def _setup_styles(self) -> None:
@@ -153,8 +153,9 @@ class OperatorGUI(MqttComponent):
         # ── Corpo: leiaute em três colunas ───────────────────────────────────
         body = ttk.Frame(container, style="Root.TFrame", padding=(20, 20, 20, 16))
         body.pack(fill="both", expand=True)
-        for col in range(3):
-            body.columnconfigure(col, weight=1, uniform="main")
+        body.columnconfigure(0, weight=9, uniform="main")
+        body.columnconfigure(1, weight=11, uniform="main")
+        body.columnconfigure(2, weight=12, uniform="main")
         body.rowconfigure(0, weight=1)
 
         ctrl_card = ttk.Frame(body, style="Card.TFrame", padding=20)

@@ -219,13 +219,13 @@ class TunnelScene:
             return
 
         # Fundo e borda do painel flutuante
-        rect = pygame.Rect(width - 300, 84, 264, 122)
+        rect = pygame.Rect(width - 380, 84, 344, 138)
         srf = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
         pygame.draw.rect(srf, (8, 13, 23, 232), srf.get_rect(), border_radius=6)
         pygame.draw.rect(srf, (96, 165, 250, 190), srf.get_rect(), 2, border_radius=6)
 
         # Área exata onde a imagem da câmera será desenhada
-        view_rect = pygame.Rect(20, 30, 154, 76)
+        view_rect = pygame.Rect(20, 34, 176, 86)
 
         if camera_image is not None:
             scaled_image = pygame.transform.smoothscale(
@@ -279,18 +279,43 @@ class TunnelScene:
         label = "CAPTURANDO" if insp.active else insp.last_type.upper()
         font = pygame.font.SysFont("arial", 12, bold=True)
         small = pygame.font.SysFont("arial", 11)
+        text_x = view_rect.right + 16
+        text_max = rect.width - text_x - 12
 
         srf.blit(font.render("CÂMERA DO ROBÔ", True, (226, 232, 240)), (12, 5))
-        srf.blit(font.render(label[:16], True, (191, 219, 254)), (178, 28))
+        for i, line in enumerate(self._wrap_text(label, font, text_max, 2)):
+            srf.blit(font.render(line, True, (191, 219, 254)), (text_x, 30 + i * 16))
         srf.blit(
             small.render(f"conf {insp.last_confidence:.2f}", True, (148, 163, 184)),
-            (178, 48),
+            (text_x, 68),
         )
-        srf.blit(small.render("imagem real", True, (148, 163, 184)), (178, 68))
+        srf.blit(small.render("imagem real", True, (148, 163, 184)), (text_x, 88))
 
         screen.blit(srf, rect)
 
     # ── auxiliares privados ─────────────────────────────────────────────────
+
+    @staticmethod
+    def _wrap_text(
+        text: str, font: pygame.font.Font, max_width: int, max_lines: int
+    ) -> list[str]:
+        """Quebra textos curtos do HUD sem cortar palavras importantes."""
+        words = text.split()
+        lines: list[str] = []
+        current = ""
+        for word in words:
+            candidate = f"{current} {word}".strip()
+            if font.size(candidate)[0] <= max_width:
+                current = candidate
+                continue
+            if current:
+                lines.append(current)
+            current = word
+            if len(lines) == max_lines - 1:
+                break
+        if current and len(lines) < max_lines:
+            lines.append(current)
+        return lines or [text]
 
     def _draw_floor_terrain(
         self,

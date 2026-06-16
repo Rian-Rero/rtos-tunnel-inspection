@@ -307,13 +307,22 @@ class TunelSimulator(MqttComponent):
                     ),
                     (28, 44),
                 )
-                screen.blit(
-                    font_sub.render(
-                        f"Inspeção YOLO: {self._inspection.yolo_state} | Encoder {self._telemetry.encoder}",
-                        True,
-                        (148, 163, 184),
-                    ),
-                    (28, 510),
+                footer_y = screen.get_height() - 50
+                self._blit_fit_text(
+                    screen,
+                    font_sub,
+                    f"Inspeção YOLO: {self._inspection.yolo_state}",
+                    (28, footer_y),
+                    screen.get_width() - 56,
+                    (148, 163, 184),
+                )
+                self._blit_fit_text(
+                    screen,
+                    font_sub,
+                    f"Encoder {self._telemetry.encoder}",
+                    (28, footer_y + 24),
+                    screen.get_width() - 56,
+                    (148, 163, 184),
                 )
 
                 pygame.display.flip()
@@ -351,6 +360,7 @@ class TunelSimulator(MqttComponent):
         sw = int(getattr(info, "current_w", 1920) or 1920)
         sh = int(getattr(info, "current_h", 1080) or 1080)
         ww = min(1200, max(920, sw - 80))
+        wh = min(680, max(600, sh - 140))
         if "SDL_VIDEO_WINDOW_POS" not in os.environ:
             if sw >= 2200:
                 wx, wy = 1240, 40
@@ -359,6 +369,32 @@ class TunelSimulator(MqttComponent):
             else:
                 wx, wy = 160, 130
             os.environ["SDL_VIDEO_WINDOW_POS"] = f"{wx},{wy}"
-        screen = pygame.display.set_mode((ww, 560))
+        screen = pygame.display.set_mode((ww, wh))
         pygame.display.set_caption("Simulador do Túnel (ATR)")
         return screen, pygame.time.Clock()
+
+    @staticmethod
+    def _blit_fit_text(
+        screen: pygame.Surface,
+        font: pygame.font.Font,
+        text: str,
+        pos: tuple[int, int],
+        max_width: int,
+        color: tuple[int, int, int],
+    ) -> None:
+        """Desenha texto reduzindo-o com reticências quando excede a largura."""
+        rendered = font.render(text, True, color)
+        if rendered.get_width() <= max_width:
+            screen.blit(rendered, pos)
+            return
+
+        ellipsis = "..."
+        lo, hi = 0, len(text)
+        while lo < hi:
+            mid = (lo + hi + 1) // 2
+            candidate = font.render(text[:mid] + ellipsis, True, color)
+            if candidate.get_width() <= max_width:
+                lo = mid
+            else:
+                hi = mid - 1
+        screen.blit(font.render(text[:lo] + ellipsis, True, color), pos)

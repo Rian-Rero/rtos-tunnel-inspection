@@ -158,7 +158,10 @@ class TelemetryPanel:
         """Cria variáveis de texto e monta os cartões de métricas."""
         ## Variáveis Tkinter indexadas pelo nome da métrica.
         self._vars: dict[str, tk.StringVar] = {}
+        ## Labels de valores que precisam acompanhar a largura do painel.
+        self._value_labels: list[ttk.Label] = []
         self._build(parent)
+        parent.bind("<Configure>", self._update_value_wraplength, add="+")
 
     def _build(self, parent: ttk.Frame) -> None:
         """Monta a lista de cartões de telemetria."""
@@ -187,9 +190,20 @@ class TelemetryPanel:
         card = ttk.Frame(parent, style="Card.TFrame")
         card.pack(fill="x", pady=(0, 10))
         ttk.Label(card, text=title, style="MetricLabel.TLabel").pack(anchor="w")
-        ttk.Label(card, textvariable=var, style="MetricValue.TLabel").pack(
-            anchor="w", pady=(2, 0)
+        value = ttk.Label(
+            card,
+            textvariable=var,
+            style="MetricValue.TLabel",
+            justify="left",
         )
+        value.pack(anchor="w", fill="x", pady=(2, 0))
+        self._value_labels.append(value)
+
+    def _update_value_wraplength(self, event: tk.Event) -> None:
+        """Mantém textos longos dentro dos cartões de telemetria."""
+        wraplength = max(180, event.width - 42)
+        for label in self._value_labels:
+            label.configure(wraplength=wraplength)
 
     def update(self, telemetry: RobotTelemetry, yolo_state: str) -> None:
         """Atualiza todos os cartões com a última telemetria recebida."""
@@ -359,12 +373,29 @@ class PreviewPanel:
         )
         self._renderer.render(canvas, cart_x, cart_y, state)
 
-        info = (
-            f"LIDAR {self._telemetry.lidar:.0f} | IMU {self._telemetry.imu:+.1f}° {lbl} | "
-            f"Encoder {self._telemetry.encoder} | Velocidade {self._telemetry.velocidade:.2f}"
+        canvas.create_text(
+            60,
+            h - 46,
+            anchor="w",
+            fill="#cbd5e1",
+            font=("Helvetica", 10),
+            text=(
+                f"LIDAR {self._telemetry.lidar:.0f} | "
+                f"IMU {self._telemetry.imu:+.1f}° {lbl}"
+            ),
+            width=max(160, w - 120),
         )
         canvas.create_text(
-            60, h - 28, anchor="w", fill="#cbd5e1", font=("Helvetica", 10), text=info
+            60,
+            h - 24,
+            anchor="w",
+            fill="#cbd5e1",
+            font=("Helvetica", 10),
+            text=(
+                f"Encoder {self._telemetry.encoder} | "
+                f"Velocidade {self._telemetry.velocidade:.2f}"
+            ),
+            width=max(160, w - 120),
         )
 
     def _path_transform(self, w: int, h: int, imu_tilt: float):

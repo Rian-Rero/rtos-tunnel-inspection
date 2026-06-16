@@ -335,7 +335,12 @@ class PygameRobotRenderer:
     ):
         """Desenha a contagem do encoder abaixo do robô."""
         font = pygame.font.SysFont("arial", 13, bold=True)
-        screen.blit(
-            font.render(f"Enc {encoder}", True, (190, 208, 226)),
-            (cx - 30, ty(cx, body_lift + body_h + 32)),
+        text = font.render(f"Enc {encoder}", True, (190, 208, 226))
+        x = max(
+            8,
+            min(
+                screen.get_width() - text.get_width() - 8,
+                cx - text.get_width() // 2,
+            ),
         )
+        screen.blit(text, (x, ty(cx, body_lift + body_h + 32)))
