@@ -12,6 +12,8 @@ Uso:
 import signal
 import sys
 from collections import defaultdict
+from functools import reduce
+from math import gcd
 from pathlib import Path
 
 import numpy as np
@@ -19,10 +21,43 @@ import matplotlib.pyplot as plt
 
 LOG_PATH = Path("data/logs/task_timing.csv")
 UPDATE_S = 0.5  # intervalo de redesenho (segundos)
-GANTT_WINDOW_MS = 300  # janela deslizante do Gantt
 MAX_CYCLES = 300  # ciclos visíveis nos gráficos de série temporal
 
 COLORS = plt.cm.tab10.colors
+MIN_EXEC_FRACTION = 0.15
+
+
+def _lcm(a: int, b: int) -> int:
+    return a * b // gcd(a, b)
+
+
+def _hyperperiod_ms(tasks: dict) -> float:
+    periods = [d["period_ms"] for d in tasks.values() if d["period_ms"] > 0]
+    return float(reduce(_lcm, periods)) if periods else 100.0
+
+
+def _middle_hyperperiod_window(tasks: dict, window_ms: float) -> int:
+    """Retorna o início de um hiperperíodo completo no meio da amostra atual."""
+    window_ns = int(window_ms * 1_000_000)
+    periodic = [d for d in tasks.values() if d["period_ms"] > 0]
+    t_all_start = min(d["actual"][0] for d in tasks.values())
+    t_all_end = max(d["exec_end"][-1] for d in tasks.values())
+    t_mid = (t_all_start + t_all_end) // 2
+
+    if not periodic or t_all_end - t_all_start <= window_ns:
+        return max(t_all_start, t_mid - window_ns // 2)
+
+    anchor = min(d["scheduled"][0] for d in periodic)
+    first_k = max(0, (t_all_start - anchor + window_ns - 1) // window_ns)
+    last_k = (t_all_end - anchor - window_ns) // window_ns
+
+    if last_k >= first_k:
+        target_k = round((t_mid - anchor - window_ns // 2) / window_ns)
+        k = min(max(target_k, first_k), last_k)
+        return anchor + k * window_ns
+
+    return min(max(t_mid - window_ns // 2, t_all_start), t_all_end - window_ns)
+
 
 # ── Leitura incremental ───────────────────────────────────────────────────────
 # Lemos linha a linha e só avançamos o ponteiro em linhas completamente escritas
@@ -154,27 +189,33 @@ def _draw_exec(ax: plt.Axes, tasks: dict) -> None:
     ax.grid(True, alpha=0.25)
 
 
-def _draw_gantt(ax: plt.Axes, tasks: dict, window_ms: float) -> None:
+def _draw_gantt(ax: plt.Axes, tasks: dict) -> None:
     ax.cla()
+    window_ms = _hyperperiod_ms(tasks)
     # Periódicas primeiro (por período), event-driven ao final
     task_names = sorted(
         tasks.keys(), key=lambda n: (tasks[n]["period_ms"] == 0, tasks[n]["period_ms"])
     )
     if not task_names:
-        ax.set_title(f"Gantt — últimos {window_ms} ms  (aguardando dados...)")
+        ax.set_title(f"Gantt — MMC {window_ms:.0f} ms  (aguardando dados...)")
         return
 
-    t_now = max(d["exec_end"][-1] for d in tasks.values())
-    win_start = t_now - window_ms * 1_000_000
+    win_start = _middle_hyperperiod_window(tasks, window_ms)
+    t_all_start = min(d["actual"][0] for d in tasks.values())
+    win_rel_start_ms = (win_start - t_all_start) / 1e6
+    win_rel_end_ms = win_rel_start_ms + window_ms
 
     for yi, name in enumerate(task_names):
         d = tasks[name]
         color = COLORS[yi % len(COLORS)]
         period_ns = d["period_ms"] * 1_000_000
 
-        # Inclui ciclos que SOBREPÕEM a janela, não só os que começam dentro dela.
-        # Garante que a tarefa de 100ms mostre todas as 5 execuções em 500ms.
-        mask = d["exec_end"] >= win_start
+        is_periodic = d["period_ms"] > 0
+        win_end = win_start + int(window_ms * 1_000_000)
+        slot_end = d["scheduled"] + period_ns if is_periodic else d["exec_end"]
+        mask = (d["scheduled"] < win_end) & (
+            np.maximum(d["exec_end"], slot_end) >= win_start
+        )
         if not mask.any():
             continue
 
@@ -184,18 +225,16 @@ def _draw_gantt(ax: plt.Axes, tasks: dict, window_ms: float) -> None:
         dl_ms = (d["scheduled"][mask] + period_ns - win_start) / 1e6
         miss = d["exec_end"][mask] > d["scheduled"][mask] + period_ns
 
-        is_periodic = d["period_ms"] > 0
-        # Mínimo de visibilidade: 15% do período (periódicas) ou 20ms fixo (event-driven)
-        min_exec_ms = d["period_ms"] * 0.15 if is_periodic else 20.0
-
         for s, e, sched, dl, is_miss in zip(s_ms, e_ms, sched_ms, dl_ms, miss):
             if is_periodic:
                 # 1. □ Retângulo do período — slot alocado pelo escalonador
-                if dl > 0 and sched < window_ms:
+                slot_left = max(sched, 0.0)
+                slot_right = min(dl, window_ms)
+                if slot_right > slot_left:
                     ax.barh(
                         yi,
-                        dl - sched,
-                        left=sched,
+                        slot_right - slot_left,
+                        left=slot_left,
                         height=0.70,
                         color="none",
                         edgecolor=color,
@@ -204,19 +243,23 @@ def _draw_gantt(ax: plt.Axes, tasks: dict, window_ms: float) -> None:
                         zorder=2,
                     )
 
-            # 2. ■ Caixa de execução — preenchida
-            exec_w = max(e - s, min_exec_ms)
-            ax.barh(
-                yi,
-                exec_w,
-                left=s,
-                height=0.46,
-                color="crimson" if (is_miss and is_periodic) else color,
-                alpha=0.90,
-                edgecolor="white",
-                linewidth=0.4,
-                zorder=3,
-            )
+            # 2. ■ Execução real — com largura mínima visual para aparecer no MMC.
+            exec_left = max(s, 0.0)
+            exec_right = min(e, window_ms)
+            if exec_right > exec_left:
+                min_exec_ms = d["period_ms"] * MIN_EXEC_FRACTION if is_periodic else 8.0
+                visual_right = min(max(exec_right, exec_left + min_exec_ms), window_ms)
+                ax.barh(
+                    yi,
+                    visual_right - exec_left,
+                    left=exec_left,
+                    height=0.46,
+                    color="crimson" if (is_miss and is_periodic) else color,
+                    alpha=0.90,
+                    edgecolor="white",
+                    linewidth=0.4,
+                    zorder=3,
+                )
 
             if is_periodic:
                 # 3. ▼ Seta no deadline — linha + triângulo ▼
@@ -239,9 +282,9 @@ def _draw_gantt(ax: plt.Axes, tasks: dict, window_ms: float) -> None:
     ax.set_xlim(0, window_ms)
     ax.set_xlabel("Tempo relativo (ms)")
     ax.set_title(
-        f"Gantt — últimos {window_ms} ms\n"
-        f"□ slot alocado  |  ■ execução (mín. 15%*)  |  ▼ deadline  |  sem □▼ = event-driven\n"
-        f"*barras de execução não estão em escala real (execuções reais: µs)"
+        f"Gantt — hiperperíodo central da amostra (MMC = {window_ms:.0f} ms; "
+        f"t={win_rel_start_ms / 1000:.3f}s..{win_rel_end_ms / 1000:.3f}s)\n"
+        f"□ slot alocado  |  ■ execução (mín. visual {MIN_EXEC_FRACTION:.0%}; tempo real acima)  |  ▼ deadline"
     )
     ax.grid(True, axis="x", alpha=0.25)
 
@@ -299,7 +342,7 @@ def main() -> None:
 
                 _draw_jitter(axes[0], tasks)
                 _draw_exec(axes[1], tasks)
-                _draw_gantt(axes[2], tasks, GANTT_WINDOW_MS)
+                _draw_gantt(axes[2], tasks)
             else:
                 status.set_text(f"Aguardando {path} ...")
                 status.set_color("gray")

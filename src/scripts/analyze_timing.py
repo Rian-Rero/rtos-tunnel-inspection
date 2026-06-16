@@ -26,6 +26,38 @@ def _lcm(a: int, b: int) -> int:
     return a * b // gcd(a, b)
 
 
+def _hyperperiod_ms(records: dict) -> float:
+    periods = [
+        r["period_ms"]
+        for r in records.values()
+        if r["is_periodic"] and r["period_ms"] > 0
+    ]
+    return float(reduce(_lcm, periods)) if periods else 100.0
+
+
+def _middle_hyperperiod_window(records: dict, window_ms: float) -> int:
+    """Retorna o início de um hiperperíodo completo no meio da gravação."""
+    window_ns = int(window_ms * 1_000_000)
+    periodic = [r for r in records.values() if r["is_periodic"]]
+    t_all_start = min(r["actual"][0] for r in records.values())
+    t_all_end = max(r["exec_end"][-1] for r in records.values())
+    t_mid = (t_all_start + t_all_end) // 2
+
+    if not periodic or t_all_end - t_all_start <= window_ns:
+        return max(t_all_start, t_mid - window_ns // 2)
+
+    anchor = min(r["scheduled"][0] for r in periodic)
+    first_k = max(0, (t_all_start - anchor + window_ns - 1) // window_ns)
+    last_k = (t_all_end - anchor - window_ns) // window_ns
+
+    if last_k >= first_k:
+        target_k = round((t_mid - anchor - window_ns // 2) / window_ns)
+        k = min(max(target_k, first_k), last_k)
+        return anchor + k * window_ns
+
+    return min(max(t_mid - window_ns // 2, t_all_start), t_all_end - window_ns)
+
+
 LOG_PATH = Path("data/logs/task_timing.csv")
 
 
@@ -126,6 +158,7 @@ def print_stats(results: dict) -> None:
 # ── Gráficos ─────────────────────────────────────────────────────────────────
 
 COLORS = plt.cm.tab10.colors
+MIN_EXEC_FRACTION = 0.15
 
 
 def plot_jitter(results: dict, ax: plt.Axes) -> None:
@@ -190,20 +223,12 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = None) -> None:
 
     # Janela = MMC dos períodos das tarefas periódicas (hiperperíodo)
     if window_ms is None:
-        periods = [
-            r["period_ms"]
-            for r in results.values()
-            if r["is_periodic"] and r["period_ms"] > 0
-        ]
-        window_ms = float(reduce(_lcm, periods)) if periods else 100.0
+        window_ms = _hyperperiod_ms(results)
 
-    # Âncora da janela: centro da gravação — evita ciclo 0 (inicialização) e ciclos finais (teardown)
+    t_win_start_ns = _middle_hyperperiod_window(results, window_ms)
     t_all_start = min(r["actual"][0] for r in results.values())
-    t_all_end = max(r["exec_end"][-1] for r in results.values())
-    t_mid_ns = (t_all_start + t_all_end) // 2
-    t_win_start_ns = t_mid_ns - int(window_ms * 0.5 * 1_000_000)
-    # Garante que a janela não começa antes do início da gravação
-    t_win_start_ns = max(t_win_start_ns, t_all_start)
+    win_rel_start_ms = (t_win_start_ns - t_all_start) / 1e6
+    win_rel_end_ms = win_rel_start_ms + window_ms
 
     for yi, name in enumerate(task_names):
         r = results[name]
@@ -216,19 +241,21 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = None) -> None:
         dl_ms = (r["scheduled"] + period_ns - t_win_start_ns) / 1e6
         is_miss = r["exec_end"] > r["scheduled"] + period_ns
 
-        # Ciclos que sobrepõem a janela [0, window_ms]
-        mask = (start_ms < window_ms) & (end_ms >= 0)
+        # Ciclos/slots que sobrepõem a janela [0, window_ms]
+        mask = (sched_ms < window_ms) & (np.maximum(end_ms, dl_ms) >= 0)
 
         for s, e, sched, dl, miss in zip(
             start_ms[mask], end_ms[mask], sched_ms[mask], dl_ms[mask], is_miss[mask]
         ):
             if r["is_periodic"]:
                 # 1. □ Slot alocado pelo escalonador (outline)
-                if dl > 0 and sched < window_ms:
+                slot_left = max(sched, 0.0)
+                slot_right = min(dl, window_ms)
+                if slot_right > slot_left:
                     ax.barh(
                         yi,
-                        dl - sched,
-                        left=sched,
+                        slot_right - slot_left,
+                        left=slot_left,
                         height=0.70,
                         color="none",
                         edgecolor=color,
@@ -237,19 +264,25 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = None) -> None:
                         zorder=2,
                     )
 
-            # 2. ■ Execução real — tempo verdadeiro sem padding
-            exec_w = e - s
-            ax.barh(
-                yi,
-                exec_w,
-                left=s,
-                height=0.46,
-                color="crimson" if (miss and r["is_periodic"]) else color,
-                alpha=0.90,
-                edgecolor="white",
-                linewidth=0.4,
-                zorder=3,
-            )
+            # 2. ■ Execução real — com largura mínima visual para aparecer no MMC.
+            exec_left = max(s, 0.0)
+            exec_right = min(e, window_ms)
+            if exec_right > exec_left:
+                min_exec_ms = (
+                    r["period_ms"] * MIN_EXEC_FRACTION if r["is_periodic"] else 8.0
+                )
+                visual_right = min(max(exec_right, exec_left + min_exec_ms), window_ms)
+                ax.barh(
+                    yi,
+                    visual_right - exec_left,
+                    left=exec_left,
+                    height=0.46,
+                    color="crimson" if (miss and r["is_periodic"]) else color,
+                    alpha=0.90,
+                    edgecolor="white",
+                    linewidth=0.4,
+                    zorder=3,
+                )
 
             if r["is_periodic"]:
                 # 3. ▼ Seta no deadline
@@ -272,8 +305,9 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = None) -> None:
     ax.set_xlim(0, window_ms)
     ax.set_xlabel("Tempo (ms)")
     ax.set_title(
-        f"Gantt — hiperperíodo (MMC = {window_ms:.0f} ms)  |  janela central da gravação\n"
-        f"□ slot alocado  |  ■ execução (escala real)  |  ▼ deadline  |  sem □▼ = event-driven"
+        f"Gantt — hiperperíodo central (MMC = {window_ms:.0f} ms; "
+        f"amostra t={win_rel_start_ms / 1000:.3f}s..{win_rel_end_ms / 1000:.3f}s)\n"
+        f"□ slot alocado  |  ■ execução (mín. visual {MIN_EXEC_FRACTION:.0%}; tempo real acima)  |  ▼ deadline"
     )
     ax.grid(True, axis="x", alpha=0.25)
 
