@@ -20,7 +20,7 @@ DistanceCalculator::DistanceCalculator(std::shared_ptr<core::SharedContext> ctx)
     : context_(ctx), total_distance_(0.0), last_encoder_state_(false) {}
 
 /**
- * @brief Executa o loop principal da tarefa atuando como um driver de Encoder real.
+ * @brief Executa o loop principal da tarefa atuando como acionador de Encoder real.
  * @details Lê a velocidade física do eixo, converte para ticks de encoder
  * dependendo da circunferência da roda, calcula a odometria e publica no broker.
  */
@@ -52,7 +52,7 @@ void DistanceCalculator::run() {
             total_distance_ = 0.0;
         }
 
-        // 3. O driver processa os ticks e atualiza a odometria do sistema
+        // 3. O acionador processa os ticks e atualiza a odometria do sistema.
         simulated_ticks = (total_distance_ / wheel_circumference) * ticks_per_rev;
 
         // 4. Publica a odometria para o restante do robô (Tópico: /sensor/odometria)

@@ -42,7 +42,7 @@ void CameraInspection::run() {
         inspection_state_pub.publish("1");
         camera_cmd_pub.publish("1");
 
-        // Mantém a tarefa C++ ocupada enquanto o daemon YOLO processa o trigger via MQTT.
+        // Mantém a tarefa C++ ocupada enquanto o serviço YOLO processa o gatilho via MQTT.
         auto start = std::chrono::high_resolution_clock::now();
         while (std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::high_resolution_clock::now() - start)

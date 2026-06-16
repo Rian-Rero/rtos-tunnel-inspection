@@ -19,6 +19,7 @@ from mqtt import MqttComponent
 
 __all__ = ["YoloInspectionService"]
 
+## Registrador do serviço de inspeção YOLO.
 logger = logging.getLogger(__name__)
 
 
@@ -31,6 +32,7 @@ class YoloInspectionService(MqttComponent):
         broker: str = MQTT_BROKER,
         port: int = MQTT_PORT,
     ) -> None:
+        """Carrega dependências pesadas, modelo YOLO e gerador de quadros."""
         super().__init__(broker, port, "Python_YOLO_Service")
 
         logger.info("Carregando pesos do modelo YOLOv8...")
@@ -43,18 +45,25 @@ class YoloInspectionService(MqttComponent):
 
         from .frame import SyntheticFrameGenerator
 
+        ## Modelo YOLOv8 usado para inferência local.
         self._model = YOLO(model_path)
+        ## Caminho onde o último quadro sintético é salvo.
         self._frame_path = Path("data/capturas/frame_atual.jpg")
+        ## Gerador de imagens sintéticas da câmera embarcada.
         self._generator = SyntheticFrameGenerator(cv2, np)
+        ## Módulo OpenCV usado para persistir quadros.
         self._cv2 = cv2
+        ## Indica se uma inferência já está em andamento.
         self._processing = False
 
     # ── ganchos MQTT ─────────────────────────────────────────────────────────
 
     def _on_connect(self, client) -> None:
+        """Assina o tópico de comando da câmera após conectar ao broker."""
         client.subscribe(Topics.CMD_CAMERA, qos=MQTT_QOS)
 
     def _on_message(self, topic: str, payload: str) -> None:
+        """Inicia inspeção visual quando recebe comando de câmera."""
         if topic != Topics.CMD_CAMERA:
             return
         try:
@@ -64,14 +73,15 @@ class YoloInspectionService(MqttComponent):
             return
         if command == 1:
             if self._processing:
-                logger.info("Inferência já em andamento; trigger ignorado.")
+                logger.info("Inferência já em andamento; gatilho ignorado.")
             else:
-                logger.info("Trigger recebido. Iniciando inferência...")
+                logger.info("Gatilho recebido. Iniciando inferência...")
                 self._run_inspection()
 
     # ── pipeline de inspeção ─────────────────────────────────────────────────
 
     def _run_inspection(self) -> None:
+        """Executa uma inspeção completa e publica o resultado via MQTT."""
         self._processing = True
         try:
             result = self._inspect()
@@ -92,6 +102,7 @@ class YoloInspectionService(MqttComponent):
         logger.info("Resultado publicado: %s", result.to_payload())
 
     def _inspect(self) -> YoloResult:
+        """Gera o quadro, executa YOLO e monta o resultado de domínio."""
         frame, anomaly_type = self._generator.generate()
         self._save_frame(frame)
 
@@ -116,6 +127,7 @@ class YoloInspectionService(MqttComponent):
         )
 
     def _save_frame(self, frame) -> None:
+        """Salva o último quadro usado na inferência para auditoria visual."""
         self._frame_path.parent.mkdir(parents=True, exist_ok=True)
         self._cv2.imwrite(str(self._frame_path), frame)
 

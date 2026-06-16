@@ -17,6 +17,6 @@ O sistema é dividido em três blocos principais:
 
 - O operador envia comandos MQTT para o núcleo C++.
 - O núcleo C++ publica sensores, atuador e telemetria visual no broker.
-- O serviço YOLO reage ao trigger da câmera publicado via MQTT e devolve o resultado da inspeção em `telemetry/yolo`.
+- O serviço YOLO reage ao gatilho da câmera publicado via MQTT e devolve o resultado da inspeção em `telemetry/yolo`.
 - O estado `state/inspection` é publicado pelo núcleo C++; o Python não altera esse estado diretamente.
 - Não há comunicação direta entre Python e C++ fora do broker MQTT.

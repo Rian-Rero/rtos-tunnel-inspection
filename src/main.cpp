@@ -33,7 +33,7 @@
 std::atomic<bool> global_shutdown_requested{false};
 
 /**
- * @brief Handler para encerramento seguro via sinal do sistema (CTRL+C ou SIGTERM).
+ * @brief Tratador para encerramento seguro via sinal do sistema (CTRL+C ou SIGTERM).
  * @param signum Número do sinal recebido.
  */
 void signalHandler(int signum) {
@@ -117,11 +117,11 @@ int main() {
     setThreadRT(thread_pool[2], 40);  // NavigationCommand    — 80ms
     setThreadRT(thread_pool[3], 39);  // NavigationControl    — 80ms
     setThreadRT(thread_pool[0], 30);  // SurfaceReconstruction— 100ms
-    setThreadRT(thread_pool[5], 20);  // DataCollector        — event
-    setThreadRT(thread_pool[1], 15);  // CameraInspection     — event
+    setThreadRT(thread_pool[5], 20);  // DataCollector        — evento
+    setThreadRT(thread_pool[1], 15);  // CameraInspection     — evento
     setThreadRT(thread_pool[6], 10);  // MqttBridge           — 200ms
 
-    // A thread principal atua como Watchdog. Dorme até que um CTRL+C seja pressionado.
+    // A thread principal atua como monitor. Dorme até que um CTRL+C seja pressionado.
     while (!global_shutdown_requested) {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
@@ -134,7 +134,7 @@ int main() {
     command_buffer->close();
     surface_buffer->close();
 
-    // Libera a thread de câmera caso ela esteja presa esperando anomalia no Condition Variable
+    // Libera a thread de câmera caso ela esteja presa esperando anomalia na variável de condição.
     global_context->triggerAnomaly();
 
     // Aguarda o encerramento limpo (join) de todas as threads operárias

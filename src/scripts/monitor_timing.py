@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Monitor de timing RTOS em tempo real.
+Monitor de temporização RTOS em tempo real.
 
 Usa plt.ion() + plt.pause() — mais confiável que FuncAnimation quando
-rodado como subprocess. Atualiza a cada 500 ms.
+rodado como subprocesso. Atualiza a cada 500 ms.
 
 Uso:
     python monitor_timing.py [caminho_do_csv]
@@ -19,19 +19,26 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
+## Caminho padrão do CSV de temporização gerado pelo núcleo C++.
 LOG_PATH = Path("data/logs/task_timing.csv")
-UPDATE_S = 0.5  # intervalo de redesenho (segundos)
-MAX_CYCLES = 300  # ciclos visíveis nos gráficos de série temporal
+## Intervalo entre redesenhos dos gráficos, em segundos.
+UPDATE_S = 0.5
+## Quantidade máxima de ciclos exibidos nos gráficos de série temporal.
+MAX_CYCLES = 300
 
+## Paleta de cores usada nos gráficos.
 COLORS = plt.cm.tab10.colors
+## Fração mínima do período usada para tornar barras curtas visíveis.
 MIN_EXEC_FRACTION = 0.15
 
 
 def _lcm(a: int, b: int) -> int:
+    """Calcula o mínimo múltiplo comum entre dois períodos."""
     return a * b // gcd(a, b)
 
 
 def _hyperperiod_ms(tasks: dict) -> float:
+    """Calcula o hiperperíodo das tarefas periódicas, em milissegundos."""
     periods = [d["period_ms"] for d in tasks.values() if d["period_ms"] > 0]
     return float(reduce(_lcm, periods)) if periods else 100.0
 
@@ -63,7 +70,9 @@ def _middle_hyperperiod_window(tasks: dict, window_ms: float) -> int:
 # Lemos linha a linha e só avançamos o ponteiro em linhas completamente escritas
 # (6 campos). Isso evita parsear uma linha que o C++ ainda está escrevendo.
 
+## Posição já consumida no arquivo CSV.
 _file_pos: int = 0
+## Amostras acumuladas por tarefa antes da conversão para NumPy.
 _tasks_raw: dict = defaultdict(
     lambda: {
         "period_ms": 0,
@@ -76,6 +85,7 @@ _tasks_raw: dict = defaultdict(
 
 
 def _load_new_rows(path: Path) -> None:
+    """Lê apenas novas linhas completas do CSV de temporização."""
     global _file_pos
     try:
         with open(path, newline="") as f:
@@ -126,10 +136,11 @@ def _snapshot() -> dict:
 
 
 def _draw_jitter(ax: plt.Axes, tasks: dict) -> None:
+    """Atualiza o painel de desvio de despertar."""
     ax.cla()
     for i, (name, d) in enumerate(tasks.items()):
         if d["period_ms"] == 0:
-            continue  # jitter não se aplica a tarefas event-driven
+            continue  # desvio não se aplica a tarefas orientadas a evento
         cyc = d["cycles"][1:][-MAX_CYCLES:]
         jit = ((d["actual"] - d["scheduled"]) / 1e3)[1:][-MAX_CYCLES:]
         ax.plot(
@@ -141,13 +152,16 @@ def _draw_jitter(ax: plt.Axes, tasks: dict) -> None:
             alpha=0.85,
         )
     ax.axhline(0, color="black", linestyle="--", linewidth=0.6)
-    ax.set_ylabel("Jitter (µs)")
-    ax.set_title(f"Jitter de Wakeup  (últimos {MAX_CYCLES} ciclos — ≈ 0 = sem drift)")
+    ax.set_ylabel("Desvio (µs)")
+    ax.set_title(
+        f"Desvio de Despertar  (últimos {MAX_CYCLES} ciclos — ≈ 0 = sem deriva)"
+    )
     ax.legend(fontsize=8, loc="upper right")
     ax.grid(True, alpha=0.25)
 
 
 def _draw_exec(ax: plt.Axes, tasks: dict) -> None:
+    """Atualiza o painel de tempo de execução."""
     ax.cla()
     for i, (name, d) in enumerate(tasks.items()):
         color = COLORS[i % len(COLORS)]
@@ -172,7 +186,7 @@ def _draw_exec(ax: plt.Axes, tasks: dict) -> None:
                 d["period_ms"] * 1000.0, color=color, linestyle=":", linewidth=0.7
             )
         else:
-            # Event-driven: marcadores maiores, sem deadline
+            # Tarefas orientadas a evento: marcadores maiores, sem linha de prazo.
             ax.plot(
                 cyc,
                 et,
@@ -184,15 +198,18 @@ def _draw_exec(ax: plt.Axes, tasks: dict) -> None:
                 markeredgewidth=0,
             )
     ax.set_ylabel("Exec (µs)")
-    ax.set_title("Tempo de Execução  (pontilhado = deadline | ✗ miss | ○ event-driven)")
+    ax.set_title(
+        "Tempo de Execução  (pontilhado = prazo | ✗ perda | ○ orientada a evento)"
+    )
     ax.legend(fontsize=8, loc="upper right")
     ax.grid(True, alpha=0.25)
 
 
 def _draw_gantt(ax: plt.Axes, tasks: dict) -> None:
+    """Atualiza o painel de Gantt com a janela central do hiperperíodo."""
     ax.cla()
     window_ms = _hyperperiod_ms(tasks)
-    # Periódicas primeiro (por período), event-driven ao final
+    # Periódicas primeiro (por período), orientadas a evento ao final.
     task_names = sorted(
         tasks.keys(), key=lambda n: (tasks[n]["period_ms"] == 0, tasks[n]["period_ms"])
     )
@@ -227,7 +244,7 @@ def _draw_gantt(ax: plt.Axes, tasks: dict) -> None:
 
         for s, e, sched, dl, is_miss in zip(s_ms, e_ms, sched_ms, dl_ms, miss):
             if is_periodic:
-                # 1. □ Retângulo do período — slot alocado pelo escalonador
+                # 1. □ Retângulo do período — janela alocada pelo escalonador.
                 slot_left = max(sched, 0.0)
                 slot_right = min(dl, window_ms)
                 if slot_right > slot_left:
@@ -262,7 +279,7 @@ def _draw_gantt(ax: plt.Axes, tasks: dict) -> None:
                 )
 
             if is_periodic:
-                # 3. ▼ Seta no deadline — linha + triângulo ▼
+                # 3. ▼ Seta no prazo — linha + triângulo ▼
                 if 0 <= dl <= window_ms:
                     ax.vlines(
                         dl, yi + 0.35, yi + 0.85, colors=color, linewidth=1.8, zorder=5
@@ -284,15 +301,16 @@ def _draw_gantt(ax: plt.Axes, tasks: dict) -> None:
     ax.set_title(
         f"Gantt — hiperperíodo central da amostra (MMC = {window_ms:.0f} ms; "
         f"t={win_rel_start_ms / 1000:.3f}s..{win_rel_end_ms / 1000:.3f}s)\n"
-        f"□ slot alocado  |  ■ execução (mín. visual {MIN_EXEC_FRACTION:.0%}; tempo real acima)  |  ▼ deadline"
+        f"□ janela alocada  |  ■ execução (mín. visual {MIN_EXEC_FRACTION:.0%}; tempo real acima)  |  ▼ prazo"
     )
     ax.grid(True, axis="x", alpha=0.25)
 
 
-# ── Loop principal ────────────────────────────────────────────────────────────
+# ── Laço principal ────────────────────────────────────────────────────────────
 
 
 def _exit_gracefully(signum, frame):
+    """Fecha os gráficos ao receber sinal do sistema."""
     plt.close("all")
     sys.exit(0)
 
@@ -301,12 +319,15 @@ signal.signal(signal.SIGTERM, _exit_gracefully)
 
 
 def main() -> None:
+    """Executa o monitor gráfico incremental em tempo real."""
     path = Path(sys.argv[1]) if len(sys.argv) > 1 else LOG_PATH
 
     plt.ion()
     fig, axes = plt.subplots(3, 1, figsize=(14, 11))
-    fig.suptitle("Monitor de Timing RTOS — Tempo Real", fontsize=13, fontweight="bold")
-    # tight_layout uma única vez, fora do loop de atualização
+    fig.suptitle(
+        "Monitor de Temporização RTOS — Tempo Real", fontsize=13, fontweight="bold"
+    )
+    # Ajusta o leiaute uma única vez, fora do laço de atualização.
     fig.tight_layout(rect=[0, 0.03, 1, 0.97])
 
     status = fig.text(
@@ -334,9 +355,9 @@ def main() -> None:
                         ].sum()
                     )
                     for d in tasks.values()
-                    if d["period_ms"] > 0  # event-driven não tem deadline
+                    if d["period_ms"] > 0  # tarefas orientadas a evento não têm prazo
                 )
-                label = f"  ✗ {misses} miss(es)" if misses else "  ✓ sem deadline miss"
+                label = f"  ✗ {misses} perda(s)" if misses else "  ✓ sem perda de prazo"
                 status.set_text(f"{total} ciclos{label}")
                 status.set_color("crimson" if misses else "seagreen")
 
@@ -353,7 +374,7 @@ def main() -> None:
     except (KeyboardInterrupt, SystemExit):
         pass
     except Exception:
-        # Janela fechada pelo WM pode lançar TclError/RuntimeError dependendo do backend
+        # Janela fechada pelo gerenciador pode lançar TclError/RuntimeError conforme o mecanismo.
         pass
     finally:
         plt.close("all")

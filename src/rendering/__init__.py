@@ -1,4 +1,4 @@
-"""Componentes de renderização, um por backend gráfico.
+"""Componentes de renderização, um por mecanismo gráfico.
 
 Cada renderizador é uma classe sem estado cuja única responsabilidade é
 desenhar o robô ATR na superfície fornecida pela aplicação chamadora

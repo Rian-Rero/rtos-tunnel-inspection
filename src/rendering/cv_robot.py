@@ -25,12 +25,16 @@ class OpenCVRobotRenderer:
     """
 
     def __init__(self, cv2, np) -> None:
+        """Guarda as dependências OpenCV e NumPy injetadas pelo chamador."""
+        ## Módulo OpenCV usado para desenhar primitivas.
         self._cv2 = cv2
+        ## Módulo NumPy usado para criar polígonos.
         self._np = np
 
     def render(
         self, frame, center_x: int = 320, body_top: int = 358, body_bot: int = 408
     ) -> None:
+        """Desenha o robô completo no quadro informado."""
         cv2, np = self._cv2, self._np
         bx_c, bx_l, bx_r = center_x, center_x - 118, center_x + 118
 
@@ -46,10 +50,12 @@ class OpenCVRobotRenderer:
 
     @staticmethod
     def _draw_shadow(cv2, frame, bx_c):
+        """Desenha a sombra inferior do robô."""
         cv2.ellipse(frame, (bx_c, 450), (132, 9), 0, 0, 360, (12, 14, 18), -1)
 
     @staticmethod
     def _draw_tracks(cv2, frame, bx_l, bx_r, body_bot):
+        """Desenha as esteiras e rodas laterais."""
         cv2.rectangle(
             frame, (bx_l - 14, body_bot), (bx_r + 14, body_bot + 30), (22, 27, 33), -1
         )
@@ -75,6 +81,7 @@ class OpenCVRobotRenderer:
 
     @staticmethod
     def _draw_body(cv2, frame, bx_l, bx_r, body_top, body_bot):
+        """Desenha a carroceria principal."""
         cv2.rectangle(frame, (bx_l, body_top), (bx_r, body_bot), (60, 78, 92), -1)
         cv2.rectangle(frame, (bx_l, body_top), (bx_r, body_bot), (98, 120, 138), 2)
         mid_y = (body_top + body_bot) // 2
@@ -82,6 +89,7 @@ class OpenCVRobotRenderer:
 
     @staticmethod
     def _draw_equipment_box(cv2, frame, bx_l, body_top):
+        """Desenha a caixa de eletrônica embarcada."""
         eq_x1, eq_y1, eq_x2, eq_y2 = bx_l + 8, body_top - 30, bx_l + 88, body_top
         cv2.rectangle(frame, (eq_x1, eq_y1), (eq_x2, eq_y2), (46, 62, 76), -1)
         cv2.rectangle(frame, (eq_x1, eq_y1), (eq_x2, eq_y2), (80, 100, 116), 1)
@@ -91,6 +99,7 @@ class OpenCVRobotRenderer:
 
     @staticmethod
     def _draw_antenna(cv2, frame, bx_l, body_top):
+        """Desenha a antena de comunicação."""
         ax = bx_l + 30
         cv2.line(frame, (ax, body_top - 30), (ax, body_top - 78), (158, 178, 198), 2)
         cv2.circle(frame, (ax, body_top - 80), 5, (188, 208, 228), -1)
@@ -98,6 +107,7 @@ class OpenCVRobotRenderer:
 
     @staticmethod
     def _draw_lidar(cv2, np, frame, bx_c, body_top):
+        """Desenha o sensor LIDAR e seu cone de varredura."""
         lx, ly, lr = bx_c + 22, body_top - 18, 20
 
         overlay = frame.copy()
@@ -127,6 +137,7 @@ class OpenCVRobotRenderer:
 
     @staticmethod
     def _draw_camera_arm(cv2, frame, bx_r, body_top):
+        """Desenha o braço e o módulo de câmera embarcada."""
         cb_x, pt_y = bx_r - 26, body_top - 36
         at_x, at_y = cb_x + 38, pt_y - 8
         cv2.line(frame, (cb_x, body_top), (cb_x, pt_y), (118, 136, 154), 4)

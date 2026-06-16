@@ -1,11 +1,11 @@
-"""Painéis da GUI do operador; cada painel controla seus widgets e estado.
+"""Painéis da GUI do operador; cada painel controla seus componentes e estado.
 
 Três painéis:
-  * *ControlsPanel* — botões de modo/direção, slider de velocidade e câmera.
+  * *ControlsPanel* — botões de modo/direção, controle de velocidade e câmera.
   * *TelemetryPanel* — cartões de métricas somente leitura (LIDAR, IMU etc.).
   * *PreviewPanel*   — canvas ao vivo renderizando o túnel e o robô.
 
-Todos os painéis enviam comandos pelo callback ``on_command(topic, payload)``;
+Todos os painéis enviam comandos pela função ``on_command(topic, payload)``;
 eles nunca acessam o cliente MQTT diretamente.
 """
 
@@ -23,6 +23,7 @@ from simulator.terrain import slope_label, slope_color_hex
 
 __all__ = ["ControlsPanel", "TelemetryPanel", "PreviewPanel"]
 
+## Assinatura da função usada pelos painéis para publicar comandos.
 _CommandCallback = Callable[[str, str | int | float], None]
 
 
@@ -30,17 +31,23 @@ class ControlsPanel:
     """Controles de modo, direção, velocidade e câmera."""
 
     def __init__(self, parent: ttk.Frame, on_command: _CommandCallback) -> None:
+        """Cria o painel de comandos e recebe a função de publicação."""
+        ## Função usada para enviar comandos MQTT.
         self._cmd = on_command
+        ## Texto exibido com o valor atual do seletor de velocidade.
         self._speed_var = tk.StringVar(value="0 %")
+        ## Flag que evita publicar enquanto o valor é sincronizado pela GUI.
         self._updating_speed = False
+        ## Controle deslizante de velocidade.
         self.speed_slider: ttk.Scale
         self._build(parent)
 
     def _build(self, parent: ttk.Frame) -> None:
+        """Monta botões de modo, direção, velocidade e câmera."""
         ttk.Label(parent, text="Comandos", style="Section.TLabel").pack(anchor="w")
         ttk.Label(
             parent,
-            text="Envie comandos de modo, direção, velocidade e trigger da câmera.",
+            text="Envie comandos de modo, direção, velocidade e gatilho da câmera.",
             style="Subtitle.TLabel",
         ).pack(anchor="w", pady=(4, 16))
 
@@ -101,14 +108,17 @@ class ControlsPanel:
     # ── comandos ─────────────────────────────────────────────────────────────
 
     def _set_auto(self) -> None:
+        """Envia comando para colocar o robô em modo automático."""
         self._cmd(Topics.CMD_MODE, "AUTO")
 
     def _set_manual(self) -> None:
+        """Envia comando para modo manual e zera o movimento."""
         self._cmd(Topics.CMD_MODE, "MANUAL")
         self._cmd(Topics.CMD_DIRECTION, "STOP")
         self.set_speed(0)
 
     def _set_direction(self, direction: str) -> None:
+        """Envia direção manual e aplica velocidade padrão quando necessário."""
         self._cmd(Topics.CMD_MODE, "MANUAL")
         if direction == "STOP":
             self._cmd(Topics.CMD_DIRECTION, "STOP")
@@ -119,15 +129,18 @@ class ControlsPanel:
         self._cmd(Topics.CMD_DIRECTION, direction)
 
     def _on_speed_change(self, value) -> None:
+        """Publica novo setpoint quando o controle de velocidade muda."""
         speed = int(float(value))
         self._speed_var.set(f"{speed} %")
         if not self._updating_speed:
             self._cmd(Topics.CMD_SPEED, speed)
 
     def _trigger_camera(self) -> None:
+        """Solicita uma captura de câmera ao serviço de inspeção."""
         self._cmd(Topics.CMD_CAMERA, 1)
 
     def set_speed(self, speed: int) -> None:
+        """Sincroniza o controle visual de velocidade e publica o valor limitado."""
         speed = max(Limits.SPEED_MIN, min(Limits.SPEED_MAX, speed))
         self._updating_speed = True
         try:
@@ -142,10 +155,13 @@ class TelemetryPanel:
     """Cartões de exibição de métricas somente leitura."""
 
     def __init__(self, parent: ttk.Frame) -> None:
+        """Cria variáveis de texto e monta os cartões de métricas."""
+        ## Variáveis Tkinter indexadas pelo nome da métrica.
         self._vars: dict[str, tk.StringVar] = {}
         self._build(parent)
 
     def _build(self, parent: ttk.Frame) -> None:
+        """Monta a lista de cartões de telemetria."""
         ttk.Label(parent, text="Telemetria", style="Section.TLabel").pack(anchor="w")
         ttk.Label(
             parent,
@@ -167,6 +183,7 @@ class TelemetryPanel:
             self._metric_card(parent, title, self._vars[key])
 
     def _metric_card(self, parent, title: str, var: tk.StringVar) -> None:
+        """Cria um cartão individual para uma métrica textual."""
         card = ttk.Frame(parent, style="Card.TFrame")
         card.pack(fill="x", pady=(0, 10))
         ttk.Label(card, text=title, style="MetricLabel.TLabel").pack(anchor="w")
@@ -175,6 +192,7 @@ class TelemetryPanel:
         )
 
     def update(self, telemetry: RobotTelemetry, yolo_state: str) -> None:
+        """Atualiza todos os cartões com a última telemetria recebida."""
         lbl = slope_label(telemetry.imu)
         self._vars["lidar"].set(f"{telemetry.lidar:.0f}")
         self._vars["imu"].set(f"{telemetry.imu:+.1f}° | {lbl}")
@@ -188,20 +206,30 @@ class TelemetryPanel:
 class PreviewPanel:
     """Canvas que renderiza o perfil do túnel e o robô em tempo real."""
 
+    ## Intervalo entre redesenhos da pré-visualização, em milissegundos.
     _ANIMATION_INTERVAL_MS = 40
 
     def __init__(self, parent: ttk.Frame) -> None:
+        """Cria o canvas de pré-visualização e inicia a animação."""
+        ## Renderizador Tkinter compartilhado para o robô.
         self._renderer = TkinterRobotRenderer()
+        ## Última telemetria recebida.
         self._telemetry = RobotTelemetry()
+        ## Histórico usado para desenhar o perfil do túnel.
         self._history: list[RobotTelemetry] = []
+        ## Ângulo acumulado usado para animar esteiras e rodas.
         self._preview_angle: float = 0.0
+        ## Sinal de direção usado para animar o movimento.
         self._direction_sign: int = 1
+        ## Texto de estado do túnel exibido acima do canvas.
         self._tunnel_var = tk.StringVar(value="Túnel ativo")
+        ## Canvas onde túnel e robô são desenhados.
         self._canvas: tk.Canvas
         self._build(parent)
         self._animate()
 
     def _build(self, parent: ttk.Frame) -> None:
+        """Monta rótulos e canvas da pré-visualização."""
         ttk.Label(parent, text="Vista do carrinho", style="Section.TLabel").pack(
             anchor="w"
         )
@@ -221,6 +249,7 @@ class PreviewPanel:
     def update(
         self, telemetry: RobotTelemetry, history: list[RobotTelemetry], yolo_state: str
     ) -> None:
+        """Recebe a última telemetria e agenda o próximo desenho."""
         self._telemetry = telemetry
         self._history = history
         self._direction_sign = -1 if telemetry.direction == "LEFT" else 1
@@ -229,14 +258,16 @@ class PreviewPanel:
         )
 
     def _animate(self) -> None:
+        """Atualiza o ângulo visual e agenda o próximo quadro."""
         if abs(self._telemetry.velocidade) > 0.05:
             self._preview_angle += (
                 abs(self._telemetry.velocidade) * 0.12 * self._direction_sign
             )
         self._draw()
-        self._canvas.after(self._ANIMATION_INTERVAL_MS, self._animate)
+        self._canvas.after(self._ANIMATION_INTERVAL_MS, lambda: self._animate())
 
     def _draw(self) -> None:
+        """Redesenha o túnel, o robô e os indicadores de telemetria."""
         canvas = self._canvas
         canvas.delete("all")
 
@@ -368,6 +399,7 @@ class PreviewPanel:
         return path_pts, min_x, scale_x
 
     def _compute_cart_position(self, w, h, lane_y, imu_tilt):
+        """Calcula a posição do carrinho no canvas com base no histórico."""
         samples = self._history
         if not samples:
             cart_x = 100 + int((self._telemetry.pos_x * 10) % max(1, w - 220))
@@ -380,6 +412,7 @@ class PreviewPanel:
         return int(latest_px) - 70, int(lane_y - 76 - imu_tilt * 18 - floor_wave)
 
     def _draw_tunnel_path(self, canvas, w, h, imu_tilt, cart_x, cart_y):
+        """Desenha o perfil de teto e os marcadores recentes de anomalia."""
         samples = self._history
         if not samples:
             canvas.create_text(

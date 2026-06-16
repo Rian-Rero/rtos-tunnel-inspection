@@ -15,11 +15,12 @@ from config import MQTT_QOS
 
 __all__ = ["create_client", "MqttComponent"]
 
+## Registrador do módulo de infraestrutura MQTT.
 logger = logging.getLogger(__name__)
 
 
 def create_client(client_id: str) -> _paho.Client:
-    """Retorna um Client do paho compatível com callbacks v1 e v2."""
+    """Retorna um cliente paho compatível com chamadas v1 e v2."""
     try:
         return _paho.Client(
             client_id=client_id,
@@ -44,12 +45,16 @@ class MqttComponent:
         svc = MyService("localhost", 1883, "my-client")
         svc.connect_async()          # não bloqueante (para GUIs)
         # ou
-        svc.connect_blocking()       # bloqueia continuamente (para daemons)
+        svc.connect_blocking()       # bloqueia continuamente (para serviços)
     """
 
     def __init__(self, broker: str, port: int, client_id: str) -> None:
+        """Inicializa o cliente MQTT base e registra os adaptadores de chamada."""
+        ## Endereço do broker MQTT.
         self._broker = broker
+        ## Porta TCP do broker MQTT.
         self._port = port
+        ## Cliente paho encapsulado pelo componente.
         self._client = create_client(client_id)
         self._client.on_connect = self._handle_connect
         self._client.on_message = self._handle_message
@@ -57,12 +62,14 @@ class MqttComponent:
     # ── adaptadores do paho ──────────────────────────────────────────────────
 
     def _handle_connect(self, client, _userdata, _flags, rc: int) -> None:
+        """Adapta a chamada de conexão do paho para o gancho da subclasse."""
         logger.info(
             "%s connected to %s (rc=%d)", self.__class__.__name__, self._broker, rc
         )
         self._on_connect(client)
 
     def _handle_message(self, _client, _userdata, msg) -> None:
+        """Decodifica a mensagem MQTT e repassa tópico e carga útil textual."""
         self._on_message(msg.topic, msg.payload.decode(errors="replace"))
 
     # ── ganchos para subclasses ──────────────────────────────────────────────
@@ -81,13 +88,15 @@ class MqttComponent:
         self._client.loop_start()
 
     def connect_blocking(self) -> None:
-        """Conecta e bloqueia continuamente processando mensagens (daemons)."""
+        """Conecta e bloqueia continuamente processando mensagens (serviços)."""
         self._client.connect(self._broker, self._port, 60)
         self._client.loop_forever()
 
     def publish(self, topic: str, payload: str | float | int) -> None:
+        """Publica um valor textual no tópico informado usando o QoS padrão."""
         self._client.publish(topic, str(payload), qos=MQTT_QOS)
 
     def disconnect(self) -> None:
+        """Para a thread de rede e encerra a conexão MQTT."""
         self._client.loop_stop()
         self._client.disconnect()

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Analisa os dados de timing das tarefas periódicas do RTOS e gera:
-  - Gráfico de jitter de wakeup por ciclo
-  - Gráfico de tempo de execução por ciclo (com linha de deadline)
+Analisa os dados de temporização das tarefas periódicas do RTOS e gera:
+  - Gráfico de desvio de despertar por ciclo
+  - Gráfico de tempo de execução por ciclo (com linha de prazo)
   - Gantt mostrando execução simultânea das tarefas
 
 Uso:
@@ -23,10 +23,12 @@ import matplotlib.pyplot as plt
 
 
 def _lcm(a: int, b: int) -> int:
+    """Calcula o mínimo múltiplo comum entre dois períodos."""
     return a * b // gcd(a, b)
 
 
 def _hyperperiod_ms(records: dict) -> float:
+    """Calcula o hiperperíodo das tarefas periódicas, em milissegundos."""
     periods = [
         r["period_ms"]
         for r in records.values()
@@ -58,6 +60,7 @@ def _middle_hyperperiod_window(records: dict, window_ms: float) -> int:
     return min(max(t_mid - window_ns // 2, t_all_start), t_all_end - window_ns)
 
 
+## Caminho padrão do CSV de temporização gerado pelo núcleo C++.
 LOG_PATH = Path("data/logs/task_timing.csv")
 
 
@@ -65,6 +68,7 @@ LOG_PATH = Path("data/logs/task_timing.csv")
 
 
 def load(path: Path) -> dict:
+    """Carrega o CSV de temporização e agrupa amostras por tarefa."""
     tasks = defaultdict(
         lambda: {
             "period_ms": 0,
@@ -96,6 +100,7 @@ def load(path: Path) -> dict:
 
 
 def analyze(tasks: dict) -> dict:
+    """Calcula desvio, tempo de execução, folga e perdas de prazo."""
     results = {}
     for name, d in tasks.items():
         period_ns = d["period_ms"] * 1_000_000
@@ -125,16 +130,18 @@ def analyze(tasks: dict) -> dict:
 
 
 def print_stats(results: dict) -> None:
+    """Imprime uma tabela textual com estatísticas por tarefa."""
     print("\n╔══════════════════════════════════════════════════════════════════╗")
-    print("║          Análise de Timing RTOS — Resumo Estatístico             ║")
+    print("║       Análise de Temporização RTOS — Resumo Estatístico          ║")
     print("╚══════════════════════════════════════════════════════════════════╝\n")
     hdr = f"{'Tarefa':<20} {'Período':>8} {'Jitter Max':>12} {'Jitter Méd':>12} {'ExecMax':>10} {'Misses':>8}"
     print(hdr)
     print("─" * len(hdr))
 
     def _sort_key(item):
+        """Ordena tarefas periódicas por período e eventos por último."""
         p = item[1]["period_ms"]
-        return (p == 0, p)  # periódicas primeiro (por período), event-driven no fim
+        return (p == 0, p)  # periódicas primeiro; orientadas a evento no fim
 
     for name, r in sorted(results.items(), key=_sort_key):
         e = r["exec_time_us"][1:] if len(r["exec_time_us"]) > 1 else r["exec_time_us"]
@@ -157,14 +164,17 @@ def print_stats(results: dict) -> None:
 
 # ── Gráficos ─────────────────────────────────────────────────────────────────
 
+## Paleta de cores usada nos gráficos.
 COLORS = plt.cm.tab10.colors
+## Fração mínima do período usada para tornar barras curtas visíveis.
 MIN_EXEC_FRACTION = 0.15
 
 
 def plot_jitter(results: dict, ax: plt.Axes) -> None:
+    """Plota o desvio entre despertar planejado e real por ciclo."""
     for i, (name, r) in enumerate(results.items()):
         if not r["is_periodic"]:
-            continue  # jitter não se aplica a tarefas event-driven (scheduled = actual)
+            continue  # desvio não se aplica a tarefas orientadas a evento
         cyc = r["cycles"][1:]
         jit = r["jitter_us"][1:]
         ax.plot(
@@ -177,13 +187,14 @@ def plot_jitter(results: dict, ax: plt.Axes) -> None:
         )
     ax.axhline(0, color="black", linestyle="--", linewidth=0.6)
     ax.set_xlabel("Número do Ciclo")
-    ax.set_ylabel("Jitter (µs)")
-    ax.set_title("Jitter de Wakeup por Ciclo  (≈ 0 = sem drift acumulado)")
+    ax.set_ylabel("Desvio (µs)")
+    ax.set_title("Desvio de Despertar por Ciclo  (≈ 0 = sem deriva acumulada)")
     ax.legend(fontsize=8, loc="upper right")
     ax.grid(True, alpha=0.25)
 
 
 def plot_exec(results: dict, ax: plt.Axes) -> None:
+    """Plota o tempo de execução de cada tarefa."""
     for i, (name, r) in enumerate(results.items()):
         color = COLORS[i % len(COLORS)]
         cyc = r["cycles"][1:] if len(r["cycles"]) > 1 else r["cycles"]
@@ -194,7 +205,7 @@ def plot_exec(results: dict, ax: plt.Axes) -> None:
                 r["period_ms"] * 1000.0, color=color, linestyle=":", linewidth=0.7
             )
         else:
-            # Tarefas event-driven: marcadores maiores, sem linha de deadline
+            # Tarefas orientadas a evento: marcadores maiores, sem linha de prazo.
             ax.plot(
                 cyc,
                 et,
@@ -208,14 +219,15 @@ def plot_exec(results: dict, ax: plt.Axes) -> None:
     ax.set_xlabel("Número do Ciclo / Invocação")
     ax.set_ylabel("Tempo de Execução (µs)")
     ax.set_title(
-        "Tempo de Execução  (pontilhado = deadline das periódicas | ○ = event-driven)"
+        "Tempo de Execução  (pontilhado = prazo das periódicas | ○ = orientada a evento)"
     )
     ax.legend(fontsize=8, loc="upper right")
     ax.grid(True, alpha=0.25)
 
 
 def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = None) -> None:
-    # Periódicas primeiro (ordenadas por período), event-driven ao final
+    """Plota o diagrama de Gantt no hiperperíodo central da amostra."""
+    # Periódicas primeiro (ordenadas por período), orientadas a evento ao final.
     task_names = sorted(
         results.keys(),
         key=lambda n: (results[n]["period_ms"] == 0, results[n]["period_ms"]),
@@ -285,7 +297,7 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = None) -> None:
                 )
 
             if r["is_periodic"]:
-                # 3. ▼ Seta no deadline
+                # 3. ▼ Seta no prazo.
                 if 0 <= dl <= window_ms:
                     ax.vlines(
                         dl, yi + 0.35, yi + 0.85, colors=color, linewidth=1.8, zorder=5
@@ -307,19 +319,20 @@ def plot_gantt(results: dict, ax: plt.Axes, window_ms: float = None) -> None:
     ax.set_title(
         f"Gantt — hiperperíodo central (MMC = {window_ms:.0f} ms; "
         f"amostra t={win_rel_start_ms / 1000:.3f}s..{win_rel_end_ms / 1000:.3f}s)\n"
-        f"□ slot alocado  |  ■ execução (mín. visual {MIN_EXEC_FRACTION:.0%}; tempo real acima)  |  ▼ deadline"
+        f"□ janela alocada  |  ■ execução (mín. visual {MIN_EXEC_FRACTION:.0%}; tempo real acima)  |  ▼ prazo"
     )
     ax.grid(True, axis="x", alpha=0.25)
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
+# ── Ponto de entrada ──────────────────────────────────────────────────────────
 
 
 def main() -> None:
+    """Executa a análise completa e salva o gráfico final."""
     path = Path(sys.argv[1]) if len(sys.argv) > 1 else LOG_PATH
     if not path.exists():
         print(f"Arquivo não encontrado: {path}")
-        print("Execute o sistema primeiro para gerar dados de timing.")
+        print("Execute o sistema primeiro para gerar dados de temporização.")
         sys.exit(1)
 
     print(f"Carregando: {path}")
@@ -333,7 +346,7 @@ def main() -> None:
 
     fig, axes = plt.subplots(3, 1, figsize=(14, 12))
     fig.suptitle(
-        "Análise de Timing RTOS — Prova de Cumprimento de Deadlines",
+        "Análise de Temporização RTOS — Prova de Cumprimento de Prazos",
         fontsize=13,
         fontweight="bold",
     )

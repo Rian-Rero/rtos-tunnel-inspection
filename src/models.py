@@ -20,11 +20,16 @@ __all__ = [
     "InspectionState",
 ]
 
+## Direções normalizadas aceitas pela interface e pela telemetria.
 Direction = Literal["LEFT", "STOP", "RIGHT"]
+## Modos de operação aceitos pelo robô.
 OperationMode = Literal["MANUAL", "AUTO"]
+## Rótulos visuais de anomalia exibidos no simulador.
 AnomalyKind = Literal["Buraco", "Saliencia"]
 
+## Mapa de conversão entre direção numérica do C++ e rótulo textual.
 _DIR_MAP: dict[int, Direction] = {-1: "LEFT", 0: "STOP", 1: "RIGHT"}
+## Conjunto de direções textuais aceitas como entrada.
 _VALID_DIRS: frozenset[str] = frozenset({"LEFT", "STOP", "RIGHT"})
 
 
@@ -40,14 +45,23 @@ def parse_direction(raw: object, fallback: Direction = "STOP") -> Direction:
 class RobotTelemetry:
     """Retrato completo do estado do robô publicado pelo núcleo C++."""
 
+    ## Posição horizontal atual no túnel, em metros.
     pos_x: float = 0.0
+    ## Distância acumulada reportada pela odometria, em metros.
     distance_m: float = 0.0
+    ## Velocidade atual simulada do robô.
     velocidade: float = 0.0
+    ## Inclinação local medida pela IMU, em graus.
     imu: float = 0.0
+    ## Distância vertical medida pelo LIDAR, em metros.
     lidar: float = 2.0
+    ## Contagem simulada de pulsos do encoder.
     encoder: int = 0
+    ## Modo de operação atual do robô.
     mode: OperationMode = "MANUAL"
+    ## Direção textual usada pela visualização.
     direction: Direction = "STOP"
+    ## Confiança da amostra de superfície.
     confidence_level: float = 0.0
 
     @classmethod
@@ -78,8 +92,11 @@ class RobotTelemetry:
 class AnomalyMark:
     """Anomalia detectada em uma posição específica do túnel."""
 
+    ## Posição horizontal em que a anomalia foi marcada.
     pos_x: float
+    ## Leitura de LIDAR associada à anomalia.
     lidar: float
+    ## Tipo visual da anomalia.
     kind: AnomalyKind
 
 
@@ -87,15 +104,27 @@ class AnomalyMark:
 class YoloResult:
     """Resultado de inferência publicado pelo serviço de inspeção YOLO."""
 
-    timestamp: float
-    anomalia_detectada: bool
-    confianca: float
-    tipo: str
+    ## @var timestamp
+    # Instante de geração do resultado.
+    timestamp: float  ##< Instante de geração do resultado.
+    ## @var anomalia_detectada
+    # Indica se modelo ou simulação detectaram anomalia.
+    anomalia_detectada: bool  ##< Indica se modelo ou simulação detectaram anomalia.
+    ## @var confianca
+    # Maior confiança retornada pela inferência.
+    confianca: float  ##< Maior confiança retornada pela inferência.
+    ## @var tipo
+    # Rótulo textual do tipo detectado.
+    tipo: str  ##< Rótulo textual do tipo detectado.
+    ## Lista de detecções brutas retornadas pelo modelo.
     deteccoes: list[dict] = field(default_factory=list)
+    ## Tipo de anomalia sintética desenhada no quadro de câmera.
     anomalia_visual_simulada: str = ""
+    ## Origem do resultado, como modelo ou simulação.
     origem: str = ""
 
     def to_payload(self) -> dict:
+        """Serializa o resultado para publicação em JSON via MQTT."""
         return {
             "timestamp": self.timestamp,
             "anomalia_detectada": self.anomalia_detectada,
@@ -111,8 +140,13 @@ class YoloResult:
 class InspectionState:
     """Estado ao vivo de YOLO/inspeção consumido pela camada de visualização."""
 
+    ## Indica se uma inspeção visual está em andamento.
     active: bool = False
+    ## Mensagem textual exibida na interface sobre o estado do YOLO.
     yolo_state: str = "Aguardando inspeção..."
+    ## Último tipo de anomalia informado pelo serviço visual.
     last_type: str = "Aguardando"
+    ## Última confiança informada pelo serviço visual.
     last_confidence: float = 0.0
+    ## Instante em que o resultado visual deve expirar na interface.
     result_expires_at: float | None = None

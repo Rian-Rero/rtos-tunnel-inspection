@@ -24,45 +24,77 @@ from .terrain import ViewTransform, slope_label
 
 __all__ = ["TunelSimulator"]
 
+## Registrador do simulador Pygame.
 logger = logging.getLogger(__name__)
 
+## Ícones usados no HUD para representar a direção atual.
 _DIR_ICON: dict[str, str] = {"LEFT": "←", "RIGHT": "→", "STOP": "■"}
 
 
 class TunelSimulator(MqttComponent):
     """Visualizador 2D de túnel em Pygame guiado só por telemetria MQTT."""
 
+    ## @var _telemetry
+    # Última telemetria consolidada do robô.
+    ## @var _inspection
+    # Estado atual da inspeção visual.
+    ## @var _target_pos_x
+    # Posição alvo recebida via MQTT.
+    ## @var _visual_pos_x
+    # Posição suavizada usada na câmera.
+    ## @var _reveal_pos_x
+    # Posição máxima já revelada no mapa.
+    ## @var _robot_history
+    # Histórico bruto de telemetria.
+    ## @var _anomaly_marks
+    # Marcadores visuais de anomalia.
+    ## @var _preview_angle
+    # Ângulo acumulado de animação do robô.
+    ## @var _view
+    # Transformação de mundo para tela.
+    ## @var _scene
+    # Renderizador do ambiente do túnel.
+    ## @var _last_camera_shot
+    # Último recorte ao vivo da câmera simulada.
+    ## @var _perfect_anomaly_shot
+    # Melhor recorte capturado da última anomalia.
+
     def __init__(self, broker: str = MQTT_BROKER, port: int = MQTT_PORT) -> None:
+        """Inicializa estado de telemetria, cena e renderizadores do simulador."""
         super().__init__(broker, port, "Python_Simulador")
 
         # ── Estado do robô ───────────────────────────────────────────────────
-        self._telemetry = RobotTelemetry()
-        self._inspection = InspectionState()
-        self._target_pos_x: float = 0.0
-        self._visual_pos_x: float = 0.0
-        self._reveal_pos_x: float = 0.0
-        self._robot_history: list[dict] = []
-        self._anomaly_marks: list[AnomalyMark] = []
+        self._telemetry = RobotTelemetry()  ##< Última telemetria consolidada do robô.
+        self._inspection = InspectionState()  ##< Estado atual da inspeção visual.
+        self._target_pos_x: float = 0.0  ##< Posição alvo recebida via MQTT.
+        self._visual_pos_x: float = 0.0  ##< Posição suavizada usada na câmera.
+        self._reveal_pos_x: float = 0.0  ##< Posição máxima já revelada no mapa.
+        self._robot_history: list[dict] = []  ##< Histórico bruto de telemetria.
+        self._anomaly_marks: list[AnomalyMark] = []  ##< Marcadores visuais de anomalia.
 
         # ── Estado de animação ───────────────────────────────────────────────
-        self._preview_angle: float = 0.0
-        self._view = ViewTransform()
+        self._preview_angle: float = 0.0  ##< Ângulo acumulado de animação do robô.
+        self._view = ViewTransform()  ##< Transformação de mundo para tela.
 
         # ── Renderizadores ───────────────────────────────────────────────────
-        self._scene = TunnelScene()
-        self._robot_renderer = PygameRobotRenderer()
+        self._scene = TunnelScene()  ##< Renderizador do ambiente do túnel.
+        self._robot_renderer = PygameRobotRenderer()  ##< Renderizador do robô.
 
-        self._last_camera_shot = None
-        self._perfect_anomaly_shot = None
+        self._last_camera_shot = None  ##< Último recorte ao vivo da câmera simulada.
+        self._perfect_anomaly_shot = (
+            None  ##< Melhor recorte capturado da última anomalia.
+        )
 
     # ── ganchos MQTT ─────────────────────────────────────────────────────────
 
     def _on_connect(self, client) -> None:
+        """Assina telemetria do robô, resultado YOLO e estado de inspeção."""
         client.subscribe(Topics.TELEMETRY_ROBOT, qos=MQTT_QOS)
         client.subscribe(Topics.TELEMETRY_YOLO, qos=MQTT_QOS)
         client.subscribe(Topics.STATE_INSPECTION, qos=MQTT_QOS)
 
     def _on_message(self, topic: str, payload: str) -> None:
+        """Encaminha mensagens MQTT para os tratadores de estado do simulador."""
         if topic == Topics.TELEMETRY_ROBOT:
             self._handle_robot_telemetry(payload)
         elif topic == Topics.TELEMETRY_YOLO:
@@ -71,6 +103,7 @@ class TunelSimulator(MqttComponent):
             self._handle_inspection_state(payload)
 
     def _handle_robot_telemetry(self, payload: str) -> None:
+        """Atualiza telemetria, histórico e marcadores de anomalia do LIDAR."""
         try:
             data = json.loads(payload)
         except json.JSONDecodeError:
@@ -96,6 +129,7 @@ class TunelSimulator(MqttComponent):
                 self._anomaly_marks = self._anomaly_marks[-Limits.ANOMALY_MARKS_MAX :]
 
     def _handle_yolo(self, payload: str) -> None:
+        """Atualiza o estado visual a partir do resultado de inferência YOLO."""
         try:
             data = json.loads(payload)
         except json.JSONDecodeError:
@@ -110,7 +144,7 @@ class TunelSimulator(MqttComponent):
             float(conf) if isinstance(conf, (int, float)) else 0.0
         )
 
-        # Se o YOLO achou algo, cruza a informação com o Lidar para exibir o nome correto da geologia (BURACO ou SALIENCIA)
+        # Se o YOLO achou algo, cruza a informação com o LIDAR para exibir o tipo geológico.
         if data.get("anomalia_detectada") and self._anomaly_marks:
             self._inspection.last_type = self._anomaly_marks[-1].kind.upper()
         else:
@@ -126,6 +160,7 @@ class TunelSimulator(MqttComponent):
         self._inspection.result_expires_at = time.monotonic() + Limits.YOLO_RESULT_TTL_S
 
     def _handle_inspection_state(self, payload: str) -> None:
+        """Atualiza a flag de inspeção em andamento publicada pelo núcleo C++."""
         self._inspection.active = payload.strip() == "1"
         if self._inspection.active:
             self._inspection.yolo_state = "Inspeção em andamento..."
@@ -136,6 +171,7 @@ class TunelSimulator(MqttComponent):
     # ── loop principal ───────────────────────────────────────────────────────
 
     def run(self) -> None:
+        """Executa a janela Pygame, consome eventos e renderiza a cena."""
         pygame.init()
         screen, clock = self._create_window()
         font_hdr = pygame.font.SysFont("arial", 22, bold=True)
@@ -288,6 +324,7 @@ class TunelSimulator(MqttComponent):
     # ── auxiliares ───────────────────────────────────────────────────────────
 
     def _tick_animation(self, dt: float) -> None:
+        """Atualiza interpolação de posição, revelação de mapa e animações."""
         alpha = min(1.0, max(0.08, dt * 7.0))
         self._visual_pos_x += (self._target_pos_x - self._visual_pos_x) * alpha
 
@@ -309,6 +346,7 @@ class TunelSimulator(MqttComponent):
                 self._perfect_anomaly_shot = None
 
     def _create_window(self) -> tuple[pygame.Surface, pygame.time.Clock]:
+        """Cria a janela Pygame em posição conveniente para depuração."""
         info = pygame.display.Info()
         sw = int(getattr(info, "current_w", 1920) or 1920)
         sh = int(getattr(info, "current_h", 1080) or 1080)

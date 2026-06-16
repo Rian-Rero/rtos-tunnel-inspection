@@ -5,7 +5,7 @@ a câmera superior do robô veria: teto do túnel, defeito alternado e o
 próprio robô na parte inferior da imagem.
 
 A renderização é delegada para *OpenCVRobotRenderer* para manter o visual
-do robô consistente com os outros backends.
+do robô consistente com os outros mecanismos gráficos.
 """
 
 from __future__ import annotations
@@ -16,6 +16,7 @@ from rendering import OpenCVRobotRenderer
 
 __all__ = ["SyntheticFrameGenerator", "AnomalyFrameType"]
 
+## Tipos de anomalia visual que podem ser desenhados no quadro sintético.
 AnomalyFrameType = Literal["fissura", "buraco", "saliencia"]
 
 
@@ -26,13 +27,20 @@ class SyntheticFrameGenerator:
     carregamento do módulo, pois são dependências opcionais pesadas.
     """
 
+    ## Altura dos quadros sintéticos, em pixels.
     _FRAME_H = 480
+    ## Largura dos quadros sintéticos, em pixels.
     _FRAME_W = 640
 
     def __init__(self, cv2, np) -> None:
+        """Guarda OpenCV/NumPy e prepara o renderizador do robô."""
+        ## Módulo OpenCV usado para desenhar o quadro.
         self._cv2 = cv2
+        ## Módulo NumPy usado para criar a imagem base.
         self._np = np
+        ## Renderizador do robô desenhado na parte inferior do quadro.
         self._robot_renderer = OpenCVRobotRenderer(cv2, np)
+        ## Contador usado para alternar os tipos de anomalia sintética.
         self._frame_index = 0
 
     def generate(self) -> tuple[object, AnomalyFrameType]:
@@ -50,6 +58,7 @@ class SyntheticFrameGenerator:
     # ── auxiliares privados ─────────────────────────────────────────────────
 
     def _draw_ceiling(self, frame) -> None:
+        """Desenha o teto rochoso básico no quadro sintético."""
         cv2 = self._cv2
         for y in range(0, 180, 18):
             tone = 42 + (y % 36)
@@ -58,6 +67,7 @@ class SyntheticFrameGenerator:
         cv2.line(frame, (0, 138), (640, 168), (36, 39, 44), 10)
 
     def _draw_defect(self, frame) -> AnomalyFrameType:
+        """Desenha fissura, buraco ou saliência conforme a fase do gerador."""
         cv2 = self._cv2
         phase = self._frame_index % 3
         if phase == 0:
@@ -73,6 +83,7 @@ class SyntheticFrameGenerator:
         return "saliencia"
 
     def _draw_hud(self, frame, anomaly_type: str) -> None:
+        """Desenha o texto de identificação da câmera no quadro."""
         self._cv2.putText(
             frame,
             f"CAMERA ATR | {anomaly_type.upper()}",

@@ -19,8 +19,13 @@ __all__ = ["TkRobotState", "TkinterRobotRenderer"]
 
 @dataclass
 class TkRobotState:
+    """Estado visual mínimo usado pelo renderizador Tkinter."""
+
+    ## Ângulo acumulado da animação das esteiras.
     preview_angle: float
+    ## Velocidade atual do robô.
     velocidade: float
+    ## Direção atual do robô.
     direction: Direction
 
 
@@ -38,6 +43,7 @@ class TkinterRobotRenderer:
         cart_y: int,
         state: TkRobotState,
     ) -> None:
+        """Desenha o robô completo no canvas informado."""
         self._draw_tracks(canvas, cart_x, cart_y, state)
         self._draw_body(canvas, cart_x, cart_y)
         self._draw_equipment_box(canvas, cart_x, cart_y)
@@ -50,6 +56,7 @@ class TkinterRobotRenderer:
     # ── auxiliares privados ─────────────────────────────────────────────────
 
     def _draw_tracks(self, canvas, cart_x, cart_y, state):
+        """Desenha esteiras, rodas e animação de rotação."""
         x1 = cart_x - 2
         x2 = cart_x + 142
         y1 = cart_y + 36
@@ -120,6 +127,7 @@ class TkinterRobotRenderer:
             )
 
     def _draw_body(self, canvas, cart_x, cart_y):
+        """Desenha a carroceria principal."""
         bx1, bx2 = cart_x + 8, cart_x + 132
         by1, by2 = cart_y + 8, cart_y + 36
         canvas.create_polygon(
@@ -145,6 +153,7 @@ class TkinterRobotRenderer:
         )
 
     def _draw_equipment_box(self, canvas, cart_x, cart_y):
+        """Desenha a caixa de equipamentos."""
         bx1 = cart_x + 8
         by1 = cart_y + 8
         eq1x, eq2x = bx1 + 6, bx1 + 64
@@ -169,6 +178,7 @@ class TkinterRobotRenderer:
             )
 
     def _draw_antenna(self, canvas, cart_x, cart_y):
+        """Desenha a antena de comunicação."""
         by1 = cart_y + 8
         eq1y = by1 - 20
         ant_x = cart_x + 8 + 18
@@ -193,6 +203,7 @@ class TkinterRobotRenderer:
         )
 
     def _draw_lidar(self, canvas, cart_x, cart_y, state):
+        """Desenha o sensor LIDAR e as linhas de varredura."""
         by1 = cart_y + 8
         lidar_x = cart_x + 84
         lidar_cy = by1 - 14
@@ -261,6 +272,7 @@ class TkinterRobotRenderer:
         )
 
     def _draw_camera_arm(self, canvas, cart_x, cart_y, state):
+        """Desenha o braço e o módulo de câmera."""
         bx2, by1 = cart_x + 132, cart_y + 8
         cb_x, cb_y = bx2 - 18, by1
         pt_y = by1 - 24
@@ -318,6 +330,7 @@ class TkinterRobotRenderer:
         )
 
     def _draw_direction_arrow(self, canvas, cart_x, cart_y, direction):
+        """Desenha a seta de direção manual."""
         color = C.SLOPE_DOWN.hex() if direction == "LEFT" else C.SLOPE_UP.hex()
         arrow_end = cart_x - 28 if direction == "LEFT" else cart_x + 160
         canvas.create_line(

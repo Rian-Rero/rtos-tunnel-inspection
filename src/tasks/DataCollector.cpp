@@ -148,7 +148,7 @@ void DataCollector::run() {
              core::TaskTimingLogger::toNs(actual),
              core::TaskTimingLogger::toNs(std::chrono::steady_clock::now())});
 
-        // Impressão no terminal para monitoramento e depuração (Debug)
+        // Impressão no terminal para monitoramento e depuração.
         core::TerminalPrinter::Log(core::TerminalPrinter::Level::Info, "Coletor",
                                    "Log salvo - X: " + std::to_string(data.position_x) +
                                        "m | Y: " + std::to_string(data.lidar_distance_y) +

@@ -1,6 +1,6 @@
 /**
  * @file MqttPublisher.cpp
- * @brief Implementação do publisher MQTT leve.
+ * @brief Implementação do publicador MQTT leve.
  */
 #include "core/MqttPublisher.hpp"
 
@@ -20,8 +20,8 @@ std::string MqttPublisher::escapeForShell(const std::string& value) {
 }
 
 MqttPublisher::MqttPublisher(const std::string& topic) {
-    const std::string command = "mosquitto_pub -h localhost -q 2 -t '" + escapeForShell(topic) +
-                                "' -l";
+    const std::string command =
+        "mosquitto_pub -h localhost -q 2 -t '" + escapeForShell(topic) + "' -l";
     pipe_ = popen(command.c_str(), "w");
 }
 

@@ -23,10 +23,15 @@ __all__ = ["RobotRenderState", "PygameRobotRenderer"]
 class RobotRenderState:
     """Tudo que o renderizador precisa, passado explicitamente e sem mutação."""
 
+    ## Ângulo acumulado usado para animar esteiras e rodas.
     spin_angle: float
+    ## Indica se o feixe da câmera de inspeção deve ser exibido.
     inspection_active: bool
+    ## Direção atual do robô.
     direction: Direction
+    ## Contagem do encoder exibida junto ao robô.
     encoder_count: int
+    ## Velocidade atual usada para animação visual.
     velocidade: float
 
 
@@ -46,6 +51,7 @@ class PygameRobotRenderer:
         floor_y_fn: Callable[[int], int],
         state: RobotRenderState,
     ) -> None:
+        """Desenha todos os componentes do robô na superfície informada."""
         cx = (rx + fx) // 2
         tr = 13
         body_gap = 3
@@ -77,11 +83,13 @@ class PygameRobotRenderer:
     # ── auxiliares privados de desenho ──────────────────────────────────────
 
     def _draw_shadow(self, screen, rx, fx, floor_mid):
+        """Desenha a sombra inferior do robô."""
         shd = pygame.Surface((fx - rx + 40, 28), pygame.SRCALPHA)
         pygame.draw.ellipse(shd, (0, 0, 0, 72), (4, 8, fx - rx + 32, 14))
         screen.blit(shd, (rx - 8, floor_mid - 10))
 
     def _draw_tracks(self, screen, rx, fx, tr, ty, spin_angle):
+        """Desenha esteiras, rodas e animação de tração."""
         track_span = fx - rx
         track_pts = [
             (rx, ty(rx, 0)),
@@ -139,6 +147,7 @@ class PygameRobotRenderer:
             pygame.draw.circle(screen, C.ROAD_WHEEL_HUB, (wx, wy), 3)
 
     def _draw_body(self, screen, rx, fx, tr, body_gap, body_h, body_lift, ty):
+        """Desenha a carroceria principal do robô."""
         bx_l = rx + 14
         bx_r = fx - 14
         body_pts = [
@@ -159,6 +168,7 @@ class PygameRobotRenderer:
         )
 
     def _draw_equipment_box(self, screen, rx, tr, body_gap, body_h, body_lift, ty):
+        """Desenha a caixa de equipamentos embarcada."""
         bx_l = rx + 14
         eq_l = bx_l + 8
         eq_r = bx_l + 74
@@ -186,6 +196,7 @@ class PygameRobotRenderer:
             )
 
     def _draw_antenna(self, screen, rx, tr, body_gap, body_h, body_lift, ty):
+        """Desenha a antena de comunicação."""
         bx_l = rx + 14
         ant_x = bx_l + 22
         eq_h = 26
@@ -196,6 +207,7 @@ class PygameRobotRenderer:
         pygame.draw.circle(screen, C.ANTENNA_GLOW, (ant_x, tip_y + 1), 3)
 
     def _draw_lidar(self, screen, cx, tr, body_gap, body_h, body_lift, ty):
+        """Desenha o LIDAR e seu cone de varredura."""
         lidar_x = cx + 10
         lidar_base = ty(lidar_x, body_lift + body_h)
         lidar_cy = lidar_base - 16
@@ -252,6 +264,7 @@ class PygameRobotRenderer:
         ty,
         state: RobotRenderState,
     ):
+        """Desenha o braço de câmera e o feixe de inspeção quando ativo."""
         bx_r = fx - 14
         cam_base_x = bx_r - 22
         cam_base_y = ty(cam_base_x, body_lift + body_h)
@@ -301,6 +314,7 @@ class PygameRobotRenderer:
     def _draw_direction_arrow(
         self, screen, rx, fx, cx, tr, body_gap, body_h, body_lift, ty, direction
     ):
+        """Desenha a seta lateral de direção quando o robô está em movimento."""
         color = C.SLOPE_DOWN if direction == "LEFT" else C.SLOPE_UP
         arrow_y = ty(cx, body_lift + body_h // 2)
         tip_x = rx - 36 if direction == "LEFT" else fx + 36
@@ -319,6 +333,7 @@ class PygameRobotRenderer:
     def _draw_encoder_label(
         self, screen, cx, tr, body_gap, body_h, body_lift, ty, encoder
     ):
+        """Desenha a contagem do encoder abaixo do robô."""
         font = pygame.font.SysFont("arial", 13, bold=True)
         screen.blit(
             font.render(f"Enc {encoder}", True, (190, 208, 226)),

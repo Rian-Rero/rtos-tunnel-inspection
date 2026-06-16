@@ -6,7 +6,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+## Configuração de log usada pelo ponto de entrada do simulador.
+LOGGING_CONFIG = {"level": logging.INFO, "format": "%(levelname)s: %(message)s"}
+logging.basicConfig(**LOGGING_CONFIG)
 
 from simulator import TunelSimulator  # noqa: E402
 

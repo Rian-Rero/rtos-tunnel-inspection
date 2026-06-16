@@ -26,7 +26,7 @@ rtos-tunnel-inspection/
 ├── comandos.txt                # Comandos auxiliares de stress/teste RT
 ├── requirements.txt            # Dependências Python
 ├── include/
-│   ├── core/                   # SharedContext, filas, logger, publisher MQTT
+│   ├── core/                   # SharedContext, filas, registrador e publicador MQTT
 │   └── tasks/                  # Interfaces das tarefas C++
 ├── src/
 │   ├── main.cpp                # Entrada do núcleo RTOS C++
@@ -43,7 +43,7 @@ rtos-tunnel-inspection/
 │       └── analyze_timing.py
 ├── data/
 │   ├── capturas/               # Frames simulados da câmera
-│   └── logs/                   # CSVs e gráficos de timing
+│   └── logs/                   # CSVs e gráficos de temporização
 ├── models/
 │   └── yolov8n.pt              # Modelo YOLOv8
 ├── docs/                       # Documentação MkDocs
@@ -59,8 +59,8 @@ rtos-tunnel-inspection/
 - Simulação de LIDAR, IMU, encoder, atuador e reconstrução de superfície.
 - Interface Tkinter para operação manual/automática e telemetria.
 - Simulador Pygame guiado somente por telemetria MQTT.
-- Inspeção visual com YOLOv8 por trigger MQTT.
-- Monitoramento de timing em tempo real e relatório final com jitter, tempo de execução e Gantt por hiperperíodo.
+- Inspeção visual com YOLOv8 por gatilho MQTT.
+- Monitoramento de temporização em tempo real e relatório final com desvio, tempo de execução e Gantt por hiperperíodo.
 - MQTT com QoS 2 (`exactly once`) em publicações e assinaturas do projeto.
 
 ---
@@ -115,9 +115,9 @@ O alvo `make run` chama `run.sh`, que:
 
 1. recompila o núcleo C++ em modo `Release`;
 2. inicia o executável `atr_inspection`;
-3. abre o monitor de timing em tempo real;
+3. abre o monitor de temporização em tempo real;
 4. inicia o simulador Pygame;
-5. inicia o daemon YOLOv8;
+5. inicia o serviço YOLOv8;
 6. inicia a GUI do operador.
 
 Para ativar escalonamento RT (`SCHED_FIFO`) e `mlockall`, rode com permissão de administrador:
@@ -155,11 +155,11 @@ Use:
 CTRL + C
 ```
 
-O script encerra os processos filhos, aguarda o núcleo C++ finalizar e gera a análise final de timing quando `data/logs/task_timing.csv` existir.
+O script encerra os processos filhos, aguarda o núcleo C++ finalizar e gera a análise final de temporização quando `data/logs/task_timing.csv` existir.
 
 ---
 
-## 📊 Logs e Análise de Timing
+## 📊 Logs e Análise de Temporização
 
 Durante a execução, o núcleo C++ grava ciclos em:
 
@@ -175,10 +175,10 @@ data/logs/timing_analysis.png
 
 Esse gráfico contém:
 
-- jitter de wakeup por ciclo;
+- desvio de despertar por ciclo;
 - tempo de execução por tarefa;
 - Gantt de um hiperperíodo central da execução, usando o MMC dos períodos das tarefas cíclicas;
-- setas de deadline para as tarefas periódicas.
+- setas de prazo para as tarefas periódicas.
 
 Também é possível gerar manualmente:
 
@@ -199,7 +199,7 @@ Todos os módulos se comunicam pelo broker MQTT local (`localhost:1883`) com QoS
 | `cmd/mode` | GUI | Alterna entre AUTO e MANUAL |
 | `cmd/direction` | GUI | Direção manual do carrinho |
 | `cmd/speed_sp` | GUI | Setpoint de velocidade |
-| `cmd/camera` | C++/GUI | Trigger da inspeção visual |
+| `cmd/camera` | C++/GUI | Gatilho da inspeção visual |
 
 ### Telemetria e estado
 
@@ -250,4 +250,4 @@ stress-ng --cpu $(nproc) --vm 2 --vm-bytes 70% &
 sudo cyclictest --mlockall --smp --priority=99 --interval=200 --distance=0 --duration=30
 ```
 
-Esses comandos são úteis para avaliar jitter e comportamento sob carga, enquanto o projeto gera os logs de timing próprios em `data/logs/`.
+Esses comandos são úteis para avaliar desvio e comportamento sob carga, enquanto o projeto gera os logs de temporização próprios em `data/logs/`.

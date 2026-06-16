@@ -2,7 +2,7 @@
 
 *OperatorGUI* é um orquestrador enxuto: mantém a conexão MQTT, constrói
 três painéis e conecta suas interações. Toda renderização e estado de
-widgets ficam nas classes de painel correspondentes.
+componentes ficam nas classes de painel correspondentes.
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ from .panels import ControlsPanel, TelemetryPanel, PreviewPanel
 
 __all__ = ["OperatorGUI"]
 
+## Registrador da aplicação gráfica do operador.
 logger = logging.getLogger(__name__)
 
 
@@ -31,18 +32,25 @@ class OperatorGUI(MqttComponent):
         broker: str = MQTT_BROKER,
         port: int = MQTT_PORT,
     ) -> None:
+        """Inicializa a janela, os painéis e a conexão MQTT assíncrona."""
         super().__init__(broker, port, "Python_GUI")
+        ## Janela raiz do Tkinter.
         self._root = root
+        ## Indica se a rotina de fechamento já foi executada.
         self._closed = False
+        ## Última telemetria consolidada recebida.
         self._telemetry = RobotTelemetry()
+        ## Histórico recente usado pelo painel de pré-visualização.
         self._history: list[RobotTelemetry] = []
+        ## Texto de estado exibido para o resultado YOLO.
         self._yolo_state = "Aguardando inspeção..."
+        ## Variável textual que mostra o estado da conexão MQTT.
         self._connection_var = tk.StringVar(value="Conectando ao broker MQTT...")
 
         self._configure_window()
         self._setup_styles()
         self._build_ui()
-        self._root.protocol("WM_DELETE_WINDOW", self.close)
+        self._root.protocol("WM_DELETE_WINDOW", lambda: self.close())
 
         try:
             self.connect_async()
@@ -52,6 +60,7 @@ class OperatorGUI(MqttComponent):
     # ── configuração da janela ───────────────────────────────────────────────
 
     def _configure_window(self) -> None:
+        """Define título, tamanho e restrições da janela principal."""
         sw, sh = self._root.winfo_screenwidth(), self._root.winfo_screenheight()
         ww = min(1180, max(980, sw - 80))
         wh = min(720, max(620, sh - 120))
@@ -61,6 +70,7 @@ class OperatorGUI(MqttComponent):
         self._root.configure(bg="#0f172a")
 
     def _setup_styles(self) -> None:
+        """Registra os estilos visuais usados pelos componentes ttk."""
         style = ttk.Style()
         try:
             style.theme_use("clam")
@@ -114,6 +124,7 @@ class OperatorGUI(MqttComponent):
         )
 
     def _build_ui(self) -> None:
+        """Monta cabeçalho, painéis principais e rodapé da GUI."""
         container = ttk.Frame(self._root, style="Root.TFrame")
         container.pack(fill="both", expand=True)
 
@@ -139,7 +150,7 @@ class OperatorGUI(MqttComponent):
             status_box, textvariable=self._connection_var, style="Status.TLabel"
         ).pack(anchor="e")
 
-        # ── Corpo: layout em três colunas ────────────────────────────────────
+        # ── Corpo: leiaute em três colunas ───────────────────────────────────
         body = ttk.Frame(container, style="Root.TFrame", padding=(20, 20, 20, 16))
         body.pack(fill="both", expand=True)
         for col in range(3):
@@ -153,8 +164,11 @@ class OperatorGUI(MqttComponent):
         prev_card = ttk.Frame(body, style="Card.TFrame", padding=20)
         prev_card.grid(row=0, column=2, sticky="nsew", padx=(12, 0))
 
+        ## Painel responsável por publicar comandos do operador.
         self._controls = ControlsPanel(ctrl_card, self.publish)
+        ## Painel que exibe as métricas de telemetria.
         self._telemetry_panel = TelemetryPanel(tele_card)
+        ## Painel que desenha a pré-visualização do túnel e do robô.
         self._preview = PreviewPanel(prev_card)
 
         # ── Rodapé ───────────────────────────────────────────────────────────
@@ -169,6 +183,7 @@ class OperatorGUI(MqttComponent):
     # ── ganchos MQTT ─────────────────────────────────────────────────────────
 
     def _on_connect(self, client) -> None:
+        """Assina os tópicos de telemetria quando a conexão MQTT abre."""
         self._root.after(
             0, lambda: self._connection_var.set("Conectado ao broker MQTT")
         )
@@ -177,6 +192,7 @@ class OperatorGUI(MqttComponent):
         client.subscribe(Topics.STATE_INSPECTION, qos=MQTT_QOS)
 
     def _on_message(self, topic: str, payload: str) -> None:
+        """Despacha mensagens MQTT recebidas para o tratador apropriado da GUI."""
         dispatch = {
             Topics.TELEMETRY_YOLO: self._handle_yolo,
             Topics.TELEMETRY_ROBOT: self._handle_robot,
@@ -188,6 +204,7 @@ class OperatorGUI(MqttComponent):
             self._root.after(0, lambda h=handler, p=payload: h(p))
 
     def _handle_robot(self, payload: str) -> None:
+        """Atualiza telemetria e histórico a partir do JSON do robô."""
         try:
             data = json.loads(payload)
         except json.JSONDecodeError:
@@ -199,6 +216,7 @@ class OperatorGUI(MqttComponent):
         self._preview.update(self._telemetry, self._history, self._yolo_state)
 
     def _handle_yolo(self, payload: str) -> None:
+        """Atualiza o estado textual da inspeção visual."""
         try:
             data = json.loads(payload)
             status = (
@@ -217,6 +235,7 @@ class OperatorGUI(MqttComponent):
         self._telemetry_panel.update(self._telemetry, self._yolo_state)
 
     def _handle_inspection(self, payload: str) -> None:
+        """Atualiza a interface quando o núcleo informa inspeção em andamento."""
         active = payload.strip() == "1"
         self._yolo_state = (
             "Inspeção em andamento" if active else "Sistema em regime normal"
@@ -226,6 +245,7 @@ class OperatorGUI(MqttComponent):
     # ── ciclo de vida ────────────────────────────────────────────────────────
 
     def close(self) -> None:
+        """Fecha a conexão MQTT e destrói a janela principal."""
         if self._closed:
             return
         self._closed = True

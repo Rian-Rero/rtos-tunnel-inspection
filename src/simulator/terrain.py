@@ -40,6 +40,7 @@ def local_imu(world_x: float) -> float:
 
 
 def slope_label(angle: float) -> str:
+    """Classifica o ângulo da IMU como subida, descida ou plano."""
     if angle > 0.4:
         return "SUBIDA"
     if angle < -0.4:
@@ -48,6 +49,7 @@ def slope_label(angle: float) -> str:
 
 
 def slope_color_rgb(angle: float) -> tuple[int, int, int]:
+    """Retorna a cor RGB associada ao sinal da inclinação."""
     if angle > 0.4:
         return (250, 204, 21)
     if angle < -0.4:
@@ -56,6 +58,7 @@ def slope_color_rgb(angle: float) -> tuple[int, int, int]:
 
 
 def slope_color_hex(angle: float) -> str:
+    """Retorna a cor da inclinação em formato hexadecimal."""
     r, g, b = slope_color_rgb(angle)
     return f"#{r:02x}{g:02x}{b:02x}"
 
@@ -66,9 +69,13 @@ class ViewTransform:
     de tela. Atualizado uma vez por quadro em *update()*.
     """
 
+    ## Início da janela de mundo visível, em metros.
     view_start_m: float = 0.0
+    ## Escala horizontal de metros para pixels.
     view_scale: float = 60.0
+    ## Margem esquerda da área útil de renderização, em pixels.
     view_left_px: float = 70.0
+    ## Escala vertical usada para converter elevação em pixels.
     floor_vertical_scale: float = 118.0
 
     def update(self, visual_pos_x: float, screen_width: int) -> None:
@@ -82,17 +89,21 @@ class ViewTransform:
 
     @property
     def view_end_m(self) -> float:
+        """Retorna o fim da janela visível, em metros."""
         return self.view_start_m + 18.0
 
     def screen_x(self, world_x: float) -> int:
+        """Converte coordenada X do mundo para pixel de tela."""
         return int(self.view_left_px + (world_x - self.view_start_m) * self.view_scale)
 
     def world_x(self, screen_x: int) -> float:
+        """Converte pixel de tela para coordenada X do mundo."""
         return self.view_start_m + (screen_x - self.view_left_px) / max(
             self.view_scale, 1.0
         )
 
     def floor_y(self, screen_height: int, screen_x: int, visual_pos_x: float) -> int:
+        """Calcula o Y de tela do piso para um pixel X."""
         wx = self.world_x(screen_x)
         centre_elev = floor_elevation(visual_pos_x)
         local_elev = floor_elevation(wx) - centre_elev

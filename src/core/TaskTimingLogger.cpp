@@ -1,6 +1,6 @@
 /**
  * @file TaskTimingLogger.cpp
- * @brief Implementação do logger de timing por ciclo.
+ * @brief Implementação do registrador de temporização por ciclo.
  */
 #include "core/TaskTimingLogger.hpp"
 

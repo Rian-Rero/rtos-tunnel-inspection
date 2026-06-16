@@ -61,8 +61,8 @@ void MqttBridge::handleMessage(const std::string& topic, const std::string& payl
 }
 
 void MqttBridge::run() {
-    // Wraps the command so the shell prints its own PID before exec'ing mosquitto_sub.
-    // After exec, the PID is reused by mosquitto_sub — gives us a handle to kill it on shutdown.
+    // Envolve o comando para imprimir o PID antes de substituir o processo por mosquitto_sub.
+    // Após a substituição, o PID é reaproveitado e permite encerrar o assinante no encerramento.
     const char* command =
         "sh -c 'echo $$; exec mosquitto_sub -h localhost -q 2 -v"
         " -t cmd/mode -t cmd/speed_sp -t cmd/direction'";
