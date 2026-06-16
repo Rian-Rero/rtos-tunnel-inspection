@@ -1,0 +1,117 @@
+\doxysection{mqtt.\+Mqtt\+Component Class Reference}
+\hypertarget{classmqtt_1_1MqttComponent}{}\label{classmqtt_1_1MqttComponent}\index{mqtt.MqttComponent@{mqtt.MqttComponent}}
+
+
+Inheritance diagram for mqtt.\+Mqtt\+Component\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classmqtt_1_1MqttComponent__inherit__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classmqtt_1_1MqttComponent_ae171d61207a956f97aa61cd2f2c53e7a}\label{classmqtt_1_1MqttComponent_ae171d61207a956f97aa61cd2f2c53e7a} 
+None {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self, str broker, int port, str client\+\_\+id)
+\item 
+None \mbox{\hyperlink{classmqtt_1_1MqttComponent_a3b9873e1fdcf48d16541ff3bc1e7094c}{connect\+\_\+async}} (self)
+\item 
+None \mbox{\hyperlink{classmqtt_1_1MqttComponent_ace66a907460e5a7b5b7d4257f9f3cc6d}{connect\+\_\+blocking}} (self)
+\item 
+\Hypertarget{classmqtt_1_1MqttComponent_a410780ba82f25368e57aba994e743e0d}\label{classmqtt_1_1MqttComponent_a410780ba82f25368e57aba994e743e0d} 
+None {\bfseries publish} (self, str topic, str\texorpdfstring{$\vert$}{|}float\texorpdfstring{$\vert$}{|}int payload)
+\item 
+\Hypertarget{classmqtt_1_1MqttComponent_a44f957a1670eec2c1ca35ab8d5ecf5ed}\label{classmqtt_1_1MqttComponent_a44f957a1670eec2c1ca35ab8d5ecf5ed} 
+None {\bfseries disconnect} (self)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classmqtt_1_1MqttComponent_adb214b0b2438d707a084a75093e13ca7}\label{classmqtt_1_1MqttComponent_adb214b0b2438d707a084a75093e13ca7} 
+None {\bfseries \+\_\+handle\+\_\+connect} (self, client, \+\_\+userdata, \+\_\+flags, int rc)
+\item 
+\Hypertarget{classmqtt_1_1MqttComponent_acc4b9604d741c55664b8299606e9a997}\label{classmqtt_1_1MqttComponent_acc4b9604d741c55664b8299606e9a997} 
+None {\bfseries \+\_\+handle\+\_\+message} (self, \+\_\+client, \+\_\+userdata, msg)
+\item 
+None \mbox{\hyperlink{classmqtt_1_1MqttComponent_a93f662d4d59565770999dc7ef9c4bee9}{\+\_\+on\+\_\+connect}} (self, \+\_\+paho.\+Client client)
+\item 
+None \mbox{\hyperlink{classmqtt_1_1MqttComponent_a7739b3121623094573c610d9b8bd2798}{\+\_\+on\+\_\+message}} (self, str topic, str payload)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classmqtt_1_1MqttComponent_a07947b2f403e2c719774c48a5b2695ae}\label{classmqtt_1_1MqttComponent_a07947b2f403e2c719774c48a5b2695ae} 
+{\bfseries \+\_\+broker} = broker
+\item 
+\Hypertarget{classmqtt_1_1MqttComponent_aa5a7ff66b7d53ffe45f723281d462e89}\label{classmqtt_1_1MqttComponent_aa5a7ff66b7d53ffe45f723281d462e89} 
+{\bfseries \+\_\+port} = port
+\item 
+\Hypertarget{classmqtt_1_1MqttComponent_a2cfd1e6ef11b9a3f941743417ae907be}\label{classmqtt_1_1MqttComponent_a2cfd1e6ef11b9a3f941743417ae907be} 
+{\bfseries \+\_\+client} = \mbox{\hyperlink{namespacemqtt_accfa2cd3d1aa4739f05ab0d23ce1265f}{create\+\_\+client}}(client\+\_\+id)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Classe base para qualquer serviço Python que se comunica por MQTT.
+
+Uso::
+
+    class MyService(MqttComponent):
+        def _on_connect(self, client):
+            client.subscribe("my/topic", qos=MQTT_QOS)
+
+        def _on_message(self, topic, payload):
+            print(topic, payload)
+
+    svc = MyService("localhost", 1883, "my-client")
+    svc.connect_async()          # não bloqueante (para GUIs)
+    # ou
+    svc.connect_blocking()       # bloqueia continuamente (para daemons)
+\end{DoxyVerb}
+ 
+
+\label{doc-func-members}
+\Hypertarget{classmqtt_1_1MqttComponent_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classmqtt_1_1MqttComponent_a93f662d4d59565770999dc7ef9c4bee9}\index{mqtt.MqttComponent@{mqtt.MqttComponent}!\_on\_connect@{\_on\_connect}}
+\index{\_on\_connect@{\_on\_connect}!mqtt.MqttComponent@{mqtt.MqttComponent}}
+\doxysubsubsection{\texorpdfstring{\_on\_connect()}{\_on\_connect()}}
+{\footnotesize\ttfamily \label{classmqtt_1_1MqttComponent_a93f662d4d59565770999dc7ef9c4bee9} 
+ None mqtt.\+Mqtt\+Component.\+\_\+on\+\_\+connect (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{\+\_\+paho.\+Client}]{client}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}Chamado quando o broker aceita a conexão. Faça assinaturas aqui.\end{DoxyVerb}
+ 
+
+Reimplemented in \mbox{\hyperlink{classgui_1_1app_1_1OperatorGUI_a99a6c25e08f3beb4852da3f456b879f4}{gui.\+app.\+Operator\+GUI}}, \mbox{\hyperlink{classinspection_1_1service_1_1YoloInspectionService_a64e0cc06c5c0258c0aae5af761e42195}{inspection.\+service.\+Yolo\+Inspection\+Service}}, and \mbox{\hyperlink{classsimulator_1_1app_1_1TunelSimulator_a4d605afba1074981fefba146e382b9f0}{simulator.\+app.\+Tunel\+Simulator}}.
+
+\Hypertarget{classmqtt_1_1MqttComponent_a7739b3121623094573c610d9b8bd2798}\index{mqtt.MqttComponent@{mqtt.MqttComponent}!\_on\_message@{\_on\_message}}
+\index{\_on\_message@{\_on\_message}!mqtt.MqttComponent@{mqtt.MqttComponent}}
+\doxysubsubsection{\texorpdfstring{\_on\_message()}{\_on\_message()}}
+{\footnotesize\ttfamily \label{classmqtt_1_1MqttComponent_a7739b3121623094573c610d9b8bd2798} 
+ None mqtt.\+Mqtt\+Component.\+\_\+on\+\_\+message (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{str}]{topic}{, }\item[{str}]{payload}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}Chamado para cada mensagem recebida após as assinaturas.\end{DoxyVerb}
+ 
+
+Reimplemented in \mbox{\hyperlink{classgui_1_1app_1_1OperatorGUI_a1e53b11e699d974b5739c62493e48bc5}{gui.\+app.\+Operator\+GUI}}, \mbox{\hyperlink{classinspection_1_1service_1_1YoloInspectionService_a0d322a1efd4e47eb97b9c899f6e50518}{inspection.\+service.\+Yolo\+Inspection\+Service}}, and \mbox{\hyperlink{classsimulator_1_1app_1_1TunelSimulator_a1dd2d5fd7b6f2190724720d89d4174ac}{simulator.\+app.\+Tunel\+Simulator}}.
+
+\Hypertarget{classmqtt_1_1MqttComponent_a3b9873e1fdcf48d16541ff3bc1e7094c}\index{mqtt.MqttComponent@{mqtt.MqttComponent}!connect\_async@{connect\_async}}
+\index{connect\_async@{connect\_async}!mqtt.MqttComponent@{mqtt.MqttComponent}}
+\doxysubsubsection{\texorpdfstring{connect\_async()}{connect\_async()}}
+{\footnotesize\ttfamily \label{classmqtt_1_1MqttComponent_a3b9873e1fdcf48d16541ff3bc1e7094c} 
+ None mqtt.\+Mqtt\+Component.\+connect\+\_\+async (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Conecta e inicia a thread de rede em segundo plano (para GUIs).\end{DoxyVerb}
+ \Hypertarget{classmqtt_1_1MqttComponent_ace66a907460e5a7b5b7d4257f9f3cc6d}\index{mqtt.MqttComponent@{mqtt.MqttComponent}!connect\_blocking@{connect\_blocking}}
+\index{connect\_blocking@{connect\_blocking}!mqtt.MqttComponent@{mqtt.MqttComponent}}
+\doxysubsubsection{\texorpdfstring{connect\_blocking()}{connect\_blocking()}}
+{\footnotesize\ttfamily \label{classmqtt_1_1MqttComponent_ace66a907460e5a7b5b7d4257f9f3cc6d} 
+ None mqtt.\+Mqtt\+Component.\+connect\+\_\+blocking (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Conecta e bloqueia continuamente processando mensagens (daemons).\end{DoxyVerb}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/mqtt.\+py\end{DoxyCompactItemize}

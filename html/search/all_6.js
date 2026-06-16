@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['level_0',['Level',['../classcore_1_1TerminalPrinter.html#a2efa6aeaed125f2bf58bf60ee50d46de',1,'core::TerminalPrinter']]],
-  ['lidar_5fdistance_5fy_1',['lidar_distance_y',['../structcore_1_1SurfaceData.html#a15a13f370ee08fa536839e4331b1e063',1,'core::SurfaceData']]],
-  ['log_2',['Log',['../classcore_1_1TerminalPrinter.html#abb426c4ce9e4f8bb83232de9db5d9753',1,'core::TerminalPrinter::Log(Level level, const std::string &amp;scope, const std::string &amp;message)'],['../classcore_1_1TerminalPrinter.html#a73c8d7c46de1cd019fa9387d2259c202',1,'core::TerminalPrinter::Log(Level level, const std::string &amp;message)']]]
+  ['floor_5felevation_0',['floor_elevation',['../namespacesimulator_1_1terrain.html#a9a1da46c81eda8b16e122f7c6f09a90c',1,'simulator::terrain']]],
+  ['floor_5fslope_1',['floor_slope',['../namespacesimulator_1_1terrain.html#aba19b0a6324f33655236de01a1a05341',1,'simulator::terrain']]],
+  ['from_5fpayload_2',['from_payload',['../classmodels_1_1RobotTelemetry.html#ae7f5bc5152f8a3382f5da160814f224b',1,'models::RobotTelemetry']]]
 ];

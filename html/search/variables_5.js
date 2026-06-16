@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['speed_5fsetpoint_0',['speed_setpoint',['../structcore_1_1NavigationSetpoint.html#a431b2cfd50f2f0c7f2096225d0a7a25d',1,'core::NavigationSetpoint']]]
+  ['manual_5fmode_0',['manual_mode',['../classcore_1_1SharedContext.html#a2fcc976fe991bb3addbc5e88bf5389f8',1,'core::SharedContext']]]
 ];

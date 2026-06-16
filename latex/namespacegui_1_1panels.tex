@@ -1,0 +1,31 @@
+\doxysection{gui.\+panels Namespace Reference}
+\hypertarget{namespacegui_1_1panels}{}\label{namespacegui_1_1panels}\index{gui.panels@{gui.panels}}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classgui_1_1panels_1_1ControlsPanel}{Controls\+Panel}}
+\item 
+class \mbox{\hyperlink{classgui_1_1panels_1_1TelemetryPanel}{Telemetry\+Panel}}
+\item 
+class \mbox{\hyperlink{classgui_1_1panels_1_1PreviewPanel}{Preview\+Panel}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{namespacegui_1_1panels_a073dc6bc3bd202838e27abc2c4e8fefe}\label{namespacegui_1_1panels_a073dc6bc3bd202838e27abc2c4e8fefe} 
+{\bfseries \+\_\+\+Command\+Callback} = Callable\mbox{[}\mbox{[}str, str \texorpdfstring{$\vert$}{|} int \texorpdfstring{$\vert$}{|} float\mbox{]}, None\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Painéis da GUI do operador; cada painel controla seus widgets e estado.
+
+Três painéis:
+  * *ControlsPanel* — botões de modo/direção, slider de velocidade e câmera.
+  * *TelemetryPanel* — cartões de métricas somente leitura (LIDAR, IMU etc.).
+  * *PreviewPanel*   — canvas ao vivo renderizando o túnel e o robô.
+
+Todos os painéis enviam comandos pelo callback ``on_command(topic, payload)``;
+eles nunca acessam o cliente MQTT diretamente.
+\end{DoxyVerb}
+ 

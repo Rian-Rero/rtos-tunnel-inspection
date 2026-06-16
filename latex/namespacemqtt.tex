@@ -1,0 +1,40 @@
+\doxysection{mqtt Namespace Reference}
+\hypertarget{namespacemqtt}{}\label{namespacemqtt}\index{mqtt@{mqtt}}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classmqtt_1_1MqttComponent}{Mqtt\+Component}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\+\_\+paho.\+Client \mbox{\hyperlink{namespacemqtt_accfa2cd3d1aa4739f05ab0d23ce1265f}{create\+\_\+client}} (str client\+\_\+id)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{namespacemqtt_a2273727d06146510b4cae33b28664a1f}\label{namespacemqtt_a2273727d06146510b4cae33b28664a1f} 
+{\bfseries logger} = logging.\+get\+Logger(\+\_\+\+\_\+name\+\_\+\+\_\+)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Fábrica de clientes MQTT e componente base.
+
+Os três serviços Python herdam de *MqttComponent* em vez de duplicar
+o código padrão do paho. As subclasses só precisam sobrescrever os
+métodos de gancho *_on_connect* e *_on_message*.
+\end{DoxyVerb}
+ 
+
+\label{doc-func-members}
+\Hypertarget{namespacemqtt_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{namespacemqtt_accfa2cd3d1aa4739f05ab0d23ce1265f}\index{mqtt@{mqtt}!create\_client@{create\_client}}
+\index{create\_client@{create\_client}!mqtt@{mqtt}}
+\doxysubsubsection{\texorpdfstring{create\_client()}{create\_client()}}
+{\footnotesize\ttfamily \label{namespacemqtt_accfa2cd3d1aa4739f05ab0d23ce1265f} 
+ \+\_\+paho.\+Client mqtt.\+create\+\_\+client (\begin{DoxyParamCaption}\item[{str}]{client\+\_\+id}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Retorna um Client do paho compatível com callbacks v1 e v2.\end{DoxyVerb}
+ 

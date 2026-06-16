@@ -1,0 +1,19 @@
+<map id="include/core/TaskTimingLogger.hpp" name="include/core/TaskTimingLogger.hpp">
+<area shape="rect" id="Node000001" title="Logger de timing por ciclo para provar conformidade de deadlines RTOS." alt="" coords="726,5,975,33"/>
+<area shape="rect" id="Node000002" href="$TaskTimingLogger_8cpp.html" title="Implementação do logger de timing por ciclo." alt="" coords="5,81,226,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="710,37,238,84,226,85,226,80,238,78,710,32"/>
+<area shape="rect" id="Node000003" href="$main_8cpp.html" title="Ponto de entrada do sistema de inspeção ATR." alt="" coords="250,81,354,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="713,35,546,58,367,84,355,86,355,80,366,78,545,53,708,36"/>
+<area shape="rect" id="Node000004" href="$CameraInspection_8cpp.html" title="Implementação da tarefa de inspeção detalhada com câmera." alt="" coords="379,81,607,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="774,36,558,83,557,78,768,37"/>
+<area shape="rect" id="Node000005" href="$DataCollector_8cpp.html" title="Implementação da tarefa de coleta e persistência de dados." alt="" coords="631,81,829,109"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="819,41,752,83,751,78,813,42"/>
+<area shape="rect" id="Node000006" href="$DistanceCalculator_8cpp.html" title="Implementação da tarefa de cálculo de distância (Simulação de Encoder)." alt="" coords="854,81,1086,109"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="885,39,952,81,946,80,884,44"/>
+<area shape="rect" id="Node000007" href="$NavigationCommand_8cpp.html" title="Implementação da tarefa de geração de comandos de navegação." alt="" coords="1110,81,1358,109"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="934,34,1168,80,1162,80,934,39"/>
+<area shape="rect" id="Node000008" href="$NavigationControl_8cpp.html" title="Implementação da tarefa de controle de navegação." alt="" coords="1383,81,1611,109"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="982,33,1385,80,1380,81,982,38"/>
+<area shape="rect" id="Node000009" href="$SurfaceReconstruction_8cpp.html" title="Implementação da simulação do LIDAR de teto." alt="" coords="1635,81,1892,109"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="991,28,1624,78,1638,82,1632,82,1623,84,990,34"/>
+</map>

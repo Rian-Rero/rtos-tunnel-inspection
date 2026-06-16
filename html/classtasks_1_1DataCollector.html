@@ -160,9 +160,9 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">buffer</td><td>Ponteiro compartilhado para o buffer de dados. </td></tr>
     <tr><td class="paramname">context</td><td>Ponteiro compartilhado para o contexto global. </td></tr>
     <tr><td class="paramname">log_filename</td><td>Nome do ficheiro de log (ex: "inspection_log.csv").</td></tr>
-    <tr><td class="paramname">buffer</td><td>Ponteiro compartilhado para o buffer de dados. </td></tr>
-    <tr><td class="paramname">context</td><td>Ponteiro compartilhado para o contexto global. </td></tr>
-    <tr><td class="paramname">log_filename</td><td>Caminho e nome do ficheiro onde os dados serão salvos. </td></tr>
+    <tr><td class="paramname">buffer</td><td>Ponteiro compartilhado para a fila thread-safe que contém os dados da superfície. </td></tr>
+    <tr><td class="paramname">context</td><td>Ponteiro compartilhado para o contexto global de estado do sistema. </td></tr>
+    <tr><td class="paramname">log_filename</td><td>Caminho e nome do arquivo CSV onde os registros serão salvos. </td></tr>
   </table>
   </dd>
 </dl>
@@ -193,7 +193,8 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Destrutor. Fecha o ficheiro de log de forma segura. </p>
-<p>Destrutor. Fecha o arquivo de log, se aberto. </p>
+<p>Destrutor da classe <a class="el" href="classtasks_1_1DataCollector.html" title="Classe responsável por consumir os dados da superfície e gravá-los em um ficheiro CSV.">DataCollector</a>.</p>
+<p>Garante o encerramento seguro do arquivo de log, descarregando qualquer dado remanescente no buffer da stream para o disco. </p>
 
 </div>
 </div>
@@ -222,7 +223,8 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Executa o loop principal da tarefa de gravação. </p>
-<p>Executa o loop principal da tarefa. </p>
+<p>Executa o loop principal da tarefa de coleta e processamento de dados.</p>
+<p>Retira continuamente os pacotes de dados da fila bloqueante. Calcula o espaço percorrido (<span class="tt">delta_x</span>) para determinar o nível de confiabilidade da medição de forma contínua através de uma função de decaimento exponencial. Após o cálculo, grava o registro final atualizado no arquivo CSV. </p>
 
 <p>Implements <a class="el" href="classtasks_1_1ITask.html#a196883815ac564749b678cc5734986f6">tasks::ITask</a>.</p>
 

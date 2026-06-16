@@ -148,7 +148,8 @@ Public Member Functions</h2></td></tr>
 <p>Construtor da tarefa <a class="el" href="classtasks_1_1DistanceCalculator.html" title="Tarefa que estima a distância percorrida via encoder simulado.">DistanceCalculator</a>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">ctx</td><td>Ponteiro compartilhado para o contexto global. </td></tr>
+    <tr><td class="paramname">ctx</td><td>Ponteiro compartilhado para o contexto global.</td></tr>
+    <tr><td class="paramname">ctx</td><td>Ponteiro compartilhado para o contexto global (Broker). </td></tr>
   </table>
   </dd>
 </dl>
@@ -200,6 +201,8 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Executa o loop principal da tarefa. </p>
+<p>Executa o loop principal da tarefa atuando como um driver de Encoder real.</p>
+<p>Lê a velocidade física do eixo, converte para ticks de encoder dependendo da circunferência da roda, calcula a odometria e publica no broker. </p>
 
 <p>Implements <a class="el" href="classtasks_1_1ITask.html#a196883815ac564749b678cc5734986f6">tasks::ITask</a>.</p>
 

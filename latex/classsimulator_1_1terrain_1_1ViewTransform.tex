@@ -1,0 +1,66 @@
+\doxysection{simulator.\+terrain.\+View\+Transform Class Reference}
+\hypertarget{classsimulator_1_1terrain_1_1ViewTransform}{}\label{classsimulator_1_1terrain_1_1ViewTransform}\index{simulator.terrain.ViewTransform@{simulator.terrain.ViewTransform}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+None \mbox{\hyperlink{classsimulator_1_1terrain_1_1ViewTransform_a8d3180cddc3b1d2a0f89d9d66cb4e06f}{update}} (self, float visual\+\_\+pos\+\_\+x, int screen\+\_\+width)
+\item 
+\Hypertarget{classsimulator_1_1terrain_1_1ViewTransform_a87674ec86723d1169a321df9d61fa714}\label{classsimulator_1_1terrain_1_1ViewTransform_a87674ec86723d1169a321df9d61fa714} 
+float {\bfseries view\+\_\+end\+\_\+m} (self)
+\item 
+\Hypertarget{classsimulator_1_1terrain_1_1ViewTransform_ae500286917f5bb5b35bbe7207118ff16}\label{classsimulator_1_1terrain_1_1ViewTransform_ae500286917f5bb5b35bbe7207118ff16} 
+int {\bfseries screen\+\_\+x} (self, float world\+\_\+x)
+\item 
+\Hypertarget{classsimulator_1_1terrain_1_1ViewTransform_a4e11593c71a43875c78c12505778c69c}\label{classsimulator_1_1terrain_1_1ViewTransform_a4e11593c71a43875c78c12505778c69c} 
+float {\bfseries world\+\_\+x} (self, int screen\+\_\+x)
+\item 
+\Hypertarget{classsimulator_1_1terrain_1_1ViewTransform_aceb11877a0794d071cc188fb7404ec38}\label{classsimulator_1_1terrain_1_1ViewTransform_aceb11877a0794d071cc188fb7404ec38} 
+int {\bfseries floor\+\_\+y} (self, int screen\+\_\+height, int screen\+\_\+x, float visual\+\_\+pos\+\_\+x)
+\item 
+Callable\mbox{[}\mbox{[}int\mbox{]}, int\mbox{]} \mbox{\hyperlink{classsimulator_1_1terrain_1_1ViewTransform_a31f8e8d3f2d3ffcdb17bc39f2fa4ace0}{make\+\_\+floor\+\_\+fn}} (self, int screen\+\_\+height, float visual\+\_\+pos\+\_\+x)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classsimulator_1_1terrain_1_1ViewTransform_aa1fc4eb158d7dde0ff871e1b6d0decf2}\label{classsimulator_1_1terrain_1_1ViewTransform_aa1fc4eb158d7dde0ff871e1b6d0decf2} 
+float {\bfseries view\+\_\+start\+\_\+m} = 0.\+0
+\item 
+\Hypertarget{classsimulator_1_1terrain_1_1ViewTransform_acadbc3d777db7f610218c9bd2d9e43e8}\label{classsimulator_1_1terrain_1_1ViewTransform_acadbc3d777db7f610218c9bd2d9e43e8} 
+float {\bfseries view\+\_\+scale} = 60.\+0
+\item 
+\Hypertarget{classsimulator_1_1terrain_1_1ViewTransform_aa34c38a2760094f7d303f43c43dd93c2}\label{classsimulator_1_1terrain_1_1ViewTransform_aa34c38a2760094f7d303f43c43dd93c2} 
+float {\bfseries view\+\_\+left\+\_\+px} = 70.\+0
+\item 
+\Hypertarget{classsimulator_1_1terrain_1_1ViewTransform_a1d06e17f8cd37ce522ab54913c97d044}\label{classsimulator_1_1terrain_1_1ViewTransform_a1d06e17f8cd37ce522ab54913c97d044} 
+float {\bfseries floor\+\_\+vertical\+\_\+scale} = 118.\+0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Mapeamento bidirecional entre coordenadas do mundo (metros) e pixels
+de tela. Atualizado uma vez por quadro em *update()*.
+\end{DoxyVerb}
+ 
+
+\label{doc-func-members}
+\Hypertarget{classsimulator_1_1terrain_1_1ViewTransform_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classsimulator_1_1terrain_1_1ViewTransform_a31f8e8d3f2d3ffcdb17bc39f2fa4ace0}\index{simulator.terrain.ViewTransform@{simulator.terrain.ViewTransform}!make\_floor\_fn@{make\_floor\_fn}}
+\index{make\_floor\_fn@{make\_floor\_fn}!simulator.terrain.ViewTransform@{simulator.terrain.ViewTransform}}
+\doxysubsubsection{\texorpdfstring{make\_floor\_fn()}{make\_floor\_fn()}}
+{\footnotesize\ttfamily \label{classsimulator_1_1terrain_1_1ViewTransform_a31f8e8d3f2d3ffcdb17bc39f2fa4ace0} 
+ Callable\mbox{[}\mbox{[}int\mbox{]}, int\mbox{]} simulator.\+terrain.\+View\+Transform.\+make\+\_\+floor\+\_\+fn (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{int}]{screen\+\_\+height}{, }\item[{float     }]{visual\+\_\+pos\+\_\+x}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Retorna um closure ``floor_y(screen_x)`` vinculado ao estado atual.\end{DoxyVerb}
+ \Hypertarget{classsimulator_1_1terrain_1_1ViewTransform_a8d3180cddc3b1d2a0f89d9d66cb4e06f}\index{simulator.terrain.ViewTransform@{simulator.terrain.ViewTransform}!update@{update}}
+\index{update@{update}!simulator.terrain.ViewTransform@{simulator.terrain.ViewTransform}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{classsimulator_1_1terrain_1_1ViewTransform_a8d3180cddc3b1d2a0f89d9d66cb4e06f} 
+ None simulator.\+terrain.\+View\+Transform.\+update (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{float}]{visual\+\_\+pos\+\_\+x}{, }\item[{int}]{screen\+\_\+width}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Recalcula a janela de visão para manter o robô centralizado.\end{DoxyVerb}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/simulator/terrain.\+py\end{DoxyCompactItemize}

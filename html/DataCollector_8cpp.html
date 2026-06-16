@@ -95,50 +95,75 @@ $(function(){initNavTree('DataCollector_8cpp.html','',''); });
 <p>Implementação da tarefa de coleta e persistência de dados.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="DataCollector_8hpp_source.html">tasks/DataCollector.hpp</a>&quot;</code><br />
+<code>#include &lt;algorithm&gt;</code><br />
+<code>#include &lt;cmath&gt;</code><br />
+<code>#include &lt;sstream&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
+<code>#include &quot;<a class="el" href="MqttPublisher_8hpp_source.html">core/MqttPublisher.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="TaskTimingLogger_8hpp_source.html">core/TaskTimingLogger.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="TerminalPrinter_8hpp_source.html">core/TerminalPrinter.hpp</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for DataCollector.cpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="DataCollector_8cpp__incl.png" border="0" usemap="#asrc_2tasks_2DataCollector_8cpp" loading="lazy" alt=""/></div>
 <map name="asrc_2tasks_2DataCollector_8cpp" id="asrc_2tasks_2DataCollector_8cpp">
-<area shape="rect" title="Implementação da tarefa de coleta e persistência de dados." alt="" coords="122,5,321,33"/>
-<area shape="rect" href="DataCollector_8hpp.html" title="Declaração da tarefa de coleta e persistência de dados." alt="" coords="451,81,627,109"/>
-<area shape="poly" title=" " alt="" coords="279,31,469,76,465,78,279,36"/>
-<area shape="rect" title=" " alt="" coords="66,157,124,184"/>
-<area shape="poly" title=" " alt="" coords="222,31,217,70,210,91,198,110,171,136,139,155,137,150,168,132,194,107,205,89,212,69,220,35"/>
-<area shape="rect" href="TerminalPrinter_8hpp.html" title="Utilitário para impressão padronizada e estilizada no terminal." alt="" coords="5,81,185,109"/>
-<area shape="poly" title=" " alt="" coords="197,36,132,75,129,71,201,32"/>
-<area shape="rect" title=" " alt="" coords="715,157,787,184"/>
-<area shape="poly" title=" " alt="" coords="577,107,703,152,697,152,577,112"/>
-<area shape="rect" title=" " alt="" coords="812,157,888,184"/>
-<area shape="poly" title=" " alt="" coords="597,107,799,156,794,156,596,112"/>
-<area shape="poly" title=" " alt="" coords="448,107,309,128,140,159,139,154,308,122,453,105"/>
-<area shape="rect" href="DataTypes_8hpp.html" title="Definição das estruturas de dados globais do sistema ATR." alt="" coords="912,157,1062,184"/>
-<area shape="poly" title=" " alt="" coords="620,107,900,154,895,155,619,112"/>
-<area shape="rect" href="SharedContext_8hpp.html" title="Contexto compartilhado para controle de estado global do robô." alt="" coords="148,157,325,184"/>
-<area shape="poly" title=" " alt="" coords="482,110,306,155,305,150,487,108"/>
-<area shape="rect" href="ThreadSafeQueue_8hpp.html" title="Implementação de uma fila thread&#45;safe genérica." alt="" coords="350,157,547,184"/>
-<area shape="poly" title=" " alt="" coords="525,108,478,149,475,144,520,110"/>
-<area shape="rect" href="Itask_8hpp_source.html" title=" " alt="" coords="571,157,691,184"/>
-<area shape="poly" title=" " alt="" coords="556,107,606,147,600,147,555,112"/>
-<area shape="rect" title=" " alt="" coords="954,232,1020,260"/>
-<area shape="poly" title=" " alt="" coords="989,183,989,218,985,215,985,187"/>
-<area shape="rect" title=" " alt="" coords="118,232,184,260"/>
-<area shape="poly" title=" " alt="" coords="224,184,179,224,176,220,219,186"/>
-<area shape="rect" title=" " alt="" coords="208,232,350,260"/>
-<area shape="poly" title=" " alt="" coords="245,183,266,220,261,218,243,187"/>
-<area shape="rect" title=" " alt="" coords="374,232,437,260"/>
-<area shape="poly" title=" " alt="" coords="267,182,364,226,359,226,266,187"/>
-<area shape="poly" title=" " alt="" coords="421,184,324,228,322,223,415,185"/>
-<area shape="poly" title=" " alt="" coords="443,184,422,221,419,217,438,186"/>
-<area shape="rect" title=" " alt="" coords="462,232,523,260"/>
-<area shape="poly" title=" " alt="" coords="457,183,479,220,474,218,455,187"/>
-<area shape="poly" title=" " alt="" coords="96,107,98,142,92,140,94,112"/>
+<area shape="rect" title="Implementação da tarefa de coleta e persistência de dados." alt="" coords="559,5,758,33"/>
+<area shape="rect" href="DataCollector_8hpp.html" title="Declaração da tarefa de coleta e persistência de dados." alt="" coords="677,81,853,109"/>
+<area shape="poly" title=" " alt="" coords="678,31,737,72,731,72,677,36"/>
+<area shape="rect" title=" " alt="" coords="311,157,369,184"/>
+<area shape="poly" title=" " alt="" coords="557,21,468,27,373,37,291,55,261,67,241,83,235,92,235,101,246,119,270,136,299,153,294,153,267,141,242,123,229,102,230,91,236,79,258,63,289,50,372,31,468,22,562,20"/>
+<area shape="rect" title=" " alt="" coords="878,81,962,109"/>
+<area shape="poly" title=" " alt="" coords="705,31,865,77,860,78,705,36"/>
+<area shape="rect" title=" " alt="" coords="986,81,1048,109"/>
+<area shape="poly" title=" " alt="" coords="738,31,845,51,973,80,968,80,844,56,738,36"/>
+<area shape="rect" title=" " alt="" coords="1072,81,1146,109"/>
+<area shape="poly" title=" " alt="" coords="758,30,896,50,1059,80,1054,81,895,55,758,35"/>
+<area shape="rect" href="MqttPublisher_8hpp.html" title="Publisher MQTT leve baseado em um processo mosquitto_pub persistente." alt="" coords="5,81,176,109"/>
+<area shape="poly" title=" " alt="" coords="558,36,191,83,190,78,560,31"/>
+<area shape="rect" href="TaskTimingLogger_8hpp.html" title="Logger de timing por ciclo para provar conformidade de deadlines RTOS." alt="" coords="454,81,652,109"/>
+<area shape="poly" title=" " alt="" coords="642,32,585,74,583,70,637,35"/>
+<area shape="rect" href="TerminalPrinter_8hpp.html" title="Utilitário para impressão padronizada e estilizada no terminal." alt="" coords="250,81,430,109"/>
+<area shape="poly" title=" " alt="" coords="599,35,413,80,411,74,604,33"/>
+<area shape="rect" title=" " alt="" coords="588,157,660,184"/>
+<area shape="poly" title=" " alt="" coords="742,108,663,152,662,147,737,110"/>
+<area shape="rect" title=" " alt="" coords="1059,157,1135,184"/>
+<area shape="poly" title=" " alt="" coords="830,107,1047,156,1041,156,830,112"/>
+<area shape="poly" title=" " alt="" coords="686,110,385,164,384,159,691,108"/>
+<area shape="rect" href="DataTypes_8hpp.html" title="Definição das estruturas de dados globais do sistema ATR." alt="" coords="684,157,833,184"/>
+<area shape="poly" title=" " alt="" coords="766,107,763,143,759,139,762,111"/>
+<area shape="rect" href="SharedContext_8hpp.html" title="Contexto compartilhado atuando como Broker de estados e sensores." alt="" coords="858,157,1035,184"/>
+<area shape="poly" title=" " alt="" coords="798,107,903,151,898,150,797,112"/>
+<area shape="rect" href="ThreadSafeQueue_8hpp.html" title="Implementação de uma fila thread&#45;safe genérica." alt="" coords="1304,157,1501,184"/>
+<area shape="poly" title=" " alt="" coords="853,105,865,106,1291,156,1286,157,865,111,854,110"/>
+<area shape="rect" href="Itask_8hpp_source.html" title=" " alt="" coords="1160,157,1280,184"/>
+<area shape="poly" title=" " alt="" coords="851,107,1147,156,1142,156,851,112"/>
+<area shape="rect" title=" " alt="" coords="551,232,616,260"/>
+<area shape="poly" title=" " alt="" coords="730,184,629,229,628,224,725,185"/>
+<area shape="rect" title=" " alt="" coords="957,232,1024,260"/>
+<area shape="poly" title=" " alt="" coords="956,183,977,220,973,218,953,187"/>
+<area shape="rect" title=" " alt="" coords="1105,232,1246,260"/>
+<area shape="poly" title=" " alt="" coords="988,182,1123,227,1118,227,987,188"/>
+<area shape="rect" title=" " alt="" coords="870,232,933,260"/>
+<area shape="poly" title=" " alt="" coords="941,184,919,221,916,217,936,186"/>
+<area shape="poly" title=" " alt="" coords="1365,184,1231,230,1230,225,1359,185"/>
+<area shape="poly" title=" " alt="" coords="1306,183,1118,209,948,235,948,230,1117,204,1301,183"/>
+<area shape="rect" title=" " alt="" coords="1372,232,1433,260"/>
+<area shape="poly" title=" " alt="" coords="1404,183,1404,218,1401,215,1401,187"/>
+<area shape="poly" title=" " alt="" coords="135,107,298,155,294,158,135,112"/>
+<area shape="rect" title=" " alt="" coords="60,157,121,184"/>
+<area shape="poly" title=" " alt="" coords="92,107,93,142,88,140,89,112"/>
+<area shape="poly" title=" " alt="" coords="567,107,604,146,598,145,565,112"/>
+<area shape="poly" title=" " alt="" coords="518,108,385,157,383,152,512,110"/>
+<area shape="poly" title=" " alt="" coords="510,108,476,125,448,141,438,151,433,161,432,171,437,183,457,204,482,219,510,230,539,240,533,239,508,235,480,224,453,208,432,186,427,172,428,159,434,148,445,137,473,120,505,110"/>
+<area shape="poly" title=" " alt="" coords="554,107,559,146,566,166,578,182,597,195,626,206,700,222,783,233,857,242,851,242,782,239,699,228,624,211,595,200,574,186,561,168,554,147,551,111"/>
+<area shape="rect" title=" " alt="" coords="447,157,512,184"/>
+<area shape="poly" title=" " alt="" coords="542,108,505,148,502,143,538,110"/>
+<area shape="poly" title=" " alt="" coords="341,107,342,142,338,140,338,111"/>
 </map>
 </div>
 </div><a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Implementação da tarefa de coleta e persistência de dados. </p>
+<p>Esta classe é responsável por consumir os dados da superfície do túnel a partir de um buffer compartilhado (IPC) e gravar os mesmos em um arquivo CSV. Calcula também dinamicamente o nível de confiabilidade da leitura com base na distância entre os pontos, utilizando um modelo matemático de decaimento exponencial. </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <div id="page-nav" class="page-nav-panel">

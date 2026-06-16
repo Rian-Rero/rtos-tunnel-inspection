@@ -11,8 +11,7 @@ Tarefa que aplica controle PID sobre o setpoint de navegação.
 
 
 
-Inheritance diagram for tasks\+::Navigation\+Control\+:
-\nopagebreak
+Inheritance diagram for tasks\+::Navigation\+Control\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -21,8 +20,7 @@ Inheritance diagram for tasks\+::Navigation\+Control\+:
 \end{figure}
 
 
-Collaboration diagram for tasks\+::Navigation\+Control\+:
-\nopagebreak
+Collaboration diagram for tasks\+::Navigation\+Control\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -78,7 +76,9 @@ void tasks\+::\+Navigation\+Control\+::run (\begin{DoxyParamCaption}{}{}\end{Dox
 
 Executa o loop principal da tarefa. 
 
+Executa o loop principal da tarefa de controle.
 
+Consome os setpoints do buffer IPC, calcula o esforço de controle (PID) e simula a inércia do robô. A velocidade de saída simulada (PV) é então publicada no contexto global para ser consumida pela física dos sensores em outras threads. 
 
 Implements \mbox{\hyperlink{classtasks_1_1ITask_a196883815ac564749b678cc5734986f6}{tasks\+::\+ITask}}.
 

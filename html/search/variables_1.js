@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['global_5fshutdown_5frequested_0',['global_shutdown_requested',['../main_8cpp.html#a2784916b186329f57a2956e6a9a88b57',1,'main.cpp']]]
+  ['direction_0',['direction',['../classcore_1_1SharedContext.html#acefaf878d6d190708ee3bd79574c77cd',1,'core::SharedContext']]]
 ];

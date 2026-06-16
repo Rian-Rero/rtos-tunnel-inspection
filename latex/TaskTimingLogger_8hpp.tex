@@ -1,0 +1,38 @@
+\doxysection{include/core/\+Task\+Timing\+Logger.hpp File Reference}
+\hypertarget{TaskTimingLogger_8hpp}{}\label{TaskTimingLogger_8hpp}\index{include/core/TaskTimingLogger.hpp@{include/core/TaskTimingLogger.hpp}}
+
+
+Logger de timing por ciclo para provar conformidade de deadlines RTOS.  
+
+
+{\ttfamily \#include $<$chrono$>$}\newline
+{\ttfamily \#include $<$cstdint$>$}\newline
+{\ttfamily \#include $<$fstream$>$}\newline
+{\ttfamily \#include $<$mutex$>$}\newline
+{\ttfamily \#include $<$string$>$}\newline
+Include dependency graph for Task\+Timing\+Logger.\+hpp\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{TaskTimingLogger_8hpp__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{TaskTimingLogger_8hpp__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classcore_1_1TaskTimingLogger}{core\+::\+Task\+Timing\+Logger}}
+\begin{DoxyCompactList}\small\item\em Singleton que registra, por ciclo, o instante agendado vs real de wakeup e o instante de fim de execução de cada tarefa periódica. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record}{core\+::\+Task\+Timing\+Logger\+::\+Record}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Logger de timing por ciclo para provar conformidade de deadlines RTOS. 
+

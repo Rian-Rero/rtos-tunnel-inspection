@@ -1,0 +1,155 @@
+\doxysection{gui.\+app.\+Operator\+GUI Class Reference}
+\hypertarget{classgui_1_1app_1_1OperatorGUI}{}\label{classgui_1_1app_1_1OperatorGUI}\index{gui.app.OperatorGUI@{gui.app.OperatorGUI}}
+
+
+Inheritance diagram for gui.\+app.\+Operator\+GUI\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=201pt]{classgui_1_1app_1_1OperatorGUI__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for gui.\+app.\+Operator\+GUI\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=201pt]{classgui_1_1app_1_1OperatorGUI__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_adc4faef50f41da685fc647193084741f}\label{classgui_1_1app_1_1OperatorGUI_adc4faef50f41da685fc647193084741f} 
+None {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self, tk.\+Tk root, str broker=MQTT\+\_\+\+BROKER, int port=MQTT\+\_\+\+PORT)
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_aebd3fab3a16325861a485347acfc5b1c}\label{classgui_1_1app_1_1OperatorGUI_aebd3fab3a16325861a485347acfc5b1c} 
+None {\bfseries close} (self)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{classmqtt_1_1MqttComponent}{mqtt.\+Mqtt\+Component}}}
+\begin{DoxyCompactItemize}
+\item 
+None {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self, str broker, int port, str client\+\_\+id)
+\item 
+None \mbox{\hyperlink{classmqtt_1_1MqttComponent_a3b9873e1fdcf48d16541ff3bc1e7094c}{connect\+\_\+async}} (self)
+\item 
+None \mbox{\hyperlink{classmqtt_1_1MqttComponent_ace66a907460e5a7b5b7d4257f9f3cc6d}{connect\+\_\+blocking}} (self)
+\item 
+None {\bfseries publish} (self, str topic, str\texorpdfstring{$\vert$}{|}float\texorpdfstring{$\vert$}{|}int payload)
+\item 
+None {\bfseries disconnect} (self)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a97998abb1e088d97811514635e95e7f7}\label{classgui_1_1app_1_1OperatorGUI_a97998abb1e088d97811514635e95e7f7} 
+{\bfseries close}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a338545f280f969e85b948b64d1828e06}\label{classgui_1_1app_1_1OperatorGUI_a338545f280f969e85b948b64d1828e06} 
+None {\bfseries \+\_\+configure\+\_\+window} (self)
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a87612d0cc384036e564ef0f38a8a77c3}\label{classgui_1_1app_1_1OperatorGUI_a87612d0cc384036e564ef0f38a8a77c3} 
+None {\bfseries \+\_\+setup\+\_\+styles} (self)
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_ae1ca8939608afc3d57111401682ee215}\label{classgui_1_1app_1_1OperatorGUI_ae1ca8939608afc3d57111401682ee215} 
+None {\bfseries \+\_\+build\+\_\+ui} (self)
+\item 
+None \mbox{\hyperlink{classgui_1_1app_1_1OperatorGUI_a99a6c25e08f3beb4852da3f456b879f4}{\+\_\+on\+\_\+connect}} (self, client)
+\item 
+None \mbox{\hyperlink{classgui_1_1app_1_1OperatorGUI_a1e53b11e699d974b5739c62493e48bc5}{\+\_\+on\+\_\+message}} (self, str topic, str payload)
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a75b7a412e3bc07119f5248b97bf03aa1}\label{classgui_1_1app_1_1OperatorGUI_a75b7a412e3bc07119f5248b97bf03aa1} 
+None {\bfseries \+\_\+handle\+\_\+robot} (self, str payload)
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a3007d150826f1b4bab6e2c62cf38f499}\label{classgui_1_1app_1_1OperatorGUI_a3007d150826f1b4bab6e2c62cf38f499} 
+None {\bfseries \+\_\+handle\+\_\+yolo} (self, str payload)
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a60555e0632e89ec6a5368552627c689e}\label{classgui_1_1app_1_1OperatorGUI_a60555e0632e89ec6a5368552627c689e} 
+None {\bfseries \+\_\+handle\+\_\+inspection} (self, str payload)
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions inherited from \mbox{\hyperlink{classmqtt_1_1MqttComponent}{mqtt.\+Mqtt\+Component}}}
+\begin{DoxyCompactItemize}
+\item 
+None {\bfseries \+\_\+handle\+\_\+connect} (self, client, \+\_\+userdata, \+\_\+flags, int rc)
+\item 
+None {\bfseries \+\_\+handle\+\_\+message} (self, \+\_\+client, \+\_\+userdata, msg)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a252c228395a68c2f55b6a51d36a43933}\label{classgui_1_1app_1_1OperatorGUI_a252c228395a68c2f55b6a51d36a43933} 
+{\bfseries \+\_\+root} = root
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a78775b58b9c9d9a04be3b6562f457c0c}\label{classgui_1_1app_1_1OperatorGUI_a78775b58b9c9d9a04be3b6562f457c0c} 
+bool {\bfseries \+\_\+closed} = False
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_abd32e25a4b251c215c322f28876fbc80}\label{classgui_1_1app_1_1OperatorGUI_abd32e25a4b251c215c322f28876fbc80} 
+{\bfseries \+\_\+telemetry} = \mbox{\hyperlink{classmodels_1_1RobotTelemetry}{Robot\+Telemetry}}()
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a293734948035b0757120a0971ce02cb0}\label{classgui_1_1app_1_1OperatorGUI_a293734948035b0757120a0971ce02cb0} 
+list {\bfseries \+\_\+history} = \mbox{[}$\,$\mbox{]}
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a60288cebf7b73ebb7c2656734fc5adda}\label{classgui_1_1app_1_1OperatorGUI_a60288cebf7b73ebb7c2656734fc5adda} 
+str {\bfseries \+\_\+yolo\+\_\+state} = "{}Aguardando inspeção..."{}
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_af0d556918e399fda78f7f287c737526d}\label{classgui_1_1app_1_1OperatorGUI_af0d556918e399fda78f7f287c737526d} 
+{\bfseries \+\_\+connection\+\_\+var} = tk.\+String\+Var(value="{}Conectando ao broker MQTT..."{})
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a757a992f6f4af6feddd69f2e63dc0ac1}\label{classgui_1_1app_1_1OperatorGUI_a757a992f6f4af6feddd69f2e63dc0ac1} 
+{\bfseries \+\_\+controls} = \mbox{\hyperlink{classgui_1_1panels_1_1ControlsPanel}{Controls\+Panel}}(ctrl\+\_\+card, self.\+publish)
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a90b2492e0a71adcc9aba2f66e2d73dd0}\label{classgui_1_1app_1_1OperatorGUI_a90b2492e0a71adcc9aba2f66e2d73dd0} 
+{\bfseries \+\_\+telemetry\+\_\+panel} = \mbox{\hyperlink{classgui_1_1panels_1_1TelemetryPanel}{Telemetry\+Panel}}(tele\+\_\+card)
+\item 
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a3f782e8159a3ff8f450b2ee8b0a0619c}\label{classgui_1_1app_1_1OperatorGUI_a3f782e8159a3ff8f450b2ee8b0a0619c} 
+{\bfseries \+\_\+preview} = \mbox{\hyperlink{classgui_1_1panels_1_1PreviewPanel}{Preview\+Panel}}(prev\+\_\+card)
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes inherited from \mbox{\hyperlink{classmqtt_1_1MqttComponent}{mqtt.\+Mqtt\+Component}}}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries \+\_\+broker} = broker
+\item 
+{\bfseries \+\_\+port} = port
+\item 
+{\bfseries \+\_\+client} = \mbox{\hyperlink{namespacemqtt_accfa2cd3d1aa4739f05ab0d23ce1265f}{create\+\_\+client}}(client\+\_\+id)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}GUI de operação remota baseada em janela Tkinter e telemetria MQTT.\end{DoxyVerb}
+ 
+
+\label{doc-func-members}
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a99a6c25e08f3beb4852da3f456b879f4}\index{gui.app.OperatorGUI@{gui.app.OperatorGUI}!\_on\_connect@{\_on\_connect}}
+\index{\_on\_connect@{\_on\_connect}!gui.app.OperatorGUI@{gui.app.OperatorGUI}}
+\doxysubsubsection{\texorpdfstring{\_on\_connect()}{\_on\_connect()}}
+{\footnotesize\ttfamily \label{classgui_1_1app_1_1OperatorGUI_a99a6c25e08f3beb4852da3f456b879f4} 
+ None gui.\+app.\+Operator\+GUI.\+\_\+on\+\_\+connect (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{client}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}Chamado quando o broker aceita a conexão. Faça assinaturas aqui.\end{DoxyVerb}
+ 
+
+Reimplemented from \mbox{\hyperlink{classmqtt_1_1MqttComponent_a93f662d4d59565770999dc7ef9c4bee9}{mqtt.\+Mqtt\+Component}}.
+
+\Hypertarget{classgui_1_1app_1_1OperatorGUI_a1e53b11e699d974b5739c62493e48bc5}\index{gui.app.OperatorGUI@{gui.app.OperatorGUI}!\_on\_message@{\_on\_message}}
+\index{\_on\_message@{\_on\_message}!gui.app.OperatorGUI@{gui.app.OperatorGUI}}
+\doxysubsubsection{\texorpdfstring{\_on\_message()}{\_on\_message()}}
+{\footnotesize\ttfamily \label{classgui_1_1app_1_1OperatorGUI_a1e53b11e699d974b5739c62493e48bc5} 
+ None gui.\+app.\+Operator\+GUI.\+\_\+on\+\_\+message (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{str}]{topic}{, }\item[{str}]{payload}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}Chamado para cada mensagem recebida após as assinaturas.\end{DoxyVerb}
+ 
+
+Reimplemented from \mbox{\hyperlink{classmqtt_1_1MqttComponent_a7739b3121623094573c610d9b8bd2798}{mqtt.\+Mqtt\+Component}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/gui/app.\+py\end{DoxyCompactItemize}

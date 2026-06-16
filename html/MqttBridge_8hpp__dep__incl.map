@@ -1,0 +1,7 @@
+<map id="include/tasks/MqttBridge.hpp" name="include/tasks/MqttBridge.hpp">
+<area shape="rect" id="Node000001" title="Declaração da ponte MQTT para os comandos remotos." alt="" coords="36,5,247,33"/>
+<area shape="rect" id="Node000002" href="$main_8cpp.html" title="Ponto de entrada do sistema de inspeção ATR." alt="" coords="5,81,110,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,43,74,83,71,78,112,44"/>
+<area shape="rect" id="Node000003" href="$MqttBridge_8cpp.html" title="Implementação da ponte MQTT para os comandos remotos." alt="" coords="134,81,317,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="169,41,213,81,208,81,167,46"/>
+</map>

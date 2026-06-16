@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['gettotaldistance_0',['getTotalDistance',['../classtasks_1_1DistanceCalculator.html#a4ca03c9639d5970a1970373d7f6205f5',1,'tasks::DistanceCalculator']]]
+  ['empty_0',['empty',['../classcore_1_1ThreadSafeQueue.html#a6e1f5c426719a770fb281f477bc594c4',1,'core::ThreadSafeQueue']]]
 ];

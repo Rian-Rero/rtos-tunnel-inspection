@@ -1,0 +1,52 @@
+\doxysection{rendering.\+pygame\+\_\+robot.\+Pygame\+Robot\+Renderer Class Reference}
+\hypertarget{classrendering_1_1pygame__robot_1_1PygameRobotRenderer}{}\label{classrendering_1_1pygame__robot_1_1PygameRobotRenderer}\index{rendering.pygame\_robot.PygameRobotRenderer@{rendering.pygame\_robot.PygameRobotRenderer}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a30915591630426919cc2ae26e4638b94}\label{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a30915591630426919cc2ae26e4638b94} 
+None {\bfseries render} (self, pygame.\+Surface screen, int rx, int fx, Callable\mbox{[}\mbox{[}int\mbox{]}, int\mbox{]} floor\+\_\+y\+\_\+fn, \mbox{\hyperlink{classrendering_1_1pygame__robot_1_1RobotRenderState}{Robot\+Render\+State}} state)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_ae5e50b043d830a405f45852ef62d275e}\label{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_ae5e50b043d830a405f45852ef62d275e} 
+{\bfseries \+\_\+draw\+\_\+shadow} (self, screen, rx, fx, floor\+\_\+mid)
+\item 
+\Hypertarget{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a2ec4fc8de290b61f944bfc8f2bca27c8}\label{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a2ec4fc8de290b61f944bfc8f2bca27c8} 
+{\bfseries \+\_\+draw\+\_\+tracks} (self, screen, rx, fx, tr, ty, spin\+\_\+angle)
+\item 
+\Hypertarget{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_aa8eb7ec17eabb418c3e040796b0d99ea}\label{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_aa8eb7ec17eabb418c3e040796b0d99ea} 
+{\bfseries \+\_\+draw\+\_\+body} (self, screen, rx, fx, tr, body\+\_\+gap, body\+\_\+h, body\+\_\+lift, ty)
+\item 
+\Hypertarget{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a3d3bba00c705b764b9495647ef39ab20}\label{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a3d3bba00c705b764b9495647ef39ab20} 
+{\bfseries \+\_\+draw\+\_\+equipment\+\_\+box} (self, screen, rx, tr, body\+\_\+gap, body\+\_\+h, body\+\_\+lift, ty)
+\item 
+\Hypertarget{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a97c23fc42999fd923ef0baf8edd28a14}\label{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a97c23fc42999fd923ef0baf8edd28a14} 
+{\bfseries \+\_\+draw\+\_\+antenna} (self, screen, rx, tr, body\+\_\+gap, body\+\_\+h, body\+\_\+lift, ty)
+\item 
+\Hypertarget{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a1b046acc63063ab40d5d4dde199e2b17}\label{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a1b046acc63063ab40d5d4dde199e2b17} 
+{\bfseries \+\_\+draw\+\_\+lidar} (self, screen, cx, tr, body\+\_\+gap, body\+\_\+h, body\+\_\+lift, ty)
+\item 
+\Hypertarget{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a106307b9ee88de1064d6d29572b1bcea}\label{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a106307b9ee88de1064d6d29572b1bcea} 
+{\bfseries \+\_\+draw\+\_\+camera\+\_\+arm} (self, screen, rx, fx, tr, body\+\_\+gap, body\+\_\+h, body\+\_\+lift, ty, \mbox{\hyperlink{classrendering_1_1pygame__robot_1_1RobotRenderState}{Robot\+Render\+State}} state)
+\item 
+\Hypertarget{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a0a1bebd28ee3169a278ae4de22321a7d}\label{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a0a1bebd28ee3169a278ae4de22321a7d} 
+{\bfseries \+\_\+draw\+\_\+direction\+\_\+arrow} (self, screen, rx, fx, cx, tr, body\+\_\+gap, body\+\_\+h, body\+\_\+lift, ty, direction)
+\item 
+\Hypertarget{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a5bf1e3968ce27e583549339cc65bc93b}\label{classrendering_1_1pygame__robot_1_1PygameRobotRenderer_a5bf1e3968ce27e583549339cc65bc93b} 
+{\bfseries \+\_\+draw\+\_\+encoder\+\_\+label} (self, screen, cx, tr, body\+\_\+gap, body\+\_\+h, body\+\_\+lift, ty, encoder)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Desenha o robô ATR em uma superfície Pygame.
+
+O chamador é responsável pelo posicionamento: informe *rx* (X da
+esteira traseira), *fx* (X da esteira dianteira) e uma *floor_y_fn*
+que retorna o Y de tela do piso para um X de tela.
+\end{DoxyVerb}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/rendering/pygame\+\_\+robot.\+py\end{DoxyCompactItemize}

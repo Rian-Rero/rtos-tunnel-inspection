@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['log_0',['Log',['../classcore_1_1TerminalPrinter.html#abb426c4ce9e4f8bb83232de9db5d9753',1,'core::TerminalPrinter::Log(Level level, const std::string &amp;scope, const std::string &amp;message)'],['../classcore_1_1TerminalPrinter.html#a73c8d7c46de1cd019fa9387d2259c202',1,'core::TerminalPrinter::Log(Level level, const std::string &amp;message)']]]
+  ['generate_0',['generate',['../classinspection_1_1frame_1_1SyntheticFrameGenerator.html#a065d00039bdd7026bbca6ae9c49bf549',1,'inspection::frame::SyntheticFrameGenerator']]],
+  ['gettotaldistance_1',['getTotalDistance',['../classtasks_1_1DistanceCalculator.html#a4ca03c9639d5970a1970373d7f6205f5',1,'tasks::DistanceCalculator']]]
 ];

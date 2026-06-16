@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['navigationcommand_0',['NavigationCommand',['../classtasks_1_1NavigationCommand.html#a0f2540bda4867ad2a6d4ec4b17714074',1,'tasks::NavigationCommand']]],
-  ['navigationcontrol_1',['NavigationControl',['../classtasks_1_1NavigationControl.html#ad1249e492f5d5b5b86e53dfd215eb24e',1,'tasks::NavigationControl']]]
+  ['isanomalyactive_0',['isAnomalyActive',['../classcore_1_1SharedContext.html#a536a38ba0c4135f9f85186e43a782556',1,'core::SharedContext']]],
+  ['isclosed_1',['isClosed',['../classcore_1_1ThreadSafeQueue.html#a386f1a98495aa12101f98e9073ff4e84',1,'core::ThreadSafeQueue']]]
 ];

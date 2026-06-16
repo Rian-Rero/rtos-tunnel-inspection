@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['camerainspection_0',['CameraInspection',['../classtasks_1_1CameraInspection.html',1,'tasks']]]
+  ['anomalymark_0',['AnomalyMark',['../classmodels_1_1AnomalyMark.html',1,'models']]]
 ];

@@ -1,0 +1,62 @@
+\doxysection{Mqtt\+Publisher.\+hpp}
+\hypertarget{MqttPublisher_8hpp_source}{}\label{MqttPublisher_8hpp_source}\index{include/core/MqttPublisher.hpp@{include/core/MqttPublisher.hpp}}
+\mbox{\hyperlink{MqttPublisher_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <cstdio>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }core\ \{}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{class\ }MqttPublisher\ \{}
+\DoxyCodeLine{00013\ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00014\ \ \ \ \ FILE*\ pipe\_\{\textcolor{keyword}{nullptr}\};}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keyword}{static}\ std::string\ escapeForShell(\textcolor{keyword}{const}\ std::string\&\ value)\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ std::string\ escaped;}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ escaped.reserve(value.size()\ +\ 8);}
+\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{char}\ ch\ :\ value)\ \{}
+\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ch\ ==\ \textcolor{charliteral}{'\(\backslash\)''})\ \{}
+\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ escaped\ +=\ \textcolor{stringliteral}{"{}'\(\backslash\)"{}'\(\backslash\)"{}'"{}};}
+\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ escaped\ +=\ ch;}
+\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ escaped;}
+\DoxyCodeLine{00027\ \ \ \ \ \}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keyword}{explicit}\ MqttPublisher(\textcolor{keyword}{const}\ std::string\&\ topic)\ \{}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ command\ =}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}mosquitto\_pub\ -\/h\ localhost\ -\/q\ 2\ -\/t\ '"{}}\ +\ escapeForShell(topic)\ +\ \textcolor{stringliteral}{"{}'\ -\/l"{}};}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ pipe\_\ =\ popen(command.c\_str(),\ \textcolor{stringliteral}{"{}w"{}});}
+\DoxyCodeLine{00034\ \ \ \ \ \}}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \ \ \string~MqttPublisher()\ \{}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (pipe\_\ !=\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \ \ \ \ pclose(pipe\_);}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00040\ \ \ \ \ \}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \ \ MqttPublisher(\textcolor{keyword}{const}\ MqttPublisher\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00043\ \ \ \ \ MqttPublisher\&\ operator=(\textcolor{keyword}{const}\ MqttPublisher\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keywordtype}{bool}\ publish(\textcolor{keyword}{const}\ std::string\&\ payload)\ \{}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (pipe\_\ ==\ \textcolor{keyword}{nullptr})\ \{}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (std::fputs(payload.c\_str(),\ pipe\_)\ ==\ EOF)\ \{}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (std::fputc(\textcolor{charliteral}{'\(\backslash\)n'},\ pipe\_)\ ==\ EOF)\ \{}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::fflush(pipe\_)\ ==\ 0;}
+\DoxyCodeLine{00056\ \ \ \ \ \}}
+\DoxyCodeLine{00057\ \};}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \}\ \ \textcolor{comment}{//\ namespace\ core}}
+
+\end{DoxyCode}

@@ -10,37 +10,49 @@
 \DoxyCodeLine{00009\ }
 \DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }core\ \{}
 \DoxyCodeLine{00011\ }
-\DoxyCodeLine{00019\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classcore_1_1SharedContext}{SharedContext}}\ \{}
-\DoxyCodeLine{00020\ \ \ \ \textcolor{keyword}{private}:}
-\DoxyCodeLine{00021\ \ \ \ \ std::mutex\ anomaly\_mutex\_;}
-\DoxyCodeLine{00022\ \ \ \ \ std::condition\_variable\ anomaly\_cv\_;}
-\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordtype}{bool}\ anomaly\_detected\_\{\textcolor{keyword}{false}\};}
+\DoxyCodeLine{00016\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classcore_1_1SharedContext}{SharedContext}}\ \{}
+\DoxyCodeLine{00017\ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00018\ \ \ \ \ std::mutex\ anomaly\_mutex\_;}
+\DoxyCodeLine{00019\ \ \ \ \ std::condition\_variable\ anomaly\_cv\_;}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keywordtype}{bool}\ anomaly\_detected\_\{\textcolor{keyword}{false}\};}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00023\ \ \ \ \ std::atomic<bool>\ \mbox{\hyperlink{classcore_1_1SharedContext_a3289c853b552ee48ddf6a7ed539f5d8d}{is\_running}}\{\textcolor{keyword}{true}\};\ }
 \DoxyCodeLine{00024\ }
-\DoxyCodeLine{00025\ \ \ \ \textcolor{keyword}{public}:}
-\DoxyCodeLine{00026\ \ \ \ \ std::atomic<bool>\ \mbox{\hyperlink{classcore_1_1SharedContext_a3289c853b552ee48ddf6a7ed539f5d8d}{is\_running}}\{\textcolor{keyword}{true}\};\ }
-\DoxyCodeLine{00027\ }
-\DoxyCodeLine{00032\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classcore_1_1SharedContext_a5d31c94fe3c4c740ae40b15ee7d1105d}{triggerAnomaly}}()\ \{}
-\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ std::lock\_guard<std::mutex>\ lock(anomaly\_mutex\_);}
-\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ anomaly\_detected\_\ =\ \textcolor{keyword}{true};}
-\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ anomaly\_cv\_.notify\_all();}
-\DoxyCodeLine{00036\ \ \ \ \ \}}
-\DoxyCodeLine{00037\ }
-\DoxyCodeLine{00041\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classcore_1_1SharedContext_af44a5a2dd2ac1e28b45003c1b7b4c36d}{resetAnomaly}}()\ \{}
-\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ std::lock\_guard<std::mutex>\ lock(anomaly\_mutex\_);}
-\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ anomaly\_detected\_\ =\ \textcolor{keyword}{false};}
-\DoxyCodeLine{00044\ \ \ \ \ \}}
+\DoxyCodeLine{00029\ \ \ \ \ std::atomic<double>\ \mbox{\hyperlink{classcore_1_1SharedContext_a1cc8a153447a42ccd91f98f9155fe689}{current\_speed}}\{0.0\};}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00034\ \ \ \ \ std::atomic<bool>\ \mbox{\hyperlink{classcore_1_1SharedContext_a2fcc976fe991bb3addbc5e88bf5389f8}{manual\_mode}}\{\textcolor{keyword}{false}\};}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00039\ \ \ \ \ std::atomic<int>\ \mbox{\hyperlink{classcore_1_1SharedContext_a9732607569c69cc280282392732cfbd0}{speed\_setpoint}}\{50\};}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00044\ \ \ \ \ std::atomic<int>\ \mbox{\hyperlink{classcore_1_1SharedContext_acefaf878d6d190708ee3bd79574c77cd}{direction}}\{0\};}
 \DoxyCodeLine{00045\ }
-\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classcore_1_1SharedContext_a26bd5dc53b1dc039d4754f5c6bc39061}{waitForAnomaly}}()\ \{}
-\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ std::unique\_lock<std::mutex>\ lock(anomaly\_mutex\_);}
-\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ anomaly\_cv\_.wait(lock,\ [\textcolor{keyword}{this}]()\ \{\ \textcolor{keywordflow}{return}\ anomaly\_detected\_\ ||\ !\mbox{\hyperlink{classcore_1_1SharedContext_a3289c853b552ee48ddf6a7ed539f5d8d}{is\_running}};\ \});}
-\DoxyCodeLine{00054\ \ \ \ \ \}}
-\DoxyCodeLine{00055\ }
-\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classcore_1_1SharedContext_a536a38ba0c4135f9f85186e43a782556}{isAnomalyActive}}()\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ std::atomic<double>\ \mbox{\hyperlink{classcore_1_1SharedContext_a9e723e07ada481e74d2d48d0125bb027}{imu\_degrees}}\{0.0\};}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00055\ \ \ \ \ std::atomic<double>\ \mbox{\hyperlink{classcore_1_1SharedContext_ac1f6982d03645f99f024aa4a8cc8d154}{current\_odometry}}\{0.0\};}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classcore_1_1SharedContext_a5d31c94fe3c4c740ae40b15ee7d1105d}{triggerAnomaly}}()\ \{}
 \DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ std::lock\_guard<std::mutex>\ lock(anomaly\_mutex\_);}
-\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ anomaly\_detected\_;}
-\DoxyCodeLine{00063\ \ \ \ \ \}}
-\DoxyCodeLine{00064\ \};}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ anomaly\_detected\_\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ anomaly\_cv\_.notify\_all();}
+\DoxyCodeLine{00064\ \ \ \ \ \}}
 \DoxyCodeLine{00065\ }
-\DoxyCodeLine{00066\ \}\ \ \textcolor{comment}{//\ namespace\ core}}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classcore_1_1SharedContext_af44a5a2dd2ac1e28b45003c1b7b4c36d}{resetAnomaly}}()\ \{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ std::lock\_guard<std::mutex>\ lock(anomaly\_mutex\_);}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ anomaly\_detected\_\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00072\ \ \ \ \ \}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classcore_1_1SharedContext_a26bd5dc53b1dc039d4754f5c6bc39061}{waitForAnomaly}}()\ \{}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ std::unique\_lock<std::mutex>\ lock(anomaly\_mutex\_);}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ anomaly\_cv\_.wait(lock,\ [\textcolor{keyword}{this}]()\ \{\ \textcolor{keywordflow}{return}\ anomaly\_detected\_\ ||\ !\mbox{\hyperlink{classcore_1_1SharedContext_a3289c853b552ee48ddf6a7ed539f5d8d}{is\_running}};\ \});}
+\DoxyCodeLine{00080\ \ \ \ \ \}}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classcore_1_1SharedContext_a536a38ba0c4135f9f85186e43a782556}{isAnomalyActive}}()\ \{}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ std::lock\_guard<std::mutex>\ lock(anomaly\_mutex\_);}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ anomaly\_detected\_;}
+\DoxyCodeLine{00088\ \ \ \ \ \}}
+\DoxyCodeLine{00089\ \};}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \}\ \ \textcolor{comment}{//\ namespace\ core}}
 
 \end{DoxyCode}

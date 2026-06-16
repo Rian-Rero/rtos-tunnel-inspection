@@ -1,5 +1,5 @@
 <map id="include/core/SharedContext.hpp" name="include/core/SharedContext.hpp">
-<area shape="rect" id="Node000001" title="Contexto compartilhado para controle de estado global do robô." alt="" coords="52,5,281,33"/>
+<area shape="rect" id="Node000001" title="Contexto compartilhado atuando como Broker de estados e sensores." alt="" coords="52,5,281,33"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,81,72,109"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,35,75,75,73,71,141,32"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="96,81,237,109"/>

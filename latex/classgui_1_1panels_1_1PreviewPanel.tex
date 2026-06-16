@@ -1,0 +1,90 @@
+\doxysection{gui.\+panels.\+Preview\+Panel Class Reference}
+\hypertarget{classgui_1_1panels_1_1PreviewPanel}{}\label{classgui_1_1panels_1_1PreviewPanel}\index{gui.panels.PreviewPanel@{gui.panels.PreviewPanel}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_aadabd533b972233f9435f8694ac21391}\label{classgui_1_1panels_1_1PreviewPanel_aadabd533b972233f9435f8694ac21391} 
+None {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self, ttk.\+Frame parent)
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_a3339cde2526f2aee5c7b2bdaec8ade18}\label{classgui_1_1panels_1_1PreviewPanel_a3339cde2526f2aee5c7b2bdaec8ade18} 
+None {\bfseries update} (self, \mbox{\hyperlink{classmodels_1_1RobotTelemetry}{Robot\+Telemetry}} telemetry, list\mbox{[}\mbox{\hyperlink{classmodels_1_1RobotTelemetry}{Robot\+Telemetry}}\mbox{]} history, str yolo\+\_\+state)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_a80585dba2616bc4956b9318fff4e9ba1}\label{classgui_1_1panels_1_1PreviewPanel_a80585dba2616bc4956b9318fff4e9ba1} 
+None {\bfseries \+\_\+build} (self, ttk.\+Frame parent)
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_aaaba668c49654e910bd5caaa0dfcd104}\label{classgui_1_1panels_1_1PreviewPanel_aaaba668c49654e910bd5caaa0dfcd104} 
+None {\bfseries \+\_\+animate} (self)
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_aaba992909cbc6d69d31508c7e2cc3796}\label{classgui_1_1panels_1_1PreviewPanel_aaba992909cbc6d69d31508c7e2cc3796} 
+None {\bfseries \+\_\+draw} (self)
+\item 
+\mbox{\hyperlink{classgui_1_1panels_1_1PreviewPanel_aae8532f239da40de8620a344aacabeee}{\+\_\+path\+\_\+transform}} (self, int w, int h, float imu\+\_\+tilt)
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_ae19053876f9cc4767ebe60dbee5e215a}\label{classgui_1_1panels_1_1PreviewPanel_ae19053876f9cc4767ebe60dbee5e215a} 
+{\bfseries \+\_\+compute\+\_\+cart\+\_\+position} (self, w, h, lane\+\_\+y, imu\+\_\+tilt)
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_a4a92eb7d19f84595d05e43dce7c4d79f}\label{classgui_1_1panels_1_1PreviewPanel_a4a92eb7d19f84595d05e43dce7c4d79f} 
+{\bfseries \+\_\+draw\+\_\+tunnel\+\_\+path} (self, canvas, w, h, imu\+\_\+tilt, cart\+\_\+x, cart\+\_\+y)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_a93f0fe818548dbf576f76ae8f28bfc82}\label{classgui_1_1panels_1_1PreviewPanel_a93f0fe818548dbf576f76ae8f28bfc82} 
+{\bfseries \+\_\+renderer} = \mbox{\hyperlink{classrendering_1_1tk__robot_1_1TkinterRobotRenderer}{Tkinter\+Robot\+Renderer}}()
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_a5e86ec3c0299b23a24dafc45c1ff367d}\label{classgui_1_1panels_1_1PreviewPanel_a5e86ec3c0299b23a24dafc45c1ff367d} 
+{\bfseries \+\_\+telemetry} = \mbox{\hyperlink{classmodels_1_1RobotTelemetry}{Robot\+Telemetry}}()
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_a89a161b84cb95f8df7630530aa5b9463}\label{classgui_1_1panels_1_1PreviewPanel_a89a161b84cb95f8df7630530aa5b9463} 
+list {\bfseries \+\_\+history} = \mbox{[}$\,$\mbox{]}
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_aed6b07deca7e0412bdce62be6a468ea7}\label{classgui_1_1panels_1_1PreviewPanel_aed6b07deca7e0412bdce62be6a468ea7} 
+float {\bfseries \+\_\+preview\+\_\+angle} = 0.\+0
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_a93763a9d2afdffa7d9f50e8c09e42380}\label{classgui_1_1panels_1_1PreviewPanel_a93763a9d2afdffa7d9f50e8c09e42380} 
+int {\bfseries \+\_\+direction\+\_\+sign} = 1
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_a708a2a446ae6f83d5f86a9902f260b3e}\label{classgui_1_1panels_1_1PreviewPanel_a708a2a446ae6f83d5f86a9902f260b3e} 
+{\bfseries \+\_\+tunnel\+\_\+var} = tk.\+String\+Var(value="{}Túnel ativo"{})
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_ae6fa8c65ee26c9e0ceb21732efd2095c}\label{classgui_1_1panels_1_1PreviewPanel_ae6fa8c65ee26c9e0ceb21732efd2095c} 
+tk.\+Canvas {\bfseries \+\_\+canvas}
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_a60d271a747b7d8e4dfb0a7aae1e931f9}\label{classgui_1_1panels_1_1PreviewPanel_a60d271a747b7d8e4dfb0a7aae1e931f9} 
+{\bfseries \+\_\+animate}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_aa9e2e25a6a72a311469f5e4269befda0}\label{classgui_1_1panels_1_1PreviewPanel_aa9e2e25a6a72a311469f5e4269befda0} 
+int {\bfseries \+\_\+\+ANIMATION\+\_\+\+INTERVAL\+\_\+\+MS} = 40
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Canvas que renderiza o perfil do túnel e o robô em tempo real.\end{DoxyVerb}
+ 
+
+\label{doc-func-members}
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgui_1_1panels_1_1PreviewPanel_aae8532f239da40de8620a344aacabeee}\index{gui.panels.PreviewPanel@{gui.panels.PreviewPanel}!\_path\_transform@{\_path\_transform}}
+\index{\_path\_transform@{\_path\_transform}!gui.panels.PreviewPanel@{gui.panels.PreviewPanel}}
+\doxysubsubsection{\texorpdfstring{\_path\_transform()}{\_path\_transform()}}
+{\footnotesize\ttfamily \label{classgui_1_1panels_1_1PreviewPanel_aae8532f239da40de8620a344aacabeee} 
+gui.\+panels.\+Preview\+Panel.\+\_\+path\+\_\+transform (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{int}]{w}{, }\item[{int}]{h}{, }\item[{float}]{imu\+\_\+tilt}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}Calcula pontos do caminho ordenados espacialmente a partir do histórico.
+
+Ordenar por pos_x (não por tempo) garante que o perfil do túnel seja
+desenhado corretamente independente da direção de navegação.
+Retorna (path_pts, min_x, scale_x); lista vazia quando não há histórico.
+\end{DoxyVerb}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/gui/panels.\+py\end{DoxyCompactItemize}

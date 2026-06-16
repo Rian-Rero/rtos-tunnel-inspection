@@ -1,0 +1,13 @@
+<map id="include/core/TaskTimingLogger.hpp" name="include/core/TaskTimingLogger.hpp">
+<area shape="rect" id="Node000001" title="Logger de timing por ciclo para provar conformidade de deadlines RTOS." alt="" coords="96,5,345,33"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,81,71,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,36,85,77,83,72,187,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="95,81,160,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="207,33,157,74,154,69,201,34"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="184,81,257,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="223,32,223,67,218,64,219,35"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="281,81,344,109"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="238,31,287,72,282,71,236,36"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="369,81,427,109"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="253,31,357,75,352,76,252,36"/>
+</map>

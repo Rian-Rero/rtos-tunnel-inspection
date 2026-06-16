@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['navigationcommand_0',['NavigationCommand',['../classtasks_1_1NavigationCommand.html',1,'tasks']]],
-  ['navigationcontrol_1',['NavigationControl',['../classtasks_1_1NavigationControl.html',1,'tasks']]],
-  ['navigationsetpoint_2',['NavigationSetpoint',['../structcore_1_1NavigationSetpoint.html',1,'core']]]
+  ['inspectionstate_0',['InspectionState',['../classmodels_1_1InspectionState.html',1,'models']]],
+  ['itask_1',['ITask',['../classtasks_1_1ITask.html',1,'tasks']]]
 ];

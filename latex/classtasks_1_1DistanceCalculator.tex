@@ -11,8 +11,7 @@ Tarefa que estima a distância percorrida via encoder simulado.
 
 
 
-Inheritance diagram for tasks\+::Distance\+Calculator\+:
-\nopagebreak
+Inheritance diagram for tasks\+::Distance\+Calculator\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -21,8 +20,7 @@ Inheritance diagram for tasks\+::Distance\+Calculator\+:
 \end{figure}
 
 
-Collaboration diagram for tasks\+::Distance\+Calculator\+:
-\nopagebreak
+Collaboration diagram for tasks\+::Distance\+Calculator\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -60,7 +58,9 @@ Construtor da tarefa \doxylink{classtasks_1_1DistanceCalculator}{Distance\+Calcu
 
 
 \begin{DoxyParams}{Parameters}
-{\em ctx} & Ponteiro compartilhado para o contexto global. \\
+{\em ctx} & Ponteiro compartilhado para o contexto global.\\
+\hline
+{\em ctx} & Ponteiro compartilhado para o contexto global (Broker). \\
 \hline
 \end{DoxyParams}
 
@@ -91,7 +91,9 @@ void tasks\+::\+Distance\+Calculator\+::run (\begin{DoxyParamCaption}{}{}\end{Do
 
 Executa o loop principal da tarefa. 
 
+Executa o loop principal da tarefa atuando como um driver de Encoder real.
 
+Lê a velocidade física do eixo, converte para ticks de encoder dependendo da circunferência da roda, calcula a odometria e publica no broker. 
 
 Implements \mbox{\hyperlink{classtasks_1_1ITask_a196883815ac564749b678cc5734986f6}{tasks\+::\+ITask}}.
 

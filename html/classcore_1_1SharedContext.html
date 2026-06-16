@@ -92,7 +92,7 @@ $(function(){initNavTree('classcore_1_1SharedContext.html','','classcore_1_1Shar
 </div><!--header-->
 <div class="contents">
 
-<p>Gerencia os estados globais e eventos de anomalia do sistema.  
+<p>Gerencia os estados globais e atua como um Broker (simulando MQTT) para sensores.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="SharedContext_8hpp_source.html">SharedContext.hpp</a>&gt;</code></p>
@@ -101,80 +101,74 @@ $(function(){initNavTree('classcore_1_1SharedContext.html','','classcore_1_1Shar
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a5d31c94fe3c4c740ae40b15ee7d1105d" id="r_a5d31c94fe3c4c740ae40b15ee7d1105d"><td class="memItemLeft" align="right" valign="top"><a id="a5d31c94fe3c4c740ae40b15ee7d1105d" name="a5d31c94fe3c4c740ae40b15ee7d1105d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>triggerAnomaly</b> ()</td></tr>
-<tr class="memdesc:a5d31c94fe3c4c740ae40b15ee7d1105d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sinaliza a detecção de uma anomalia estrutural (buraco/saliência). Acorda todas as threads que estão aguardando esse evento. <br /></td></tr>
+<tr class="memdesc:a5d31c94fe3c4c740ae40b15ee7d1105d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sinaliza a detecção de uma anomalia estrutural (buraco/saliência). <br /></td></tr>
 <tr class="memitem:af44a5a2dd2ac1e28b45003c1b7b4c36d" id="r_af44a5a2dd2ac1e28b45003c1b7b4c36d"><td class="memItemLeft" align="right" valign="top"><a id="af44a5a2dd2ac1e28b45003c1b7b4c36d" name="af44a5a2dd2ac1e28b45003c1b7b4c36d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>resetAnomaly</b> ()</td></tr>
-<tr class="memdesc:af44a5a2dd2ac1e28b45003c1b7b4c36d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Redefine o estado de anomalia para falso após a inspeção ser concluída. <br /></td></tr>
-<tr class="memitem:a26bd5dc53b1dc039d4754f5c6bc39061" id="r_a26bd5dc53b1dc039d4754f5c6bc39061"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a26bd5dc53b1dc039d4754f5c6bc39061">waitForAnomaly</a> ()</td></tr>
-<tr class="memdesc:a26bd5dc53b1dc039d4754f5c6bc39061"><td class="mdescLeft">&#160;</td><td class="mdescRight">Suspende a thread atual até que uma anomalia seja detectada ou o sistema seja encerrado.  <br /></td></tr>
-<tr class="memitem:a536a38ba0c4135f9f85186e43a782556" id="r_a536a38ba0c4135f9f85186e43a782556"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a536a38ba0c4135f9f85186e43a782556">isAnomalyActive</a> ()</td></tr>
-<tr class="memdesc:a536a38ba0c4135f9f85186e43a782556"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verifica ativamente se há uma anomalia ocorrendo neste momento.  <br /></td></tr>
+<tr class="memdesc:af44a5a2dd2ac1e28b45003c1b7b4c36d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Redefine o estado de anomalia para falso após a inspeção. <br /></td></tr>
+<tr class="memitem:a26bd5dc53b1dc039d4754f5c6bc39061" id="r_a26bd5dc53b1dc039d4754f5c6bc39061"><td class="memItemLeft" align="right" valign="top"><a id="a26bd5dc53b1dc039d4754f5c6bc39061" name="a26bd5dc53b1dc039d4754f5c6bc39061"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>waitForAnomaly</b> ()</td></tr>
+<tr class="memdesc:a26bd5dc53b1dc039d4754f5c6bc39061"><td class="mdescLeft">&#160;</td><td class="mdescRight">Suspende a thread até que uma anomalia seja detectada. <br /></td></tr>
+<tr class="memitem:a536a38ba0c4135f9f85186e43a782556" id="r_a536a38ba0c4135f9f85186e43a782556"><td class="memItemLeft" align="right" valign="top"><a id="a536a38ba0c4135f9f85186e43a782556" name="a536a38ba0c4135f9f85186e43a782556"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>isAnomalyActive</b> ()</td></tr>
+<tr class="memdesc:a536a38ba0c4135f9f85186e43a782556"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verifica ativamente se há uma anomalia ocorrendo neste momento. <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a3289c853b552ee48ddf6a7ed539f5d8d" id="r_a3289c853b552ee48ddf6a7ed539f5d8d"><td class="memItemLeft" align="right" valign="top">std::atomic&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3289c853b552ee48ddf6a7ed539f5d8d">is_running</a> {true}</td></tr>
+<tr class="memitem:a1cc8a153447a42ccd91f98f9155fe689" id="r_a1cc8a153447a42ccd91f98f9155fe689"><td class="memItemLeft" align="right" valign="top">std::atomic&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1cc8a153447a42ccd91f98f9155fe689">current_speed</a> {0.0}</td></tr>
+<tr class="memdesc:a1cc8a153447a42ccd91f98f9155fe689"><td class="mdescLeft">&#160;</td><td class="mdescRight">Velocidade atual simulada da planta física (motor real).  <br /></td></tr>
+<tr class="memitem:a2fcc976fe991bb3addbc5e88bf5389f8" id="r_a2fcc976fe991bb3addbc5e88bf5389f8"><td class="memItemLeft" align="right" valign="top"><a id="a2fcc976fe991bb3addbc5e88bf5389f8" name="a2fcc976fe991bb3addbc5e88bf5389f8"></a>
+std::atomic&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>manual_mode</b> {false}</td></tr>
+<tr class="memdesc:a2fcc976fe991bb3addbc5e88bf5389f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indica se o robô está em modo manual (true) ou automático (false). <br /></td></tr>
+<tr class="memitem:a9732607569c69cc280282392732cfbd0" id="r_a9732607569c69cc280282392732cfbd0"><td class="memItemLeft" align="right" valign="top"><a id="a9732607569c69cc280282392732cfbd0" name="a9732607569c69cc280282392732cfbd0"></a>
+std::atomic&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>speed_setpoint</b> {50}</td></tr>
+<tr class="memdesc:a9732607569c69cc280282392732cfbd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Setpoint de velocidade recebido via MQTT. <br /></td></tr>
+<tr class="memitem:acefaf878d6d190708ee3bd79574c77cd" id="r_acefaf878d6d190708ee3bd79574c77cd"><td class="memItemLeft" align="right" valign="top"><a id="acefaf878d6d190708ee3bd79574c77cd" name="acefaf878d6d190708ee3bd79574c77cd"></a>
+std::atomic&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>direction</b> {0}</td></tr>
+<tr class="memdesc:acefaf878d6d190708ee3bd79574c77cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Direção recebida via MQTT: -1 = LEFT, 0 = STOP, 1 = RIGHT. <br /></td></tr>
+<tr class="memitem:a9e723e07ada481e74d2d48d0125bb027" id="r_a9e723e07ada481e74d2d48d0125bb027"><td class="memItemLeft" align="right" valign="top"><a id="a9e723e07ada481e74d2d48d0125bb027" name="a9e723e07ada481e74d2d48d0125bb027"></a>
+std::atomic&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>imu_degrees</b> {0.0}</td></tr>
+<tr class="memdesc:a9e723e07ada481e74d2d48d0125bb027"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inclinação simulada do túnel em graus, usada como leitura do sensor IMU. <br /></td></tr>
+<tr class="memitem:ac1f6982d03645f99f024aa4a8cc8d154" id="r_ac1f6982d03645f99f024aa4a8cc8d154"><td class="memItemLeft" align="right" valign="top">std::atomic&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac1f6982d03645f99f024aa4a8cc8d154">current_odometry</a> {0.0}</td></tr>
+<tr class="memdesc:ac1f6982d03645f99f024aa4a8cc8d154"><td class="mdescLeft">&#160;</td><td class="mdescRight">Odometria atual calculada pelo Encoder (em metros).  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Gerencia os estados globais e eventos de anomalia do sistema. </p>
-<p>Utiliza variáveis atômicas para estados simples e condition variables para acordar threads que aguardam eventos (como a ativação da câmera IA). </p>
-</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
-<a id="a536a38ba0c4135f9f85186e43a782556" name="a536a38ba0c4135f9f85186e43a782556"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a536a38ba0c4135f9f85186e43a782556">&#9670;&#160;</a></span>isAnomalyActive()</h2>
+<div class="textblock"><p>Gerencia os estados globais e atua como um Broker (simulando MQTT) para sensores. </p>
+</div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
+<a id="ac1f6982d03645f99f024aa4a8cc8d154" name="ac1f6982d03645f99f024aa4a8cc8d154"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac1f6982d03645f99f024aa4a8cc8d154">&#9670;&#160;</a></span>current_odometry</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool core::SharedContext::isAnomalyActive </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
+          <td class="memname">std::atomic&lt;double&gt; core::SharedContext::current_odometry {0.0}</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
-<p>Verifica ativamente se há uma anomalia ocorrendo neste momento. </p>
-<dl class="section return"><dt>Returns</dt><dd>true se houver anomalia, false caso contrário. </dd></dl>
+<p>Odometria atual calculada pelo Encoder (em metros). </p>
+<p>Tópico simulado: "/sensor/odometria". Consumida pelo LIDAR e outros módulos. </p>
 
 </div>
 </div>
-<a id="a26bd5dc53b1dc039d4754f5c6bc39061" name="a26bd5dc53b1dc039d4754f5c6bc39061"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a26bd5dc53b1dc039d4754f5c6bc39061">&#9670;&#160;</a></span>waitForAnomaly()</h2>
+<a id="a1cc8a153447a42ccd91f98f9155fe689" name="a1cc8a153447a42ccd91f98f9155fe689"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1cc8a153447a42ccd91f98f9155fe689">&#9670;&#160;</a></span>current_speed</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void core::SharedContext::waitForAnomaly </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
+          <td class="memname">std::atomic&lt;double&gt; core::SharedContext::current_speed {0.0}</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
-<p>Suspende a thread atual até que uma anomalia seja detectada ou o sistema seja encerrado. </p>
-<p>Modificado para evitar deadlocks durante o desligamento do sistema. </p>
+<p>Velocidade atual simulada da planta física (motor real). </p>
+<p>Tópico simulado: "/motor/velocidade_real". Lida apenas pelo Encoder. </p>
 
 </div>
 </div>
-<a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
 <a id="a3289c853b552ee48ddf6a7ed539f5d8d" name="a3289c853b552ee48ddf6a7ed539f5d8d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3289c853b552ee48ddf6a7ed539f5d8d">&#9670;&#160;</a></span>is_running</h2>
 
@@ -186,7 +180,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Flag global para encerramento gracioso das threads </p>
+<p>Flag global para encerramento gracioso </p>
 
 </div>
 </div>

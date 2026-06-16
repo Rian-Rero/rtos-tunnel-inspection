@@ -11,8 +11,7 @@ Tarefa que simula o LIDAR e publica dados da superfície.
 
 
 
-Inheritance diagram for tasks\+::Surface\+Reconstruction\+:
-\nopagebreak
+Inheritance diagram for tasks\+::Surface\+Reconstruction\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -21,8 +20,7 @@ Inheritance diagram for tasks\+::Surface\+Reconstruction\+:
 \end{figure}
 
 
-Collaboration diagram for tasks\+::Surface\+Reconstruction\+:
-\nopagebreak
+Collaboration diagram for tasks\+::Surface\+Reconstruction\+:\nopagebreak
 \begin{figure}[H]
 \begin{center}
 \leavevmode
@@ -64,13 +62,7 @@ Construtor da tarefa de reconstrução de superfície.
 \hline
 {\em context} & Ponteiro compartilhado para o contexto global. \\
 \hline
-{\em threshold} & Limite de distância para detectar anomalia.\\
-\hline
-{\em buffer} & Ponteiro compartilhado para a fila thread-\/safe onde os dados da superfície serão publicados. \\
-\hline
-{\em context} & Ponteiro compartilhado para o contexto global para gerenciamento de estado e acionamento de eventos. \\
-\hline
-{\em threshold} & Valor limite de variação de distância do LIDAR (em metros) para considerar uma anomalia severa. \\
+{\em threshold} & Limite de distância para detectar anomalia. \\
 \hline
 \end{DoxyParams}
 
@@ -88,9 +80,9 @@ void tasks\+::\+Surface\+Reconstruction\+::run (\begin{DoxyParamCaption}{}{}\end
 
 Executa o loop principal da tarefa. 
 
-Executa o loop principal da tarefa de reconstrução da superfície do teto do túnel.
+Executa o loop principal de varredura (LIDAR).
 
-Emula a leitura dos dados do sensor LIDAR em um túnel infinito. Detecta variações severas (buracos ou saliências) e publica os dados empacotados no buffer. Utiliza sincronismo absoluto (sleep\+\_\+until) para garantir a execução cíclica estrita a cada 100 ms. 
+O LIDAR apenas consome a odometria publicada pelo Encoder. Não tem acoplamento com a velocidade do motor ou planta física. 
 
 Implements \mbox{\hyperlink{classtasks_1_1ITask_a196883815ac564749b678cc5734986f6}{tasks\+::\+ITask}}.
 

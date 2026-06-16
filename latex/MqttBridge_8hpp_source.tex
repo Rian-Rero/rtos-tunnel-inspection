@@ -1,0 +1,28 @@
+\doxysection{Mqtt\+Bridge.\+hpp}
+\hypertarget{MqttBridge_8hpp_source}{}\label{MqttBridge_8hpp_source}\index{include/tasks/MqttBridge.hpp@{include/tasks/MqttBridge.hpp}}
+\mbox{\hyperlink{MqttBridge_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <memory>}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{SharedContext_8hpp}{core/SharedContext.hpp}}"{}}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}tasks/Itask.hpp"{}}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{namespace\ }tasks\ \{}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00018\ \textcolor{keyword}{class\ }MqttBridge\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classtasks_1_1ITask}{ITask}}\ \{}
+\DoxyCodeLine{00019\ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00020\ \ \ \ \ std::shared\_ptr<core::SharedContext>\ context\_;}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keywordtype}{void}\ handleMessage(\textcolor{keyword}{const}\ std::string\&\ topic,\ \textcolor{keyword}{const}\ std::string\&\ payload);}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keyword}{explicit}\ MqttBridge(std::shared\_ptr<core::SharedContext>\ context);}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classtasks_1_1MqttBridge_a82cdc34b9aaebc957521b2e8ac80da48}{run}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00027\ \};}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \}\ \ \textcolor{comment}{//\ namespace\ tasks}}
+
+\end{DoxyCode}

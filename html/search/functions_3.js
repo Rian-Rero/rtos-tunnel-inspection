@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['empty_0',['empty',['../classcore_1_1ThreadSafeQueue.html#a6e1f5c426719a770fb281f477bc594c4',1,'core::ThreadSafeQueue']]]
+  ['datacollector_0',['DataCollector',['../classtasks_1_1DataCollector.html#a24ff2a57902a8029faa707f8b172bf08',1,'tasks::DataCollector']]],
+  ['distancecalculator_1',['DistanceCalculator',['../classtasks_1_1DistanceCalculator.html#a1a1f88de1882bf204a3be33f160e8e34',1,'tasks::DistanceCalculator']]]
 ];

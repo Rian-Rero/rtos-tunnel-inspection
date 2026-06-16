@@ -1,0 +1,72 @@
+\doxysection{analyze\+\_\+timing Namespace Reference}
+\hypertarget{namespaceanalyze__timing}{}\label{namespaceanalyze__timing}\index{analyze\_timing@{analyze\_timing}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{namespaceanalyze__timing_a20bc27ff9be1f77ffe15dd5b45e5fc51}\label{namespaceanalyze__timing_a20bc27ff9be1f77ffe15dd5b45e5fc51} 
+int {\bfseries \+\_\+lcm} (int a, int b)
+\item 
+\Hypertarget{namespaceanalyze__timing_a7aef53680a24decb47aef50a9ab65134}\label{namespaceanalyze__timing_a7aef53680a24decb47aef50a9ab65134} 
+float {\bfseries \+\_\+hyperperiod\+\_\+ms} (dict records)
+\item 
+int \mbox{\hyperlink{namespaceanalyze__timing_a9769b242d8d4295c0db620da64b931b8}{\+\_\+middle\+\_\+hyperperiod\+\_\+window}} (dict records, float window\+\_\+ms)
+\item 
+\Hypertarget{namespaceanalyze__timing_ae8b65f70421b80c76dc0a26e999749cb}\label{namespaceanalyze__timing_ae8b65f70421b80c76dc0a26e999749cb} 
+dict {\bfseries load} (Path path)
+\item 
+\Hypertarget{namespaceanalyze__timing_a91b28f5978eb03eb9a45b37d92f03f4b}\label{namespaceanalyze__timing_a91b28f5978eb03eb9a45b37d92f03f4b} 
+dict {\bfseries analyze} (dict tasks)
+\item 
+\Hypertarget{namespaceanalyze__timing_ab10769df97e69b78bde90ca67bfee476}\label{namespaceanalyze__timing_ab10769df97e69b78bde90ca67bfee476} 
+None {\bfseries print\+\_\+stats} (dict results)
+\item 
+\Hypertarget{namespaceanalyze__timing_a8c4d6d1e43155e9be6da67f6a780ee56}\label{namespaceanalyze__timing_a8c4d6d1e43155e9be6da67f6a780ee56} 
+None {\bfseries plot\+\_\+jitter} (dict results, plt.\+Axes ax)
+\item 
+\Hypertarget{namespaceanalyze__timing_a2f25fc140d166091230c703d8c006c8f}\label{namespaceanalyze__timing_a2f25fc140d166091230c703d8c006c8f} 
+None {\bfseries plot\+\_\+exec} (dict results, plt.\+Axes ax)
+\item 
+\Hypertarget{namespaceanalyze__timing_a251c810861172be7884dea80c1b0def9}\label{namespaceanalyze__timing_a251c810861172be7884dea80c1b0def9} 
+None {\bfseries plot\+\_\+gantt} (dict results, plt.\+Axes ax, float window\+\_\+ms=None)
+\item 
+\Hypertarget{namespaceanalyze__timing_a0e898a14a41869d49758c7f7e3a2bc58}\label{namespaceanalyze__timing_a0e898a14a41869d49758c7f7e3a2bc58} 
+None {\bfseries main} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{namespaceanalyze__timing_adaf62209cb5aa75c777dcb5f62a528f2}\label{namespaceanalyze__timing_adaf62209cb5aa75c777dcb5f62a528f2} 
+{\bfseries LOG\+\_\+\+PATH} = Path("{}data/logs/task\+\_\+timing.\+csv"{})
+\item 
+\Hypertarget{namespaceanalyze__timing_a2edbc53340cd9edb7ae52b667da28120}\label{namespaceanalyze__timing_a2edbc53340cd9edb7ae52b667da28120} 
+{\bfseries COLORS} = plt.\+cm.\+tab10.\+colors
+\item 
+\Hypertarget{namespaceanalyze__timing_a7a7518c70069b5f913e05aaea08ca200}\label{namespaceanalyze__timing_a7a7518c70069b5f913e05aaea08ca200} 
+float {\bfseries MIN\+\_\+\+EXEC\+\_\+\+FRACTION} = 0.\+15
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Analisa os dados de timing das tarefas periódicas do RTOS e gera:
+  - Gráfico de jitter de wakeup por ciclo
+  - Gráfico de tempo de execução por ciclo (com linha de deadline)
+  - Gantt mostrando execução simultânea das tarefas
+
+Uso:
+    python analyze_timing.py [caminho_do_csv]
+
+Por padrão lê: data/logs/task_timing.csv
+\end{DoxyVerb}
+ 
+
+\label{doc-func-members}
+\Hypertarget{namespaceanalyze__timing_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{namespaceanalyze__timing_a9769b242d8d4295c0db620da64b931b8}\index{analyze\_timing@{analyze\_timing}!\_middle\_hyperperiod\_window@{\_middle\_hyperperiod\_window}}
+\index{\_middle\_hyperperiod\_window@{\_middle\_hyperperiod\_window}!analyze\_timing@{analyze\_timing}}
+\doxysubsubsection{\texorpdfstring{\_middle\_hyperperiod\_window()}{\_middle\_hyperperiod\_window()}}
+{\footnotesize\ttfamily \label{namespaceanalyze__timing_a9769b242d8d4295c0db620da64b931b8} 
+ int analyze\+\_\+timing.\+\_\+middle\+\_\+hyperperiod\+\_\+window (\begin{DoxyParamCaption}\item[{dict}]{records}{, }\item[{float}]{window\+\_\+ms}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}Retorna o início de um hiperperíodo completo no meio da gravação.\end{DoxyVerb}
+ 

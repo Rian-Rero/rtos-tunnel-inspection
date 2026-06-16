@@ -1,0 +1,110 @@
+\doxysection{monitor\+\_\+timing Namespace Reference}
+\hypertarget{namespacemonitor__timing}{}\label{namespacemonitor__timing}\index{monitor\_timing@{monitor\_timing}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{namespacemonitor__timing_a138bd4dadb598c209ddce966a3f2b88c}\label{namespacemonitor__timing_a138bd4dadb598c209ddce966a3f2b88c} 
+int {\bfseries \+\_\+lcm} (int a, int b)
+\item 
+\Hypertarget{namespacemonitor__timing_a37a099e344df4edf061b4abbe137ae00}\label{namespacemonitor__timing_a37a099e344df4edf061b4abbe137ae00} 
+float {\bfseries \+\_\+hyperperiod\+\_\+ms} (dict tasks)
+\item 
+int \mbox{\hyperlink{namespacemonitor__timing_a04919605d265c68f5f3863a3a286e0ce}{\+\_\+middle\+\_\+hyperperiod\+\_\+window}} (dict tasks, float window\+\_\+ms)
+\item 
+\Hypertarget{namespacemonitor__timing_a46b1765cb0cada2748e37ba0485196b4}\label{namespacemonitor__timing_a46b1765cb0cada2748e37ba0485196b4} 
+None {\bfseries \+\_\+load\+\_\+new\+\_\+rows} (Path path)
+\item 
+dict \mbox{\hyperlink{namespacemonitor__timing_a79aa0f2b4cf0613386553d3b5c193a53}{\+\_\+snapshot}} ()
+\item 
+\Hypertarget{namespacemonitor__timing_a19964c6f954a289a13c07a15ef47ab67}\label{namespacemonitor__timing_a19964c6f954a289a13c07a15ef47ab67} 
+None {\bfseries \+\_\+draw\+\_\+jitter} (plt.\+Axes ax, dict tasks)
+\item 
+\Hypertarget{namespacemonitor__timing_af51a53324fd41a3af43f7d84e06b6e82}\label{namespacemonitor__timing_af51a53324fd41a3af43f7d84e06b6e82} 
+None {\bfseries \+\_\+draw\+\_\+exec} (plt.\+Axes ax, dict tasks)
+\item 
+\Hypertarget{namespacemonitor__timing_a6aaca1c2b3b30be5bf26d128f8523354}\label{namespacemonitor__timing_a6aaca1c2b3b30be5bf26d128f8523354} 
+None {\bfseries \+\_\+draw\+\_\+gantt} (plt.\+Axes ax, dict tasks)
+\item 
+\Hypertarget{namespacemonitor__timing_a2c2865eede8e823a2c8a2afb24103451}\label{namespacemonitor__timing_a2c2865eede8e823a2c8a2afb24103451} 
+{\bfseries \+\_\+exit\+\_\+gracefully} (signum, frame)
+\item 
+\Hypertarget{namespacemonitor__timing_a2fbcffe727035dae7f1be6258056d147}\label{namespacemonitor__timing_a2fbcffe727035dae7f1be6258056d147} 
+None {\bfseries main} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{namespacemonitor__timing_aa336d6cce84416a712dd28368af38bdd}\label{namespacemonitor__timing_aa336d6cce84416a712dd28368af38bdd} 
+{\bfseries LOG\+\_\+\+PATH} = Path("{}data/logs/task\+\_\+timing.\+csv"{})
+\item 
+\Hypertarget{namespacemonitor__timing_a80b8b6322a6ac2da8e74a53667475df7}\label{namespacemonitor__timing_a80b8b6322a6ac2da8e74a53667475df7} 
+float {\bfseries UPDATE\+\_\+S} = 0.\+5
+\item 
+\Hypertarget{namespacemonitor__timing_aa036be84e05580bb4f559884f2f8fca9}\label{namespacemonitor__timing_aa036be84e05580bb4f559884f2f8fca9} 
+int {\bfseries MAX\+\_\+\+CYCLES} = 300
+\item 
+\Hypertarget{namespacemonitor__timing_a586d86fda63e0faaac788dac729a7638}\label{namespacemonitor__timing_a586d86fda63e0faaac788dac729a7638} 
+{\bfseries COLORS} = plt.\+cm.\+tab10.\+colors
+\item 
+\Hypertarget{namespacemonitor__timing_a3630a717efc7d7dbd4f3e4d588c7a495}\label{namespacemonitor__timing_a3630a717efc7d7dbd4f3e4d588c7a495} 
+float {\bfseries MIN\+\_\+\+EXEC\+\_\+\+FRACTION} = 0.\+15
+\item 
+\Hypertarget{namespacemonitor__timing_ad8995f2eceb62cd27c9a861fe423bc73}\label{namespacemonitor__timing_ad8995f2eceb62cd27c9a861fe423bc73} 
+int {\bfseries \+\_\+file\+\_\+pos} = 0
+\item 
+dict \mbox{\hyperlink{namespacemonitor__timing_a492436e1d3c31d32efca9745f633f81a}{\+\_\+tasks\+\_\+raw}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Monitor de timing RTOS em tempo real.
+
+Usa plt.ion() + plt.pause() — mais confiável que FuncAnimation quando
+rodado como subprocess. Atualiza a cada 500 ms.
+
+Uso:
+    python monitor_timing.py [caminho_do_csv]
+\end{DoxyVerb}
+ 
+
+\label{doc-func-members}
+\Hypertarget{namespacemonitor__timing_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{namespacemonitor__timing_a04919605d265c68f5f3863a3a286e0ce}\index{monitor\_timing@{monitor\_timing}!\_middle\_hyperperiod\_window@{\_middle\_hyperperiod\_window}}
+\index{\_middle\_hyperperiod\_window@{\_middle\_hyperperiod\_window}!monitor\_timing@{monitor\_timing}}
+\doxysubsubsection{\texorpdfstring{\_middle\_hyperperiod\_window()}{\_middle\_hyperperiod\_window()}}
+{\footnotesize\ttfamily \label{namespacemonitor__timing_a04919605d265c68f5f3863a3a286e0ce} 
+ int monitor\+\_\+timing.\+\_\+middle\+\_\+hyperperiod\+\_\+window (\begin{DoxyParamCaption}\item[{dict}]{tasks}{, }\item[{float}]{window\+\_\+ms}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}Retorna o início de um hiperperíodo completo no meio da amostra atual.\end{DoxyVerb}
+ \Hypertarget{namespacemonitor__timing_a79aa0f2b4cf0613386553d3b5c193a53}\index{monitor\_timing@{monitor\_timing}!\_snapshot@{\_snapshot}}
+\index{\_snapshot@{\_snapshot}!monitor\_timing@{monitor\_timing}}
+\doxysubsubsection{\texorpdfstring{\_snapshot()}{\_snapshot()}}
+{\footnotesize\ttfamily \label{namespacemonitor__timing_a79aa0f2b4cf0613386553d3b5c193a53} 
+ dict monitor\+\_\+timing.\+\_\+snapshot (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}Converte _tasks_raw em arrays numpy (cópia point-in-time).\end{DoxyVerb}
+ 
+
+\label{doc-var-members}
+\Hypertarget{namespacemonitor__timing_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{namespacemonitor__timing_a492436e1d3c31d32efca9745f633f81a}\index{monitor\_timing@{monitor\_timing}!\_tasks\_raw@{\_tasks\_raw}}
+\index{\_tasks\_raw@{\_tasks\_raw}!monitor\_timing@{monitor\_timing}}
+\doxysubsubsection{\texorpdfstring{\_tasks\_raw}{\_tasks\_raw}}
+{\footnotesize\ttfamily \label{namespacemonitor__timing_a492436e1d3c31d32efca9745f633f81a} 
+dict monitor\+\_\+timing.\+\_\+tasks\+\_\+raw\hspace{0.3cm}{\ttfamily [protected]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ =\ \ defaultdict(}
+\DoxyCodeLine{00002\ \ \ \ \ \textcolor{keyword}{lambda}:\ \{}
+\DoxyCodeLine{00003\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}period\_ms"{}}:\ 0,}
+\DoxyCodeLine{00004\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}cycles"{}}:\ [],}
+\DoxyCodeLine{00005\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}scheduled"{}}:\ [],}
+\DoxyCodeLine{00006\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}actual"{}}:\ [],}
+\DoxyCodeLine{00007\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}exec\_end"{}}:\ [],}
+\DoxyCodeLine{00008\ \ \ \ \ \}}
+\DoxyCodeLine{00009\ )}
+
+\end{DoxyCode}

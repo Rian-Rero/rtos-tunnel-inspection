@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['main_0',['main',['../main_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4',1,'main.cpp']]]
+  ['hex_5fpalette_0',['hex_palette',['../namespacerendering_1_1colors.html#a72428537aa71b3973d55c1a10d86d3e8',1,'rendering::colors']]]
 ];

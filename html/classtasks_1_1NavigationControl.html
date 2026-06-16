@@ -183,6 +183,8 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Executa o loop principal da tarefa. </p>
+<p>Executa o loop principal da tarefa de controle.</p>
+<p>Consome os setpoints do buffer IPC, calcula o esforço de controle (PID) e simula a inércia do robô. A velocidade de saída simulada (PV) é então publicada no contexto global para ser consumida pela física dos sensores em outras threads. </p>
 
 <p>Implements <a class="el" href="classtasks_1_1ITask.html#a196883815ac564749b678cc5734986f6">tasks::ITask</a>.</p>
 

@@ -101,19 +101,21 @@ Inheritance diagram for tasks::ITask:</div>
 <div class="dyncontent">
 <div class="center"><img src="classtasks_1_1ITask__inherit__graph.png" border="0" usemap="#atasks_1_1ITask_inherit__map" loading="lazy" alt="Inheritance graph"/></div>
 <map name="atasks_1_1ITask_inherit__map" id="atasks_1_1ITask_inherit__map">
-<area shape="rect" title="Interface padrão que todas as tarefas do robô devem implementar." alt="" coords="5,136,103,164"/>
+<area shape="rect" title="Interface padrão que todas as tarefas do robô devem implementar." alt="" coords="5,161,103,189"/>
 <area shape="rect" href="classtasks_1_1CameraInspection.html" title="Tarefa que realiza inspeção detalhada quando uma anomalia é detectada." alt="" coords="165,5,347,33"/>
-<area shape="poly" title=" " alt="" coords="71,122,104,81,125,61,149,44,180,32,176,35,152,48,129,65,108,85,75,125"/>
+<area shape="poly" title=" " alt="" coords="66,146,99,94,122,67,149,44,177,32,173,35,152,48,126,70,103,97,71,149"/>
 <area shape="rect" href="classtasks_1_1DataCollector.html" title="Classe responsável por consumir os dados da superfície e gravá&#45;los em um ficheiro CSV." alt="" coords="179,57,332,85"/>
-<area shape="poly" title=" " alt="" coords="89,125,150,95,190,84,186,87,152,100,93,130"/>
+<area shape="poly" title=" " alt="" coords="77,149,110,121,149,95,184,84,180,87,152,100,113,125,82,152"/>
 <area shape="rect" href="classtasks_1_1DistanceCalculator.html" title="Tarefa que estima a distância percorrida via encoder simulado." alt="" coords="162,109,350,137"/>
-<area shape="poly" title=" " alt="" coords="117,139,164,134,159,137,119,144"/>
-<area shape="rect" href="classtasks_1_1NavigationCommand.html" title="Tarefa que publica setpoints de navegação no buffer IPC." alt="" coords="155,161,357,189"/>
-<area shape="poly" title=" " alt="" coords="118,155,157,161,152,164,119,160"/>
-<area shape="rect" href="classtasks_1_1NavigationControl.html" title="Tarefa que aplica controle PID sobre o setpoint de navegação." alt="" coords="165,213,347,241"/>
-<area shape="poly" title=" " alt="" coords="92,169,152,198,191,212,186,213,150,203,91,174"/>
-<area shape="rect" href="classtasks_1_1SurfaceReconstruction.html" title="Tarefa que simula o LIDAR e publica dados da superfície." alt="" coords="151,265,361,293"/>
-<area shape="poly" title=" " alt="" coords="74,174,108,214,129,234,152,250,180,265,175,265,149,255,126,238,104,218,73,179"/>
+<area shape="poly" title=" " alt="" coords="117,156,150,147,200,136,196,139,151,152,119,161"/>
+<area shape="rect" href="classtasks_1_1MqttBridge.html" title="Faz a ponte entre o broker MQTT e o contexto compartilhado do C++." alt="" coords="188,161,324,189"/>
+<area shape="poly" title=" " alt="" coords="117,173,189,174,185,177,119,178"/>
+<area shape="rect" href="classtasks_1_1NavigationCommand.html" title="Tarefa que publica setpoints de navegação no buffer IPC." alt="" coords="155,213,357,241"/>
+<area shape="poly" title=" " alt="" coords="117,189,151,198,200,212,195,214,150,203,118,194"/>
+<area shape="rect" href="classtasks_1_1NavigationControl.html" title="Tarefa que aplica controle PID sobre o setpoint de navegação." alt="" coords="165,265,347,293"/>
+<area shape="poly" title=" " alt="" coords="80,197,113,225,152,250,184,264,179,265,149,255,110,230,79,202"/>
+<area shape="rect" href="classtasks_1_1SurfaceReconstruction.html" title="Tarefa que simula o LIDAR e publica dados da superfície." alt="" coords="151,317,361,345"/>
+<area shape="poly" title=" " alt="" coords="69,200,103,254,126,280,152,302,178,317,172,317,149,307,122,284,99,257,67,205"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -150,7 +152,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Método principal onde o loop infinito da thread deve ser implementado. </p>
 
-<p>Implemented in <a class="el" href="classtasks_1_1CameraInspection.html#adf0b15cfdeea987271ef497fb7667b08">tasks::CameraInspection</a>, <a class="el" href="classtasks_1_1DataCollector.html#aa097e06f48304a3260fa814f9d5ee342">tasks::DataCollector</a>, <a class="el" href="classtasks_1_1DistanceCalculator.html#a9ed5a88eacc2a0cd7056e7ed281347dc">tasks::DistanceCalculator</a>, <a class="el" href="classtasks_1_1NavigationCommand.html#a5044945bb228ede1de4b4fe7c0560467">tasks::NavigationCommand</a>, <a class="el" href="classtasks_1_1NavigationControl.html#a5be46c2ee60329b06073561fd93c87a9">tasks::NavigationControl</a>, and <a class="el" href="classtasks_1_1SurfaceReconstruction.html#a307bd4bb0abd23082c5ee21102ad0385">tasks::SurfaceReconstruction</a>.</p>
+<p>Implemented in <a class="el" href="classtasks_1_1CameraInspection.html#adf0b15cfdeea987271ef497fb7667b08">tasks::CameraInspection</a>, <a class="el" href="classtasks_1_1DataCollector.html#aa097e06f48304a3260fa814f9d5ee342">tasks::DataCollector</a>, <a class="el" href="classtasks_1_1DistanceCalculator.html#a9ed5a88eacc2a0cd7056e7ed281347dc">tasks::DistanceCalculator</a>, <a class="el" href="classtasks_1_1MqttBridge.html#a82cdc34b9aaebc957521b2e8ac80da48">tasks::MqttBridge</a>, <a class="el" href="classtasks_1_1NavigationCommand.html#a5044945bb228ede1de4b4fe7c0560467">tasks::NavigationCommand</a>, <a class="el" href="classtasks_1_1NavigationControl.html#a5be46c2ee60329b06073561fd93c87a9">tasks::NavigationControl</a>, and <a class="el" href="classtasks_1_1SurfaceReconstruction.html#a307bd4bb0abd23082c5ee21102ad0385">tasks::SurfaceReconstruction</a>.</p>
 
 </div>
 </div>

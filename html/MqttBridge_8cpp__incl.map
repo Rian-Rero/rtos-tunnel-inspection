@@ -1,0 +1,40 @@
+<map id="src/tasks/MqttBridge.cpp" name="src/tasks/MqttBridge.cpp">
+<area shape="rect" id="Node000001" title="Implementação da ponte MQTT para os comandos remotos." alt="" coords="704,5,887,33"/>
+<area shape="rect" id="Node000002" href="$MqttBridge_8hpp.html" title="Declaração da ponte MQTT para os comandos remotos." alt="" coords="114,81,274,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="703,33,290,83,289,78,705,28"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="298,81,370,109"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="701,32,559,53,386,83,385,78,558,48,706,30"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="394,81,493,109"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="730,34,509,83,507,78,735,33"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="516,81,590,109"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="750,34,605,81,603,76,755,33"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="613,81,698,109"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="773,33,695,76,693,71,768,34"/>
+<area shape="rect" id="Node000013" title=" " alt="" coords="722,81,784,109"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="790,32,770,70,766,66,786,35"/>
+<area shape="rect" id="Node000014" title=" " alt="" coords="808,81,868,109"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="804,31,826,69,821,67,802,36"/>
+<area shape="rect" id="Node000015" title=" " alt="" coords="893,81,957,109"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="819,31,891,73,886,73,818,36"/>
+<area shape="rect" id="Node000016" title=" " alt="" coords="981,81,1060,109"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="836,31,969,76,964,76,836,36"/>
+<area shape="rect" id="Node000017" title=" " alt="" coords="1085,81,1159,109"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="859,31,1072,80,1067,81,858,36"/>
+<area shape="rect" id="Node000018" title=" " alt="" coords="1230,157,1289,184"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="887,26,1047,47,1121,61,1173,79,1213,109,1244,145,1239,143,1210,113,1170,83,1119,66,1046,52,887,31"/>
+<area shape="rect" id="Node000019" href="$TerminalPrinter_8hpp.html" title="Utilitário para impressão padronizada e estilizada no terminal." alt="" coords="1234,81,1413,109"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="887,30,1221,78,1215,79,887,36"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,157,82,184"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="166,112,85,152,83,147,169,107"/>
+<area shape="rect" id="Node000004" href="$SharedContext_8hpp.html" title="Contexto compartilhado atuando como Broker de estados e sensores." alt="" coords="106,157,283,184"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="196,107,197,142,192,140,193,111"/>
+<area shape="rect" id="Node000008" href="$Itask_8hpp_source.html" title=" " alt="" coords="307,157,428,184"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="225,107,326,150,320,151,225,112"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="33,232,99,260"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="174,184,103,227,101,222,169,185"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="124,232,265,260"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="196,183,196,218,192,215,192,187"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="289,232,352,260"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="218,182,288,224,283,225,216,187"/>
+<area shape="poly" id="edge19_Node000019_Node000018" title=" " alt="" coords="1314,108,1282,147,1280,142,1310,110"/>
+</map>

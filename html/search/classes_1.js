@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['datacollector_0',['DataCollector',['../classtasks_1_1DataCollector.html',1,'tasks']]],
-  ['distancecalculator_1',['DistanceCalculator',['../classtasks_1_1DistanceCalculator.html',1,'tasks']]]
+  ['camerainspection_0',['CameraInspection',['../classtasks_1_1CameraInspection.html',1,'tasks']]],
+  ['controlspanel_1',['ControlsPanel',['../classgui_1_1panels_1_1ControlsPanel.html',1,'gui::panels']]]
 ];

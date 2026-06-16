@@ -1,11 +1,10 @@
 var searchData=
 [
-  ['terminalprinter_0',['TerminalPrinter',['../classcore_1_1TerminalPrinter.html',1,'core']]],
-  ['terminalprinter_2ecpp_1',['TerminalPrinter.cpp',['../TerminalPrinter_8cpp.html',1,'']]],
-  ['terminalprinter_2ehpp_2',['TerminalPrinter.hpp',['../TerminalPrinter_8hpp.html',1,'']]],
-  ['threadsafequeue_3',['ThreadSafeQueue',['../classcore_1_1ThreadSafeQueue.html',1,'core::ThreadSafeQueue&lt; T &gt;'],['../classcore_1_1ThreadSafeQueue.html#a9182058b14d64dc93556593d2411e567',1,'core::ThreadSafeQueue::ThreadSafeQueue()']]],
-  ['threadsafequeue_2ehpp_4',['ThreadSafeQueue.hpp',['../ThreadSafeQueue_8hpp.html',1,'']]],
-  ['timestamp_5',['timestamp',['../structcore_1_1SurfaceData.html#a6abcfd237e473c274a58ad1e6fd96190',1,'core::SurfaceData']]],
-  ['triggeranomaly_6',['triggerAnomaly',['../classcore_1_1SharedContext.html#a5d31c94fe3c4c740ae40b15ee7d1105d',1,'core::SharedContext']]],
-  ['trypop_7',['tryPop',['../classcore_1_1ThreadSafeQueue.html#a7ab4f8e13c28b1af8eb8896b8b3de0ea',1,'core::ThreadSafeQueue']]]
+  ['navigationcommand_0',['NavigationCommand',['../classtasks_1_1NavigationCommand.html',1,'tasks::NavigationCommand'],['../classtasks_1_1NavigationCommand.html#a0f2540bda4867ad2a6d4ec4b17714074',1,'tasks::NavigationCommand::NavigationCommand()']]],
+  ['navigationcommand_2ecpp_1',['NavigationCommand.cpp',['../NavigationCommand_8cpp.html',1,'']]],
+  ['navigationcommand_2ehpp_2',['NavigationCommand.hpp',['../NavigationCommand_8hpp.html',1,'']]],
+  ['navigationcontrol_3',['NavigationControl',['../classtasks_1_1NavigationControl.html',1,'tasks::NavigationControl'],['../classtasks_1_1NavigationControl.html#ad1249e492f5d5b5b86e53dfd215eb24e',1,'tasks::NavigationControl::NavigationControl()']]],
+  ['navigationcontrol_2ecpp_4',['NavigationControl.cpp',['../NavigationControl_8cpp.html',1,'']]],
+  ['navigationcontrol_2ehpp_5',['NavigationControl.hpp',['../NavigationControl_8hpp.html',1,'']]],
+  ['navigationsetpoint_6',['NavigationSetpoint',['../structcore_1_1NavigationSetpoint.html',1,'core']]]
 ];

@@ -1,0 +1,71 @@
+\doxysection{inspection.\+frame.\+Synthetic\+Frame\+Generator Class Reference}
+\hypertarget{classinspection_1_1frame_1_1SyntheticFrameGenerator}{}\label{classinspection_1_1frame_1_1SyntheticFrameGenerator}\index{inspection.frame.SyntheticFrameGenerator@{inspection.frame.SyntheticFrameGenerator}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classinspection_1_1frame_1_1SyntheticFrameGenerator_afd80776847b6a78e20a86f5ba5869711}\label{classinspection_1_1frame_1_1SyntheticFrameGenerator_afd80776847b6a78e20a86f5ba5869711} 
+None {\bfseries \+\_\+\+\_\+init\+\_\+\+\_\+} (self, cv2, np)
+\item 
+tuple\mbox{[}object, Anomaly\+Frame\+Type\mbox{]} \mbox{\hyperlink{classinspection_1_1frame_1_1SyntheticFrameGenerator_a065d00039bdd7026bbca6ae9c49bf549}{generate}} (self)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classinspection_1_1frame_1_1SyntheticFrameGenerator_adfb71c9c4af263c28d8eb4a66cf64c71}\label{classinspection_1_1frame_1_1SyntheticFrameGenerator_adfb71c9c4af263c28d8eb4a66cf64c71} 
+None {\bfseries \+\_\+draw\+\_\+ceiling} (self, \mbox{\hyperlink{namespaceinspection_1_1frame}{frame}})
+\item 
+\Hypertarget{classinspection_1_1frame_1_1SyntheticFrameGenerator_a98fd7118fdd483b46b1756e771ec05ae}\label{classinspection_1_1frame_1_1SyntheticFrameGenerator_a98fd7118fdd483b46b1756e771ec05ae} 
+Anomaly\+Frame\+Type {\bfseries \+\_\+draw\+\_\+defect} (self, \mbox{\hyperlink{namespaceinspection_1_1frame}{frame}})
+\item 
+\Hypertarget{classinspection_1_1frame_1_1SyntheticFrameGenerator_a238a29784451574ecbc4372fc9901de7}\label{classinspection_1_1frame_1_1SyntheticFrameGenerator_a238a29784451574ecbc4372fc9901de7} 
+None {\bfseries \+\_\+draw\+\_\+hud} (self, \mbox{\hyperlink{namespaceinspection_1_1frame}{frame}}, str anomaly\+\_\+type)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classinspection_1_1frame_1_1SyntheticFrameGenerator_afcb445cb620e1bbc76f9c9cc5f5320b1}\label{classinspection_1_1frame_1_1SyntheticFrameGenerator_afcb445cb620e1bbc76f9c9cc5f5320b1} 
+{\bfseries \+\_\+cv2} = cv2
+\item 
+\Hypertarget{classinspection_1_1frame_1_1SyntheticFrameGenerator_a1fab797bca4130e9b9b39d3853cdbcc2}\label{classinspection_1_1frame_1_1SyntheticFrameGenerator_a1fab797bca4130e9b9b39d3853cdbcc2} 
+{\bfseries \+\_\+np} = np
+\item 
+\Hypertarget{classinspection_1_1frame_1_1SyntheticFrameGenerator_a544a12d3fd3479dab136b631efc80277}\label{classinspection_1_1frame_1_1SyntheticFrameGenerator_a544a12d3fd3479dab136b631efc80277} 
+{\bfseries \+\_\+robot\+\_\+renderer} = \mbox{\hyperlink{classrendering_1_1cv__robot_1_1OpenCVRobotRenderer}{Open\+CVRobot\+Renderer}}(cv2, np)
+\item 
+\Hypertarget{classinspection_1_1frame_1_1SyntheticFrameGenerator_a0ebb013bc9b398ded543e28378c42529}\label{classinspection_1_1frame_1_1SyntheticFrameGenerator_a0ebb013bc9b398ded543e28378c42529} 
+int {\bfseries \+\_\+frame\+\_\+index} = 0
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classinspection_1_1frame_1_1SyntheticFrameGenerator_ad5f56ea682a573d35465ed1dbdceb32b}\label{classinspection_1_1frame_1_1SyntheticFrameGenerator_ad5f56ea682a573d35465ed1dbdceb32b} 
+int {\bfseries \+\_\+\+FRAME\+\_\+H} = 480
+\item 
+\Hypertarget{classinspection_1_1frame_1_1SyntheticFrameGenerator_a4bc76cf4cd61aad0b3acda8beb4725c3}\label{classinspection_1_1frame_1_1SyntheticFrameGenerator_a4bc76cf4cd61aad0b3acda8beb4725c3} 
+int {\bfseries \+\_\+\+FRAME\+\_\+W} = 640
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Gera quadros sintéticos de inspeção usando primitivas do OpenCV.
+
+Os módulos ``cv2`` e ``np`` são injetados para evitar importá-los no
+carregamento do módulo, pois são dependências opcionais pesadas.
+\end{DoxyVerb}
+ 
+
+\label{doc-func-members}
+\Hypertarget{classinspection_1_1frame_1_1SyntheticFrameGenerator_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classinspection_1_1frame_1_1SyntheticFrameGenerator_a065d00039bdd7026bbca6ae9c49bf549}\index{inspection.frame.SyntheticFrameGenerator@{inspection.frame.SyntheticFrameGenerator}!generate@{generate}}
+\index{generate@{generate}!inspection.frame.SyntheticFrameGenerator@{inspection.frame.SyntheticFrameGenerator}}
+\doxysubsubsection{\texorpdfstring{generate()}{generate()}}
+{\footnotesize\ttfamily \label{classinspection_1_1frame_1_1SyntheticFrameGenerator_a065d00039bdd7026bbca6ae9c49bf549} 
+ tuple\mbox{[}object, Anomaly\+Frame\+Type\mbox{]} inspection.\+frame.\+Synthetic\+Frame\+Generator.\+generate (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Retorna ``(frame_ndarray, tipo_de_anomalia_simulada)``.\end{DoxyVerb}
+ 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/inspection/frame.\+py\end{DoxyCompactItemize}

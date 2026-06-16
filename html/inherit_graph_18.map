@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$classmqtt_1_1MqttComponent.html" title=" " alt="" coords="5,65,167,93"/>
+<area shape="rect" id="Node000001" href="$classgui_1_1app_1_1OperatorGUI.html" title=" " alt="" coords="256,5,410,33"/>
+<area shape="poly" id="edge1_Node000000_Node000001" title=" " alt="" coords="152,58,214,42,265,33,260,35,215,47,154,63"/>
+<area shape="rect" id="Node000002" href="$classinspection_1_1service_1_1YoloInspectionService.html" title=" " alt="" coords="215,57,451,102"/>
+<area shape="poly" id="edge2_Node000000_Node000002" title=" " alt="" coords="182,77,217,79,212,80,183,82"/>
+<area shape="rect" id="Node000003" href="$classsimulator_1_1app_1_1TunelSimulator.html" title=" " alt="" coords="227,125,438,153"/>
+<area shape="poly" id="edge3_Node000000_Node000003" title=" " alt="" coords="153,95,215,111,265,125,260,125,214,116,152,100"/>
+</map>

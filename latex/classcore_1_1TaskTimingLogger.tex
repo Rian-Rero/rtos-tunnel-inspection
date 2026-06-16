@@ -1,0 +1,52 @@
+\doxysection{core\+::Task\+Timing\+Logger Class Reference}
+\hypertarget{classcore_1_1TaskTimingLogger}{}\label{classcore_1_1TaskTimingLogger}\index{core::TaskTimingLogger@{core::TaskTimingLogger}}
+
+
+Singleton que registra, por ciclo, o instante agendado vs real de wakeup e o instante de fim de execução de cada tarefa periódica.  
+
+
+
+
+{\ttfamily \#include $<$Task\+Timing\+Logger.\+hpp$>$}
+
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record}{Record}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classcore_1_1TaskTimingLogger_aee43997c6b349ef5c9cd94319969e71f}\label{classcore_1_1TaskTimingLogger_aee43997c6b349ef5c9cd94319969e71f} 
+void {\bfseries open} (const std\+::string \&path)
+\item 
+\Hypertarget{classcore_1_1TaskTimingLogger_a15a176f35ffc2646da4f615ed605ae84}\label{classcore_1_1TaskTimingLogger_a15a176f35ffc2646da4f615ed605ae84} 
+void {\bfseries log} (const \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record}{Record}} \&r)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{classcore_1_1TaskTimingLogger_a942c0f4173aff0aa94f1af385f480b52}\label{classcore_1_1TaskTimingLogger_a942c0f4173aff0aa94f1af385f480b52} 
+static Task\+Timing\+Logger \& {\bfseries instance} ()
+\item 
+\Hypertarget{classcore_1_1TaskTimingLogger_aad450ff767ed4ba860df1d64538868cb}\label{classcore_1_1TaskTimingLogger_aad450ff767ed4ba860df1d64538868cb} 
+{\footnotesize template$<$typename Time\+Point$>$ }\\static uint64\+\_\+t {\bfseries to\+Ns} (Time\+Point tp)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Singleton que registra, por ciclo, o instante agendado vs real de wakeup e o instante de fim de execução de cada tarefa periódica. 
+
+CSV gerado\+: task\+\_\+name, period\+\_\+ms, cycle\+\_\+num, scheduled\+\_\+ns, actual\+\_\+ns, exec\+\_\+end\+\_\+ns
+
+
+\begin{DoxyItemize}
+\item jitter = actual\+\_\+ns -\/ scheduled\+\_\+ns (deve ser \texorpdfstring{$\sim$}{\string~}0 e estável)
+\item exec\+\_\+time = exec\+\_\+end\+\_\+ns -\/ actual\+\_\+ns (deve ser \texorpdfstring{$<$}{<}\texorpdfstring{$<$}{<} period\+\_\+ms \texorpdfstring{$\ast$}{*} 1e6)
+\item slack = (scheduled\+\_\+ns + period\+\_\+ms\texorpdfstring{$\ast$}{*}1e6) -\/ exec\+\_\+end\+\_\+ns (deve ser \texorpdfstring{$>$}{>} 0) 
+\end{DoxyItemize}
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+include/core/\mbox{\hyperlink{TaskTimingLogger_8hpp}{Task\+Timing\+Logger.\+hpp}}\item 
+src/core/\mbox{\hyperlink{TaskTimingLogger_8cpp}{Task\+Timing\+Logger.\+cpp}}\end{DoxyCompactItemize}
