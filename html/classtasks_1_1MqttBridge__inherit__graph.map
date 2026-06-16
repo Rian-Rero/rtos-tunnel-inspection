@@ -1,5 +1,0 @@
-<map id="tasks::MqttBridge" name="tasks::MqttBridge">
-<area shape="rect" id="Node000001" title="Faz a ponte entre o broker MQTT e o contexto compartilhado do C++." alt="" coords="5,81,142,109"/>
-<area shape="rect" id="Node000002" href="$classtasks_1_1ITask.html" title="Interface padrão que todas as tarefas do robô devem implementar." alt="" coords="25,5,122,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="75,47,76,81,71,80,72,51"/>
-</map>

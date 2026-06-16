@@ -1,5 +1,0 @@
-<map id="tasks::NavigationCommand" name="tasks::NavigationCommand">
-<area shape="rect" id="Node000001" title="Tarefa que publica setpoints de navegação no buffer IPC." alt="" coords="5,81,208,109"/>
-<area shape="rect" id="Node000002" href="$classtasks_1_1ITask.html" title="Interface padrão que todas as tarefas do robô devem implementar." alt="" coords="58,5,155,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,47,109,82,104,79,105,51"/>
-</map>

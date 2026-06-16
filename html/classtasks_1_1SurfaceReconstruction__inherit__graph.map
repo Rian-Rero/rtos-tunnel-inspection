@@ -1,5 +1,0 @@
-<map id="tasks::SurfaceReconstruction" name="tasks::SurfaceReconstruction">
-<area shape="rect" id="Node000001" title="Tarefa que simula o LIDAR e publica dados da superfície." alt="" coords="5,81,216,109"/>
-<area shape="rect" id="Node000002" href="$classtasks_1_1ITask.html" title="Interface padrão que todas as tarefas do robô devem implementar." alt="" coords="62,5,159,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="112,47,113,82,108,79,109,51"/>
-</map>

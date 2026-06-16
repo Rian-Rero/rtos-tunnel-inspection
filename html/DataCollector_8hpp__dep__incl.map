@@ -1,7 +1,0 @@
-<map id="include/tasks/DataCollector.hpp" name="include/tasks/DataCollector.hpp">
-<area shape="rect" id="Node000001" title="Declaração da tarefa de coleta e persistência de dados." alt="" coords="32,5,259,33"/>
-<area shape="rect" id="Node000002" href="$main_8cpp.html" title="Ponto de entrada do sistema de inspeção ATR." alt="" coords="5,81,110,109"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,43,75,83,72,78,116,44"/>
-<area shape="rect" id="Node000003" href="$DataCollector_8cpp.html" title="Implementação da tarefa de coleta e persistência de dados." alt="" coords="134,81,333,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="174,41,221,81,215,81,172,46"/>
-</map>

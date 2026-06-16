@@ -45,6 +45,11 @@ Build/
 build-*/
 bin/
 
+# Generated documentation
+html/
+latex/
+site/
+
 # CMake generated files
 CMakeFiles/
 CMakeCache.txt

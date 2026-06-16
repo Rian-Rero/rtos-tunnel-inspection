@@ -1,5 +1,0 @@
-<map id="tasks::DataCollector" name="tasks::DataCollector">
-<area shape="rect" id="Node000001" title="Classe responsável por consumir os dados da superfície e gravá&#45;los em um ficheiro CSV." alt="" coords="5,81,159,109"/>
-<area shape="rect" id="Node000002" href="$classtasks_1_1ITask.html" title="Interface padrão que todas as tarefas do robô devem implementar." alt="" coords="33,5,131,33"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="84,47,85,81,79,80,80,51"/>
-</map>
