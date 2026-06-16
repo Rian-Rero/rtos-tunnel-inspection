@@ -40,10 +40,15 @@ cleanup() {
         echo "════════════════════════════════════════════════════════"
         echo "  Análise de Timing RTOS — Prova de Conformidade        "
         echo "════════════════════════════════════════════════════════"
-        "$py" src/scripts/analyze_timing.py &
-        disown $!
-        echo ""
-        echo "Gráfico salvo em: data/logs/timing_analysis.png"
+        local mpl_config_dir="${MPLCONFIGDIR:-/tmp/atr-matplotlib-${UID:-user}}"
+        mkdir -p "$mpl_config_dir"
+        MPLBACKEND=Agg MPLCONFIGDIR="$mpl_config_dir" "$py" src/scripts/analyze_timing.py
+
+        if command -v xdg-open >/dev/null 2>&1 && [ -f "data/logs/timing_analysis.png" ]; then
+            setsid xdg-open "data/logs/timing_analysis.png" >/dev/null 2>&1 &
+            disown $!
+            echo "Imagem aberta em processo destacado: data/logs/timing_analysis.png"
+        fi
     fi
     exit "$exit_code"
 }

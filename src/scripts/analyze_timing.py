@@ -347,7 +347,8 @@ def main() -> None:
     out = path.parent / "timing_analysis.png"
     plt.savefig(out, dpi=150, bbox_inches="tight")
     print(f"Gráfico salvo em: {out}")
-    plt.show()
+    if plt.get_backend().lower() != "agg":
+        plt.show()
 
 
 if __name__ == "__main__":
