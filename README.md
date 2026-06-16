@@ -5,9 +5,9 @@
 ![MQTT](https://img.shields.io/badge/Protocol-MQTT-red.svg)
 ![YOLOv8](https://img.shields.io/badge/AI-YOLOv8-brightgreen.svg)
 
-Este repositório contém o código-fonte do sistema de controle, simulação e operação remota de um robô autônomo para inspeção de integridade estrutural em túneis. O projeto foi desenvolvido como Trabalho Final da disciplina de **Automação em Tempo Real (ATR) - 2026/1**.
+Sistema de controle, simulação e operação remota de um robô autônomo para inspeção de integridade estrutural em túneis. O projeto foi desenvolvido como Trabalho Final da disciplina de **Automação em Tempo Real (ATR) - 2026/1**.
 
-O sistema utiliza uma arquitetura híbrida: um núcleo crítico de tempo real desenvolvido em **C/C++** (gerenciamento de multitarefas, sincronização, sensores simulados e controle PID) e subsistemas periféricos em **Python** (visualização gráfica, interface de operação e visão computacional), totalmente integrados via protocolo **MQTT**.
+A arquitetura é híbrida: o núcleo crítico de tempo real roda em **C++17** com threads periódicas, sincronização e controle PID; os módulos periféricos rodam em **Python** para visualização, interface de operador, simulação gráfica e inspeção visual com YOLOv8. A comunicação entre processos acontece exclusivamente via **MQTT**.
 
 ## 👥 Autores
 
@@ -16,142 +16,238 @@ O sistema utiliza uma arquitetura híbrida: um núcleo crítico de tempo real de
 
 ---
 
-## 🏗️ Estrutura do Repositório
-
-O projeto foi organizado utilizando os princípios de separação de responsabilidades (fatias verticais) e modularidade. Abaixo está a descrição da função de cada diretório e arquivo principal:
+## 🏗️ Estrutura do Projeto
 
 ```text
-RTOS-TUNNEL-INSPECTION/
-│
-├── Makefile                  # Automação da compilação do núcleo C++
-├── run.sh                    # Script principal que orquestra a execução de todo o sistema
-│
-├── bin/                      # Contém o executável final gerado após a compilação
-├── build/                    # Arquivos objeto (.o) temporários da compilação
-│
-├── data/                     # Armazenamento de dados em tempo de execução
-│   ├── logs/                 # Registros em CSV do LIDAR e anomalias do teto
-│   └── capturas/             # Imagens emuladas salvas pelo robô para análise da IA
-│
-├── models/                   # Modelos de Inteligência Artificial
-│   └── yolov8n.pt            # Pesos pré-treinados do modelo YOLOv8 para inspeção visual
-│
-├── include/                  # Arquivos de cabeçalho (Headers .hpp) do C++
-│   ├── core/                 # Estruturas fundamentais (Tipos de Dados, Buffers Seguros, Contexto Global)
-│   └── tasks/                # Interfaces e definições das rotinas multitarefa (Threads)
-│
-└── src/                      # Código fonte principal
-    ├── main.cpp              # Ponto de entrada do sistema C++ (instancia as threads e buffers)
-    │
-    ├── tasks/                # Implementação (.cpp) das threads de controle, navegação e sensores
-    │
-    └── scripts/              # Subsistemas e microsserviços em Python
-        ├── tunel_simulator.py       # Visualização 2D com Pygame guiada pela telemetria MQTT
-        ├── operator_interface.py    # GUI de operação e telemetria (Tkinter)
-        └── yolo_mqtt_service.py     # Serviço que gera a câmera simulada e processa o trigger via YOLOv8
+rtos-tunnel-inspection/
+├── CMakeLists.txt              # Build C++ e alvos run/part1/docs
+├── run.sh                      # Orquestra o sistema completo
+├── part1.sh                    # Executa apenas o núcleo C++
+├── comandos.txt                # Comandos auxiliares de stress/teste RT
+├── requirements.txt            # Dependências Python
+├── include/
+│   ├── core/                   # SharedContext, filas, logger, publisher MQTT
+│   └── tasks/                  # Interfaces das tarefas C++
+├── src/
+│   ├── main.cpp                # Entrada do núcleo RTOS C++
+│   ├── core/                   # Implementações do núcleo comum
+│   ├── tasks/                  # Tarefas periódicas e ponte MQTT
+│   ├── gui/                    # Interface Tkinter do operador
+│   ├── simulator/              # Simulador visual em Pygame
+│   ├── inspection/             # Serviço YOLOv8 via MQTT
+│   └── scripts/
+│       ├── operator_interface.py
+│       ├── tunel_simulator.py
+│       ├── yolo_mqtt_service.py
+│       ├── monitor_timing.py
+│       └── analyze_timing.py
+├── data/
+│   ├── capturas/               # Frames simulados da câmera
+│   └── logs/                   # CSVs e gráficos de timing
+├── models/
+│   └── yolov8n.pt              # Modelo YOLOv8
+├── docs/                       # Documentação MkDocs
+├── html/ e latex/              # Saídas Doxygen versionadas/geradas
+└── build/                      # Diretório local de build CMake
 ```
 
-## ⚙️ Principais Funcionalidades e Requisitos Atendidos
+## ⚙️ Funcionalidades
 
-- Núcleo de Tempo Real (C++): Sistema multitarefa utilizando `std::thread`, com acesso concorrente protegido por `std::mutex` e sincronização orientada a eventos usando `std::condition_variable`.
-
-- Controle de Navegação: Implementação de Controlador PID clássico para manter a velocidade do robô.
-
-- Comunicação Interprocessos: Troca de dados assíncrona entre módulos isolados utilizando um Broker MQTT.
-
-### 🌟 Pontos Extras Implementados:
-
-- Sensor IMU Simulado: Leitura da inclinação do túnel produzida pelo modelo físico do núcleo C++.
-
-- Inspeção Visual por IA: Integração do modelo YOLOv8 para inferência computacional sob demanda quando uma anomalia estrutural é detectada pelo LIDAR. A imagem da câmera é 100% simulada, gerada pelo robô virtual, sem usar webcam física do computador.
+- Núcleo C++ multitarefa com `std::thread`, `std::mutex`, `std::condition_variable` e ciclos periódicos com `sleep_until`.
+- Prioridades Rate-Monotonic quando executado com permissão para escalonamento de tempo real.
+- Controle PID de velocidade do robô.
+- Simulação de LIDAR, IMU, encoder, atuador e reconstrução de superfície.
+- Interface Tkinter para operação manual/automática e telemetria.
+- Simulador Pygame guiado somente por telemetria MQTT.
+- Inspeção visual com YOLOv8 por trigger MQTT.
+- Monitoramento de timing em tempo real e relatório final com jitter, tempo de execução e Gantt por hiperperíodo.
+- MQTT com QoS 2 (`exactly once`) em publicações e assinaturas do projeto.
 
 ---
 
-## 🚀 Como Executar
+## 🚀 Como Rodar
 
-### 1. Preparação do Ambiente
+### 1. Dependências do sistema
 
-Certifique-se de que o Broker MQTT (ex: Mosquitto) está ativo no seu sistema. No Linux, instale também o suporte ao Tkinter, que não vem via `pip`:
+No Ubuntu/Debian, instale as ferramentas principais:
 
 ```bash
-sudo apt install python3-tk
+sudo apt update
+sudo apt install -y build-essential cmake python3 python3-pip python3-venv python3-tk mosquitto mosquitto-clients
 ```
 
-Depois instale as dependências do Python de uma só vez:
+Inicie o broker MQTT:
 
 ```bash
+sudo systemctl enable --now mosquitto
+```
+
+Se preferir iniciar manualmente em outro terminal:
+
+```bash
+mosquitto -v
+```
+
+### 2. Ambiente Python
+
+Na raiz do projeto:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Execução Completa
+O `run.sh` usa automaticamente `./venv/bin/python` quando o ambiente virtual existe. Também é possível sobrescrever o interpretador com a variável `PYTHON`.
 
-Para compilar o núcleo C++ e iniciar simultaneamente o simulador, a interface do operador e o serviço de IA, utilize o comando unificado:
+### 3. Build com CMake
+
+O fluxo principal usado no projeto é entrar em `build/`, configurar com `cmake ..` e rodar o alvo `run`:
 
 ```bash
+mkdir -p build
+cd build
+cmake ..
 make run
 ```
 
-Este comando garante que o código C++ está atualizado e executa o script de orquestração `run.sh`.
+O alvo `make run` chama `run.sh`, que:
 
----
+1. recompila o núcleo C++ em modo `Release`;
+2. inicia o executável `atr_inspection`;
+3. abre o monitor de timing em tempo real;
+4. inicia o simulador Pygame;
+5. inicia o daemon YOLOv8;
+6. inicia a GUI do operador.
 
-## 📚 Documentação
-
-O projeto utiliza ferramentas de documentação automática para garantir a manutenibilidade do código.
-
-### Gerar Documentação Unificada
-
-Para gerar as páginas de documentação tanto do código C++ (Doxygen) quanto do código Python (MkDocs), execute:
-
-```bash
-make docs
-```
-
-- C++ (Doxygen): Disponível na pasta `html/` (abra o `index.html`).
-- Python (MkDocs): Disponível na pasta `site/`.
-
-### Visualização em Tempo Real (Python)
-
-Para visualizar a documentação Python com suporte a live-reload enquanto desenvolve:
+Para ativar escalonamento RT (`SCHED_FIFO`) e `mlockall`, rode com permissão de administrador:
 
 ```bash
-make docs-serve
+sudo make run
 ```
 
----
+Sem `sudo`, o sistema ainda roda, mas o Linux pode negar as prioridades de tempo real.
 
-## ⚙️ Funcionalidades Principais
+### 4. Rodar apenas o núcleo C++
 
-- Núcleo de Tempo Real (C++): Sistema multitarefa com sincronização via `mutex` e `condition_variable`.
-- Mitigação de Drift: Utilização de `sleep_until` com `steady_clock` para garantir periodicidade estrita.
-- Controle de Navegação: Implementação de Controlador PID para regulação de velocidade.
-- Interface do operador com visual do carrinho e telemetria em tempo real.
-- Visualização do simulador guiada exclusivamente pela telemetria MQTT publicada pelo núcleo C++.
+Para executar somente a parte C++:
 
-### 🌟 Extras
+```bash
+cd build
+cmake ..
+make part1
+```
 
-- Sensor IMU simulado (inclinação do túnel)
-- Inspeção Visual com YOLOv8 via MQTT usando câmera embarcada simulada
+Também é possível compilar diretamente:
 
-### Tópicos MQTT
+```bash
+cd build
+cmake ..
+make -j"$(nproc)"
+./atr_inspection
+```
 
-- `cmd/mode`, `cmd/direction`, `cmd/speed_sp`, `cmd/camera`
-- `actuator/motor`
-- `sensor/lidar`, `sensor/imu`, `sensor/encoder`
-- `telemetry/robot`, `telemetry/yolo`, `state/inspection`
+### 5. Encerramento
 
-A GUI, o simulador e o serviço YOLO se comunicam com o núcleo C++ exclusivamente pelo broker MQTT. O serviço YOLO não publica `state/inspection`; esse estado é controlado pelo núcleo C++ para manter a visualização da câmera e do feixe sincronizada.
-
-Todas as publicações e assinaturas MQTT do projeto usam QoS 2 (`exactly once`).
-
----
-
-## 🛑 Encerramento
-
-Para encerrar o sistema:
+Use:
 
 ```bash
 CTRL + C
 ```
 
-O sistema realizará um encerramento gracioso de todos os processos ativos.
+O script encerra os processos filhos, aguarda o núcleo C++ finalizar e gera a análise final de timing quando `data/logs/task_timing.csv` existir.
+
+---
+
+## 📊 Logs e Análise de Timing
+
+Durante a execução, o núcleo C++ grava ciclos em:
+
+```text
+data/logs/task_timing.csv
+```
+
+Ao encerrar o sistema, o script gera:
+
+```text
+data/logs/timing_analysis.png
+```
+
+Esse gráfico contém:
+
+- jitter de wakeup por ciclo;
+- tempo de execução por tarefa;
+- Gantt de um hiperperíodo central da execução, usando o MMC dos períodos das tarefas cíclicas;
+- setas de deadline para as tarefas periódicas.
+
+Também é possível gerar manualmente:
+
+```bash
+python src/scripts/analyze_timing.py data/logs/task_timing.csv
+```
+
+---
+
+## 📡 MQTT
+
+Todos os módulos se comunicam pelo broker MQTT local (`localhost:1883`) com QoS 2.
+
+### Comandos
+
+| Tópico | Origem | Função |
+| --- | --- | --- |
+| `cmd/mode` | GUI | Alterna entre AUTO e MANUAL |
+| `cmd/direction` | GUI | Direção manual do carrinho |
+| `cmd/speed_sp` | GUI | Setpoint de velocidade |
+| `cmd/camera` | C++/GUI | Trigger da inspeção visual |
+
+### Telemetria e estado
+
+| Tópico | Origem | Função |
+| --- | --- | --- |
+| `actuator/motor` | C++ controle | Saída do PID |
+| `sensor/lidar` | C++ LIDAR | Leitura do teto |
+| `sensor/imu` | C++ IMU | Inclinação do túnel |
+| `sensor/encoder` | C++ encoder | Contagem de encoder |
+| `telemetry/robot` | C++ coletor | Estado visual do robô |
+| `telemetry/yolo` | Python YOLO | Resultado da inspeção visual |
+| `state/inspection` | C++ câmera | Estado da inspeção em andamento |
+
+O serviço YOLO publica apenas `telemetry/yolo`. O estado `state/inspection` é controlado pelo núcleo C++ para manter GUI, simulador e câmera sincronizados.
+
+---
+
+## 📚 Documentação
+
+Os alvos de documentação também ficam disponíveis pelo CMake:
+
+```bash
+cd build
+cmake ..
+make docs
+```
+
+Saídas principais:
+
+- Doxygen C++: `html/index.html`
+- MkDocs Python: `site/`
+
+Para servir a documentação MkDocs com live reload:
+
+```bash
+cd build
+make docs-serve
+```
+
+---
+
+## 🧪 Testes de Carga e RT
+
+O arquivo `comandos.txt` contém comandos auxiliares para instalar ferramentas e rodar stress/cyclictest, por exemplo:
+
+```bash
+stress-ng --cpu $(nproc) --vm 2 --vm-bytes 70% &
+sudo cyclictest --mlockall --smp --priority=99 --interval=200 --distance=0 --duration=30
+```
+
+Esses comandos são úteis para avaliar jitter e comportamento sob carga, enquanto o projeto gera os logs de timing próprios em `data/logs/`.
