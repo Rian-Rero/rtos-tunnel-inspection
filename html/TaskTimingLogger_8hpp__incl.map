@@ -1,5 +1,5 @@
 <map id="include/core/TaskTimingLogger.hpp" name="include/core/TaskTimingLogger.hpp">
-<area shape="rect" id="Node000001" title="Logger de timing por ciclo para provar conformidade de deadlines RTOS." alt="" coords="96,5,345,33"/>
+<area shape="rect" id="Node000001" title="Registrador de temporização por ciclo para provar conformidade de prazos RTOS." alt="" coords="96,5,345,33"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,81,71,109"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,36,85,77,83,72,187,31"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="95,81,160,109"/>

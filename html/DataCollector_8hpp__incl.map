@@ -12,7 +12,7 @@
 <area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="394,31,503,75,498,75,393,36"/>
 <area shape="rect" id="Node000011" href="$ThreadSafeQueue_8hpp.html" title="Implementação de uma fila thread&#45;safe genérica." alt="" coords="662,81,859,109"/>
 <area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="432,31,676,77,671,78,432,36"/>
-<area shape="rect" id="Node000013" href="$Itask_8hpp_source.html" title=" " alt="" coords="883,81,1003,109"/>
+<area shape="rect" id="Node000013" href="$Itask_8hpp.html" title="Definição da interface base para todas as tarefas cíclicas." alt="" coords="883,81,1003,109"/>
 <area shape="poly" id="edge14_Node000001_Node000013" title=" " alt="" coords="474,30,655,50,870,80,865,81,654,55,475,35"/>
 <area shape="rect" id="Node000006" title=" " alt="" coords="328,157,393,184"/>
 <area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="362,107,362,143,358,139,358,111"/>

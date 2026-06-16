@@ -27,7 +27,8 @@
 #include "tasks/NavigationControl.hpp"
 #include "tasks/SurfaceReconstruction.hpp"
 
-/** * @brief Flag atômica exclusiva para o Signal Handler se comunicar com a thread principal.
+/**
+ * @brief Flag atômica exclusiva para o tratador de sinais se comunicar com a thread principal.
  */
 std::atomic<bool> global_shutdown_requested{false};
 
@@ -38,14 +39,10 @@ std::atomic<bool> global_shutdown_requested{false};
 void signalHandler(int signum) {
     core::TerminalPrinter::Log(core::TerminalPrinter::Level::Warning, "Sistema",
                                "Sinal de sistema (" + std::to_string(signum) +
-                                   ") recebido. Solicitando shutdown gracioso...");
+                                   ") recebido. Solicitando encerramento gracioso...");
     global_shutdown_requested = true;
 }
 
-/**
- * @brief Função principal do sistema.
- * @return Código de status de encerramento.
- */
 /**
  * @brief Define política de scheduling SCHED_FIFO para uma thread std::thread.
  * @param t Thread alvo.
@@ -60,6 +57,10 @@ static void setThreadRT(std::thread& t, int priority) {
     }
 }
 
+/**
+ * @brief Função principal do sistema.
+ * @return Código de status de encerramento.
+ */
 int main() {
     // Registro dos tratadores de sinal
     std::signal(SIGINT, signalHandler);
@@ -70,7 +71,7 @@ int main() {
 
     core::TerminalPrinter::Banner("Sistema de Inspeção ATR", "Etapa 1 - Inicialização");
 
-    // ── Logger de timing: grava ciclo-a-ciclo para análise de jitter/deadline ───
+    // Registrador de temporização: grava ciclo a ciclo para análise de desvio e prazo.
     std::filesystem::create_directories("data/logs");
     core::TaskTimingLogger::instance().open("data/logs/task_timing.csv");
 
@@ -128,7 +129,7 @@ int main() {
     core::TerminalPrinter::Log(core::TerminalPrinter::Level::Info, "Sistema",
                                "Encerrando buffers e notificando tarefas...");
 
-    // Inicia o shutdown coordenado da arquitetura
+    // Inicia o encerramento coordenado da arquitetura
     global_context->is_running = false;
     command_buffer->close();
     surface_buffer->close();

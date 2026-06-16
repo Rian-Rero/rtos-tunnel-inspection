@@ -14,35 +14,33 @@
 \DoxyCodeLine{00013\ }
 \DoxyCodeLine{00024\ \textcolor{keyword}{class\ }TaskTimingLogger\ \{}
 \DoxyCodeLine{00025\ \ \ \ \textcolor{keyword}{public}:}
-\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record}{Record}}\ \{}
-\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ task;}
-\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ period\_ms;}
-\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ uint64\_t\ cycle;}
-\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ uint64\_t\ scheduled\_ns;}
-\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ uint64\_t\ actual\_ns;}
-\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ uint64\_t\ exec\_end\_ns;}
-\DoxyCodeLine{00033\ \ \ \ \ \};}
-\DoxyCodeLine{00034\ }
-\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keyword}{static}\ TaskTimingLogger\&\ instance()\ \{}
-\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ TaskTimingLogger\ inst;}
-\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ inst;}
-\DoxyCodeLine{00038\ \ \ \ \ \}}
-\DoxyCodeLine{00039\ }
-\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keywordtype}{void}\ open(\textcolor{keyword}{const}\ std::string\&\ path);}
-\DoxyCodeLine{00041\ \ \ \ \ \textcolor{keywordtype}{void}\ log(\textcolor{keyword}{const}\ Record\&\ r);}
-\DoxyCodeLine{00042\ }
-\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ TimePo\textcolor{keywordtype}{int}>}
-\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keyword}{static}\ uint64\_t\ toNs(TimePoint\ tp)\ \{}
-\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}uint64\_t\textcolor{keyword}{>}(}
-\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \ \ \ \ std::chrono::duration\_cast<std::chrono::nanoseconds>(tp.time\_since\_epoch()).count());}
-\DoxyCodeLine{00047\ \ \ \ \ \}}
-\DoxyCodeLine{00048\ }
-\DoxyCodeLine{00049\ \ \ \ \textcolor{keyword}{private}:}
-\DoxyCodeLine{00050\ \ \ \ \ TaskTimingLogger()\ =\ \textcolor{keywordflow}{default};}
-\DoxyCodeLine{00051\ \ \ \ \ std::ofstream\ file\_;}
-\DoxyCodeLine{00052\ \ \ \ \ std::mutex\ mutex\_;}
-\DoxyCodeLine{00053\ \};}
-\DoxyCodeLine{00054\ }
-\DoxyCodeLine{00055\ \}\ \ \textcolor{comment}{//\ namespace\ core}}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record}{Record}}\ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record_a0abe5ede85206ebae7715b31d067d37f}{task}};\ \ \ \ \ \ \ }
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record_aa765f3d21718bfad0de1d5ddbf9ba50c}{period\_ms}};\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ uint64\_t\ \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record_ad9c6216db3684b7425fb0d7ddbf4c842}{cycle}};\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ uint64\_t\ \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record_ac480e90df8aad280934a069db2c346ed}{scheduled\_ns}};\ \ }
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ uint64\_t\ \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record_ae3f8948134617d0d821e69d5973fafd8}{actual\_ns}};\ \ \ \ \ }
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ uint64\_t\ \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record_ab1e0b255e299f0741adf7e04b8b89014}{exec\_end\_ns}};\ \ \ }
+\DoxyCodeLine{00036\ \ \ \ \ \};}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keyword}{static}\ TaskTimingLogger\&\ \mbox{\hyperlink{classcore_1_1TaskTimingLogger_ab7ee17c8a2b2bc8b347c59da0daadaf3}{instance}}();}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classcore_1_1TaskTimingLogger_aee43997c6b349ef5c9cd94319969e71f}{open}}(\textcolor{keyword}{const}\ std::string\&\ path);}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classcore_1_1TaskTimingLogger_a15a176f35ffc2646da4f615ed605ae84}{log}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record}{Record}}\&\ r);}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ TimePo\textcolor{keywordtype}{int}>}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keyword}{static}\ uint64\_t\ \mbox{\hyperlink{classcore_1_1TaskTimingLogger_aad450ff767ed4ba860df1d64538868cb}{toNs}}(TimePoint\ tp)\ \{}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}uint64\_t\textcolor{keyword}{>}(}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ std::chrono::duration\_cast<std::chrono::nanoseconds>(tp.time\_since\_epoch()).count());}
+\DoxyCodeLine{00066\ \ \ \ \ \}}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00069\ \ \ \ \ \mbox{\hyperlink{classcore_1_1TaskTimingLogger}{TaskTimingLogger}}()\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00070\ \ \ \ \ std::ofstream\ file\_;}
+\DoxyCodeLine{00071\ \ \ \ \ std::mutex\ mutex\_;}
+\DoxyCodeLine{00072\ \};}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \}\ \ \textcolor{comment}{//\ namespace\ core}}
 
 \end{DoxyCode}

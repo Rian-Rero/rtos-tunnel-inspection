@@ -1,5 +1,5 @@
 <map id="include/core/MqttPublisher.hpp" name="include/core/MqttPublisher.hpp">
-<area shape="rect" id="Node000001" title="Publisher MQTT leve baseado em um processo mosquitto_pub persistente." alt="" coords="5,5,227,33"/>
+<area shape="rect" id="Node000001" title="Publicador MQTT leve baseado em um processo mosquitto_pub persistente." alt="" coords="5,5,227,33"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="44,81,105,109"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,32,92,69,87,66,106,35"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="130,81,188,109"/>

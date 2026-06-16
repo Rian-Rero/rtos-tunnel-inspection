@@ -21,9 +21,6 @@ namespace tasks {
 
 /**
  * @brief Construtor da tarefa DataCollector.
- * @param buffer Ponteiro compartilhado para a fila thread-safe que contém os dados da superfície.
- * @param context Ponteiro compartilhado para o contexto global de estado do sistema.
- * @param log_filename Caminho e nome do arquivo CSV onde os registros serão salvos.
  */
 DataCollector::DataCollector(std::shared_ptr<core::ThreadSafeQueue<core::SurfaceData>> buffer,
                              std::shared_ptr<core::SharedContext> context,
@@ -69,7 +66,7 @@ void DataCollector::run() {
             break;
         }
 
-        // Dupla verificação de segurança caso o sistema solicite encerramento (shutdown)
+        // Dupla verificação de segurança caso o sistema solicite encerramento.
         if (!context_->is_running) {
             break;
         }

@@ -98,57 +98,33 @@ $(function(){initNavTree('MqttPublisher_8hpp_source.html','',''); });
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;string&gt;</span></div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="keyword">namespace </span>core {</div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
-<div class="foldopen" id="foldopen00012" data-start="{" data-end="};">
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno"><a class="line" href="classcore_1_1MqttPublisher.html">   12</a></span><span class="keyword">class </span>MqttPublisher {</div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>   <span class="keyword">private</span>:</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>    FILE* pipe_{<span class="keyword">nullptr</span>};</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    <span class="keyword">static</span> std::string escapeForShell(<span class="keyword">const</span> std::string&amp; value) {</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>        std::string escaped;</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>        escaped.reserve(value.size() + 8);</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>        <span class="keywordflow">for</span> (<span class="keywordtype">char</span> ch : value) {</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>            <span class="keywordflow">if</span> (ch == <span class="charliteral">&#39;\&#39;&#39;</span>) {</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>                escaped += <span class="stringliteral">&quot;&#39;\&quot;&#39;\&quot;&#39;&quot;</span>;</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>            } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>                escaped += ch;</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>            }</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>        }</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>        <span class="keywordflow">return</span> escaped;</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    }</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>   <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    <span class="keyword">explicit</span> MqttPublisher(<span class="keyword">const</span> std::string&amp; topic) {</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        <span class="keyword">const</span> std::string command =</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>            <span class="stringliteral">&quot;mosquitto_pub -h localhost -q 2 -t &#39;&quot;</span> + escapeForShell(topic) + <span class="stringliteral">&quot;&#39; -l&quot;</span>;</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>        pipe_ = popen(command.c_str(), <span class="stringliteral">&quot;w&quot;</span>);</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    }</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    ~MqttPublisher() {</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        <span class="keywordflow">if</span> (pipe_ != <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>            pclose(pipe_);</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        }</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    }</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    MqttPublisher(<span class="keyword">const</span> MqttPublisher&amp;) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    MqttPublisher&amp; operator=(<span class="keyword">const</span> MqttPublisher&amp;) = <span class="keyword">delete</span>;</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordtype">bool</span> publish(<span class="keyword">const</span> std::string&amp; payload) {</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        <span class="keywordflow">if</span> (pipe_ == <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>            <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        }</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        <span class="keywordflow">if</span> (std::fputs(payload.c_str(), pipe_) == EOF) {</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>            <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        }</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        <span class="keywordflow">if</span> (std::fputc(<span class="charliteral">&#39;\n&#39;</span>, pipe_) == EOF) {</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>            <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        }</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        <span class="keywordflow">return</span> std::fflush(pipe_) == 0;</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    }</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>};</div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span></div>
+<div class="foldopen" id="foldopen00019" data-start="{" data-end="};">
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno"><a class="line" href="classcore_1_1MqttPublisher.html">   19</a></span><span class="keyword">class </span><a class="code hl_function" href="classcore_1_1MqttPublisher.html#a70ece16296956f1703ab382cca3eb114">MqttPublisher</a> {</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>   <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    FILE* pipe_{<span class="keyword">nullptr</span>}; </div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keyword">static</span> std::string escapeForShell(<span class="keyword">const</span> std::string&amp; value);</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>   <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="keyword">explicit</span> <a class="code hl_function" href="classcore_1_1MqttPublisher.html#a70ece16296956f1703ab382cca3eb114">MqttPublisher</a>(<span class="keyword">const</span> std::string&amp; topic);</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <a class="code hl_function" href="classcore_1_1MqttPublisher.html#a16708572af19cf01c285d1774ed18b97">~MqttPublisher</a>();</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="classcore_1_1MqttPublisher.html#ade9167bc578812a389bf6db4637a7c44">   45</a></span>    <a class="code hl_function" href="classcore_1_1MqttPublisher.html#ade9167bc578812a389bf6db4637a7c44">MqttPublisher</a>(<span class="keyword">const</span> <a class="code hl_function" href="classcore_1_1MqttPublisher.html#a70ece16296956f1703ab382cca3eb114">MqttPublisher</a>&amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="classcore_1_1MqttPublisher.html#a250c9f0c2ad9a0d79557e8f13fd42adf">   50</a></span>    <a class="code hl_function" href="classcore_1_1MqttPublisher.html#a70ece16296956f1703ab382cca3eb114">MqttPublisher</a>&amp; <a class="code hl_function" href="classcore_1_1MqttPublisher.html#a250c9f0c2ad9a0d79557e8f13fd42adf">operator=</a>(<span class="keyword">const</span> <a class="code hl_function" href="classcore_1_1MqttPublisher.html#a70ece16296956f1703ab382cca3eb114">MqttPublisher</a>&amp;) = <span class="keyword">delete</span>;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="classcore_1_1MqttPublisher.html#ab81e2bc0a824e9105eba8fd69e5e7c9d">publish</a>(<span class="keyword">const</span> std::string&amp; payload);</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>};</div>
 </div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>}  <span class="comment">// namespace core</span></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>}  <span class="comment">// namespace core</span></div>
+<div class="ttc" id="aclasscore_1_1MqttPublisher_html_a16708572af19cf01c285d1774ed18b97"><div class="ttname"><a href="classcore_1_1MqttPublisher.html#a16708572af19cf01c285d1774ed18b97">core::MqttPublisher::~MqttPublisher</a></div><div class="ttdeci">~MqttPublisher()</div><div class="ttdoc">Encerra o processo mosquitto_pub associado ao publicador.</div><div class="ttdef"><b>Definition</b> MqttPublisher.cpp:28</div></div>
+<div class="ttc" id="aclasscore_1_1MqttPublisher_html_a250c9f0c2ad9a0d79557e8f13fd42adf"><div class="ttname"><a href="classcore_1_1MqttPublisher.html#a250c9f0c2ad9a0d79557e8f13fd42adf">core::MqttPublisher::operator=</a></div><div class="ttdeci">MqttPublisher &amp; operator=(const MqttPublisher &amp;)=delete</div><div class="ttdoc">Impede atribuição por cópia para preservar a posse única do canal de escrita.</div></div>
+<div class="ttc" id="aclasscore_1_1MqttPublisher_html_a70ece16296956f1703ab382cca3eb114"><div class="ttname"><a href="classcore_1_1MqttPublisher.html#a70ece16296956f1703ab382cca3eb114">core::MqttPublisher::MqttPublisher</a></div><div class="ttdeci">MqttPublisher(const std::string &amp;topic)</div><div class="ttdoc">Cria um publicador persistente para um tópico MQTT.</div><div class="ttdef"><b>Definition</b> MqttPublisher.cpp:22</div></div>
+<div class="ttc" id="aclasscore_1_1MqttPublisher_html_ab81e2bc0a824e9105eba8fd69e5e7c9d"><div class="ttname"><a href="classcore_1_1MqttPublisher.html#ab81e2bc0a824e9105eba8fd69e5e7c9d">core::MqttPublisher::publish</a></div><div class="ttdeci">bool publish(const std::string &amp;payload)</div><div class="ttdoc">Publica uma mensagem no tópico configurado.</div><div class="ttdef"><b>Definition</b> MqttPublisher.cpp:34</div></div>
+<div class="ttc" id="aclasscore_1_1MqttPublisher_html_ade9167bc578812a389bf6db4637a7c44"><div class="ttname"><a href="classcore_1_1MqttPublisher.html#ade9167bc578812a389bf6db4637a7c44">core::MqttPublisher::MqttPublisher</a></div><div class="ttdeci">MqttPublisher(const MqttPublisher &amp;)=delete</div><div class="ttdoc">Impede cópia para preservar a posse única do canal de escrita.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->

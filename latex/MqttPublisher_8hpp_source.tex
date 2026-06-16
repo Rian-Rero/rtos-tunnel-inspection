@@ -10,53 +10,24 @@
 \DoxyCodeLine{00009\ }
 \DoxyCodeLine{00010\ \textcolor{keyword}{namespace\ }core\ \{}
 \DoxyCodeLine{00011\ }
-\DoxyCodeLine{00012\ \textcolor{keyword}{class\ }MqttPublisher\ \{}
-\DoxyCodeLine{00013\ \ \ \ \textcolor{keyword}{private}:}
-\DoxyCodeLine{00014\ \ \ \ \ FILE*\ pipe\_\{\textcolor{keyword}{nullptr}\};}
-\DoxyCodeLine{00015\ }
-\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keyword}{static}\ std::string\ escapeForShell(\textcolor{keyword}{const}\ std::string\&\ value)\ \{}
-\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ std::string\ escaped;}
-\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ escaped.reserve(value.size()\ +\ 8);}
-\DoxyCodeLine{00019\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{char}\ ch\ :\ value)\ \{}
-\DoxyCodeLine{00020\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ch\ ==\ \textcolor{charliteral}{'\(\backslash\)''})\ \{}
-\DoxyCodeLine{00021\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ escaped\ +=\ \textcolor{stringliteral}{"{}'\(\backslash\)"{}'\(\backslash\)"{}'"{}};}
-\DoxyCodeLine{00022\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
-\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ escaped\ +=\ ch;}
-\DoxyCodeLine{00024\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ escaped;}
-\DoxyCodeLine{00027\ \ \ \ \ \}}
-\DoxyCodeLine{00028\ }
-\DoxyCodeLine{00029\ \ \ \ \textcolor{keyword}{public}:}
-\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keyword}{explicit}\ MqttPublisher(\textcolor{keyword}{const}\ std::string\&\ topic)\ \{}
-\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::string\ command\ =}
-\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}mosquitto\_pub\ -\/h\ localhost\ -\/q\ 2\ -\/t\ '"{}}\ +\ escapeForShell(topic)\ +\ \textcolor{stringliteral}{"{}'\ -\/l"{}};}
-\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ pipe\_\ =\ popen(command.c\_str(),\ \textcolor{stringliteral}{"{}w"{}});}
-\DoxyCodeLine{00034\ \ \ \ \ \}}
-\DoxyCodeLine{00035\ }
-\DoxyCodeLine{00036\ \ \ \ \ \string~MqttPublisher()\ \{}
-\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (pipe\_\ !=\ \textcolor{keyword}{nullptr})\ \{}
-\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \ \ \ \ pclose(pipe\_);}
-\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00040\ \ \ \ \ \}}
+\DoxyCodeLine{00019\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classcore_1_1MqttPublisher_a70ece16296956f1703ab382cca3eb114}{MqttPublisher}}\ \{}
+\DoxyCodeLine{00020\ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00021\ \ \ \ \ FILE*\ pipe\_\{\textcolor{keyword}{nullptr}\};\ }
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keyword}{static}\ std::string\ escapeForShell(\textcolor{keyword}{const}\ std::string\&\ value);}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keyword}{explicit}\ \mbox{\hyperlink{classcore_1_1MqttPublisher_a70ece16296956f1703ab382cca3eb114}{MqttPublisher}}(\textcolor{keyword}{const}\ std::string\&\ topic);}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00040\ \ \ \ \ \mbox{\hyperlink{classcore_1_1MqttPublisher_a16708572af19cf01c285d1774ed18b97}{\string~MqttPublisher}}();}
 \DoxyCodeLine{00041\ }
-\DoxyCodeLine{00042\ \ \ \ \ MqttPublisher(\textcolor{keyword}{const}\ MqttPublisher\&)\ =\ \textcolor{keyword}{delete};}
-\DoxyCodeLine{00043\ \ \ \ \ MqttPublisher\&\ operator=(\textcolor{keyword}{const}\ MqttPublisher\&)\ =\ \textcolor{keyword}{delete};}
-\DoxyCodeLine{00044\ }
-\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keywordtype}{bool}\ publish(\textcolor{keyword}{const}\ std::string\&\ payload)\ \{}
-\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (pipe\_\ ==\ \textcolor{keyword}{nullptr})\ \{}
-\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
-\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (std::fputs(payload.c\_str(),\ pipe\_)\ ==\ EOF)\ \{}
-\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
-\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (std::fputc(\textcolor{charliteral}{'\(\backslash\)n'},\ pipe\_)\ ==\ EOF)\ \{}
-\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
-\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::fflush(pipe\_)\ ==\ 0;}
-\DoxyCodeLine{00056\ \ \ \ \ \}}
-\DoxyCodeLine{00057\ \};}
-\DoxyCodeLine{00058\ }
-\DoxyCodeLine{00059\ \}\ \ \textcolor{comment}{//\ namespace\ core}}
+\DoxyCodeLine{00045\ \ \ \ \ \mbox{\hyperlink{classcore_1_1MqttPublisher_ade9167bc578812a389bf6db4637a7c44}{MqttPublisher}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classcore_1_1MqttPublisher_a70ece16296956f1703ab382cca3eb114}{MqttPublisher}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00050\ \ \ \ \ \mbox{\hyperlink{classcore_1_1MqttPublisher_a70ece16296956f1703ab382cca3eb114}{MqttPublisher}}\&\ \mbox{\hyperlink{classcore_1_1MqttPublisher_a250c9f0c2ad9a0d79557e8f13fd42adf}{operator=}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{classcore_1_1MqttPublisher_a70ece16296956f1703ab382cca3eb114}{MqttPublisher}}\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classcore_1_1MqttPublisher_ab81e2bc0a824e9105eba8fd69e5e7c9d}{publish}}(\textcolor{keyword}{const}\ std::string\&\ payload);}
+\DoxyCodeLine{00058\ \};}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \}\ \ \textcolor{comment}{//\ namespace\ core}}
 
 \end{DoxyCode}

@@ -5,7 +5,7 @@ O sistema é dividido em três blocos principais:
 ## Núcleo C++
 
 - Coordena threads de inspeção, navegação, coleta e reconstrução de superfície.
-- Mantém o contexto compartilhado, os sinais de shutdown e os buffers concorrentes.
+- Mantém o contexto compartilhado, os sinais de encerramento e os buffers concorrentes.
 
 ## Simulação e interface Python
 

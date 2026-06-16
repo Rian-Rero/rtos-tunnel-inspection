@@ -2,7 +2,7 @@
 \hypertarget{TaskTimingLogger_8hpp}{}\label{TaskTimingLogger_8hpp}\index{include/core/TaskTimingLogger.hpp@{include/core/TaskTimingLogger.hpp}}
 
 
-Logger de timing por ciclo para provar conformidade de deadlines RTOS.  
+Registrador de temporização por ciclo para provar conformidade de prazos RTOS.  
 
 
 {\ttfamily \#include $<$chrono$>$}\newline
@@ -28,11 +28,11 @@ This graph shows which files directly or indirectly include this file\+:\nopageb
 \begin{DoxyCompactItemize}
 \item 
 class \mbox{\hyperlink{classcore_1_1TaskTimingLogger}{core\+::\+Task\+Timing\+Logger}}
-\begin{DoxyCompactList}\small\item\em Singleton que registra, por ciclo, o instante agendado vs real de wakeup e o instante de fim de execução de cada tarefa periódica. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Instância única que registra, por ciclo, o instante planejado vs real de despertar e o instante de fim de execução de cada tarefa periódica. \end{DoxyCompactList}\item 
 struct \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record}{core\+::\+Task\+Timing\+Logger\+::\+Record}}
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Registro bruto de temporização de uma execução de tarefa. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
-Logger de timing por ciclo para provar conformidade de deadlines RTOS. 
+Registrador de temporização por ciclo para provar conformidade de prazos RTOS. 
 

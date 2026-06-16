@@ -1,27 +1,74 @@
 \doxysection{core\+::Task\+Timing\+Logger\+::Record Struct Reference}
 \hypertarget{structcore_1_1TaskTimingLogger_1_1Record}{}\label{structcore_1_1TaskTimingLogger_1_1Record}\index{core::TaskTimingLogger::Record@{core::TaskTimingLogger::Record}}
+
+
+Registro bruto de temporização de uma execução de tarefa.  
+
+
+
+
+{\ttfamily \#include $<$Task\+Timing\+Logger.\+hpp$>$}
+
 \doxysubsubsection*{Public Attributes}
 \begin{DoxyCompactItemize}
 \item 
-\Hypertarget{structcore_1_1TaskTimingLogger_1_1Record_a0abe5ede85206ebae7715b31d067d37f}\label{structcore_1_1TaskTimingLogger_1_1Record_a0abe5ede85206ebae7715b31d067d37f} 
-const char \texorpdfstring{$\ast$}{*} {\bfseries task}
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record_a0abe5ede85206ebae7715b31d067d37f}{task}}
 \item 
-\Hypertarget{structcore_1_1TaskTimingLogger_1_1Record_aa765f3d21718bfad0de1d5ddbf9ba50c}\label{structcore_1_1TaskTimingLogger_1_1Record_aa765f3d21718bfad0de1d5ddbf9ba50c} 
-int {\bfseries period\+\_\+ms}
+int \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record_aa765f3d21718bfad0de1d5ddbf9ba50c}{period\+\_\+ms}}
 \item 
-\Hypertarget{structcore_1_1TaskTimingLogger_1_1Record_ad9c6216db3684b7425fb0d7ddbf4c842}\label{structcore_1_1TaskTimingLogger_1_1Record_ad9c6216db3684b7425fb0d7ddbf4c842} 
-uint64\+\_\+t {\bfseries cycle}
+uint64\+\_\+t \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record_ad9c6216db3684b7425fb0d7ddbf4c842}{cycle}}
 \item 
-\Hypertarget{structcore_1_1TaskTimingLogger_1_1Record_ac480e90df8aad280934a069db2c346ed}\label{structcore_1_1TaskTimingLogger_1_1Record_ac480e90df8aad280934a069db2c346ed} 
-uint64\+\_\+t {\bfseries scheduled\+\_\+ns}
+uint64\+\_\+t \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record_ac480e90df8aad280934a069db2c346ed}{scheduled\+\_\+ns}}
 \item 
-\Hypertarget{structcore_1_1TaskTimingLogger_1_1Record_ae3f8948134617d0d821e69d5973fafd8}\label{structcore_1_1TaskTimingLogger_1_1Record_ae3f8948134617d0d821e69d5973fafd8} 
-uint64\+\_\+t {\bfseries actual\+\_\+ns}
+uint64\+\_\+t \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record_ae3f8948134617d0d821e69d5973fafd8}{actual\+\_\+ns}}
 \item 
-\Hypertarget{structcore_1_1TaskTimingLogger_1_1Record_ab1e0b255e299f0741adf7e04b8b89014}\label{structcore_1_1TaskTimingLogger_1_1Record_ab1e0b255e299f0741adf7e04b8b89014} 
-uint64\+\_\+t {\bfseries exec\+\_\+end\+\_\+ns}
+uint64\+\_\+t \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record_ab1e0b255e299f0741adf7e04b8b89014}{exec\+\_\+end\+\_\+ns}}
 \end{DoxyCompactItemize}
 
+
+\doxysubsection{Detailed Description}
+Registro bruto de temporização de uma execução de tarefa. 
+
+\label{doc-variable-members}
+\Hypertarget{structcore_1_1TaskTimingLogger_1_1Record_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{structcore_1_1TaskTimingLogger_1_1Record_ae3f8948134617d0d821e69d5973fafd8}\index{core::TaskTimingLogger::Record@{core::TaskTimingLogger::Record}!actual\_ns@{actual\_ns}}
+\index{actual\_ns@{actual\_ns}!core::TaskTimingLogger::Record@{core::TaskTimingLogger::Record}}
+\doxysubsubsection{\texorpdfstring{actual\_ns}{actual\_ns}}
+{\footnotesize\ttfamily \label{structcore_1_1TaskTimingLogger_1_1Record_ae3f8948134617d0d821e69d5973fafd8} 
+uint64\+\_\+t core\+::\+Task\+Timing\+Logger\+::\+Record\+::actual\+\_\+ns}
+
+Instante real de início em nanossegundos. \Hypertarget{structcore_1_1TaskTimingLogger_1_1Record_ad9c6216db3684b7425fb0d7ddbf4c842}\index{core::TaskTimingLogger::Record@{core::TaskTimingLogger::Record}!cycle@{cycle}}
+\index{cycle@{cycle}!core::TaskTimingLogger::Record@{core::TaskTimingLogger::Record}}
+\doxysubsubsection{\texorpdfstring{cycle}{cycle}}
+{\footnotesize\ttfamily \label{structcore_1_1TaskTimingLogger_1_1Record_ad9c6216db3684b7425fb0d7ddbf4c842} 
+uint64\+\_\+t core\+::\+Task\+Timing\+Logger\+::\+Record\+::cycle}
+
+Número sequencial do ciclo registrado. \Hypertarget{structcore_1_1TaskTimingLogger_1_1Record_ab1e0b255e299f0741adf7e04b8b89014}\index{core::TaskTimingLogger::Record@{core::TaskTimingLogger::Record}!exec\_end\_ns@{exec\_end\_ns}}
+\index{exec\_end\_ns@{exec\_end\_ns}!core::TaskTimingLogger::Record@{core::TaskTimingLogger::Record}}
+\doxysubsubsection{\texorpdfstring{exec\_end\_ns}{exec\_end\_ns}}
+{\footnotesize\ttfamily \label{structcore_1_1TaskTimingLogger_1_1Record_ab1e0b255e299f0741adf7e04b8b89014} 
+uint64\+\_\+t core\+::\+Task\+Timing\+Logger\+::\+Record\+::exec\+\_\+end\+\_\+ns}
+
+Instante real de fim da execução em nanossegundos. \Hypertarget{structcore_1_1TaskTimingLogger_1_1Record_aa765f3d21718bfad0de1d5ddbf9ba50c}\index{core::TaskTimingLogger::Record@{core::TaskTimingLogger::Record}!period\_ms@{period\_ms}}
+\index{period\_ms@{period\_ms}!core::TaskTimingLogger::Record@{core::TaskTimingLogger::Record}}
+\doxysubsubsection{\texorpdfstring{period\_ms}{period\_ms}}
+{\footnotesize\ttfamily \label{structcore_1_1TaskTimingLogger_1_1Record_aa765f3d21718bfad0de1d5ddbf9ba50c} 
+int core\+::\+Task\+Timing\+Logger\+::\+Record\+::period\+\_\+ms}
+
+Período esperado da tarefa em milissegundos. \Hypertarget{structcore_1_1TaskTimingLogger_1_1Record_ac480e90df8aad280934a069db2c346ed}\index{core::TaskTimingLogger::Record@{core::TaskTimingLogger::Record}!scheduled\_ns@{scheduled\_ns}}
+\index{scheduled\_ns@{scheduled\_ns}!core::TaskTimingLogger::Record@{core::TaskTimingLogger::Record}}
+\doxysubsubsection{\texorpdfstring{scheduled\_ns}{scheduled\_ns}}
+{\footnotesize\ttfamily \label{structcore_1_1TaskTimingLogger_1_1Record_ac480e90df8aad280934a069db2c346ed} 
+uint64\+\_\+t core\+::\+Task\+Timing\+Logger\+::\+Record\+::scheduled\+\_\+ns}
+
+Instante planejado de despertar em nanossegundos. \Hypertarget{structcore_1_1TaskTimingLogger_1_1Record_a0abe5ede85206ebae7715b31d067d37f}\index{core::TaskTimingLogger::Record@{core::TaskTimingLogger::Record}!task@{task}}
+\index{task@{task}!core::TaskTimingLogger::Record@{core::TaskTimingLogger::Record}}
+\doxysubsubsection{\texorpdfstring{task}{task}}
+{\footnotesize\ttfamily \label{structcore_1_1TaskTimingLogger_1_1Record_a0abe5ede85206ebae7715b31d067d37f} 
+const char\texorpdfstring{$\ast$}{*} core\+::\+Task\+Timing\+Logger\+::\+Record\+::task}
+
+Nome curto da tarefa registrada. 
 
 The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 

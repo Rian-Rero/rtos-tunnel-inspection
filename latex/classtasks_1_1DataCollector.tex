@@ -36,6 +36,11 @@ Collaboration diagram for tasks\+::Data\+Collector\+:\nopagebreak
 \begin{DoxyCompactList}\small\item\em Destrutor. Fecha o ficheiro de log de forma segura. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classtasks_1_1DataCollector_aa097e06f48304a3260fa814f9d5ee342}{run}} () override
 \begin{DoxyCompactList}\small\item\em Executa o loop principal da tarefa de gravação. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{classtasks_1_1ITask}{tasks\+::\+ITask}}}
+\begin{DoxyCompactItemize}
+\item 
+virtual {\bfseries \texorpdfstring{$\sim$}{\string~}\+ITask} ()=default
+\begin{DoxyCompactList}\small\item\em Destrutor virtual padrão para permitir destruição polimórfica. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
@@ -62,13 +67,7 @@ Construtor da tarefa \doxylink{classtasks_1_1DataCollector}{Data\+Collector}.
 \hline
 {\em context} & Ponteiro compartilhado para o contexto global. \\
 \hline
-{\em log\+\_\+filename} & Nome do ficheiro de log (ex\+: "{}inspection\+\_\+log.\+csv"{}).\\
-\hline
-{\em buffer} & Ponteiro compartilhado para a fila thread-\/safe que contém os dados da superfície. \\
-\hline
-{\em context} & Ponteiro compartilhado para o contexto global de estado do sistema. \\
-\hline
-{\em log\+\_\+filename} & Caminho e nome do arquivo CSV onde os registros serão salvos. \\
+{\em log\+\_\+filename} & Nome do ficheiro de log (ex\+: "{}inspection\+\_\+log.\+csv"{}). \\
 \hline
 \end{DoxyParams}
 \Hypertarget{classtasks_1_1DataCollector_adbe0bf81e6fbbac6b017acd6bdeeadad}\index{tasks::DataCollector@{tasks::DataCollector}!````~DataCollector@{\texorpdfstring{$\sim$}{\string~}DataCollector}}

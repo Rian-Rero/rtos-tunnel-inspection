@@ -56,7 +56,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"CameraInspection_8cpp.html"
+"CameraInspection_8cpp.html",
+"structcore_1_1SurfaceData.html#a15a13f370ee08fa536839e4331b1e063"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronization';

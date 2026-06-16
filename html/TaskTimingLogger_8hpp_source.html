@@ -104,40 +104,51 @@ $(function(){initNavTree('TaskTimingLogger_8hpp_source.html','',''); });
 <div class="foldopen" id="foldopen00024" data-start="{" data-end="};">
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="classcore_1_1TaskTimingLogger.html">   24</a></span><span class="keyword">class </span>TaskTimingLogger {</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>   <span class="keyword">public</span>:</div>
-<div class="foldopen" id="foldopen00026" data-start="{" data-end="};">
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="structcore_1_1TaskTimingLogger_1_1Record.html">   26</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="structcore_1_1TaskTimingLogger_1_1Record.html">Record</a> {</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>        <span class="keyword">const</span> <span class="keywordtype">char</span>* task;</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>        <span class="keywordtype">int</span> period_ms;</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        uint64_t cycle;</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>        uint64_t scheduled_ns;</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        uint64_t actual_ns;</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        uint64_t exec_end_ns;</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    };</div>
+<div class="foldopen" id="foldopen00029" data-start="{" data-end="};">
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno"><a class="line" href="structcore_1_1TaskTimingLogger_1_1Record.html">   29</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="structcore_1_1TaskTimingLogger_1_1Record.html">Record</a> {</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="structcore_1_1TaskTimingLogger_1_1Record.html#a0abe5ede85206ebae7715b31d067d37f">   30</a></span>        <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code hl_variable" href="structcore_1_1TaskTimingLogger_1_1Record.html#a0abe5ede85206ebae7715b31d067d37f">task</a>;       </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno"><a class="line" href="structcore_1_1TaskTimingLogger_1_1Record.html#aa765f3d21718bfad0de1d5ddbf9ba50c">   31</a></span>        <span class="keywordtype">int</span> <a class="code hl_variable" href="structcore_1_1TaskTimingLogger_1_1Record.html#aa765f3d21718bfad0de1d5ddbf9ba50c">period_ms</a>;          </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="structcore_1_1TaskTimingLogger_1_1Record.html#ad9c6216db3684b7425fb0d7ddbf4c842">   32</a></span>        uint64_t <a class="code hl_variable" href="structcore_1_1TaskTimingLogger_1_1Record.html#ad9c6216db3684b7425fb0d7ddbf4c842">cycle</a>;         </div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="structcore_1_1TaskTimingLogger_1_1Record.html#ac480e90df8aad280934a069db2c346ed">   33</a></span>        uint64_t <a class="code hl_variable" href="structcore_1_1TaskTimingLogger_1_1Record.html#ac480e90df8aad280934a069db2c346ed">scheduled_ns</a>;  </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="structcore_1_1TaskTimingLogger_1_1Record.html#ae3f8948134617d0d821e69d5973fafd8">   34</a></span>        uint64_t <a class="code hl_variable" href="structcore_1_1TaskTimingLogger_1_1Record.html#ae3f8948134617d0d821e69d5973fafd8">actual_ns</a>;     </div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno"><a class="line" href="structcore_1_1TaskTimingLogger_1_1Record.html#ab1e0b255e299f0741adf7e04b8b89014">   35</a></span>        uint64_t <a class="code hl_variable" href="structcore_1_1TaskTimingLogger_1_1Record.html#ab1e0b255e299f0741adf7e04b8b89014">exec_end_ns</a>;   </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    };</div>
 </div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="keyword">static</span> TaskTimingLogger&amp; instance() {</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>        <span class="keyword">static</span> TaskTimingLogger inst;</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        <span class="keywordflow">return</span> inst;</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    }</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keywordtype">void</span> open(<span class="keyword">const</span> std::string&amp; path);</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keywordtype">void</span> log(<span class="keyword">const</span> Record&amp; r);</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> TimePo<span class="keywordtype">int</span>&gt;</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keyword">static</span> uint64_t toNs(TimePoint tp) {</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span>uint64_t<span class="keyword">&gt;</span>(</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>            std::chrono::duration_cast&lt;std::chrono::nanoseconds&gt;(tp.time_since_epoch()).count());</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    }</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>   <span class="keyword">private</span>:</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    TaskTimingLogger() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    std::ofstream file_;</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    std::mutex mutex_;</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>};</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="keyword">static</span> TaskTimingLogger&amp; <a class="code hl_function" href="classcore_1_1TaskTimingLogger.html#ab7ee17c8a2b2bc8b347c59da0daadaf3">instance</a>();</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classcore_1_1TaskTimingLogger.html#aee43997c6b349ef5c9cd94319969e71f">open</a>(<span class="keyword">const</span> std::string&amp; path);</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="classcore_1_1TaskTimingLogger.html#a15a176f35ffc2646da4f615ed605ae84">log</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structcore_1_1TaskTimingLogger_1_1Record.html">Record</a>&amp; r);</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> TimePo<span class="keywordtype">int</span>&gt;</div>
+<div class="foldopen" id="foldopen00063" data-start="{" data-end="}">
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno"><a class="line" href="classcore_1_1TaskTimingLogger.html#aad450ff767ed4ba860df1d64538868cb">   63</a></span>    <span class="keyword">static</span> uint64_t <a class="code hl_function" href="classcore_1_1TaskTimingLogger.html#aad450ff767ed4ba860df1d64538868cb">toNs</a>(TimePoint tp) {</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span>uint64_t<span class="keyword">&gt;</span>(</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>            std::chrono::duration_cast&lt;std::chrono::nanoseconds&gt;(tp.time_since_epoch()).count());</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    }</div>
 </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>}  <span class="comment">// namespace core</span></div>
-<div class="ttc" id="astructcore_1_1TaskTimingLogger_1_1Record_html"><div class="ttname"><a href="structcore_1_1TaskTimingLogger_1_1Record.html">core::TaskTimingLogger::Record</a></div><div class="ttdef"><b>Definition</b> TaskTimingLogger.hpp:26</div></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>   <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <a class="code hl_class" href="classcore_1_1TaskTimingLogger.html">TaskTimingLogger</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    std::ofstream file_;</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    std::mutex mutex_;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>};</div>
+</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>}  <span class="comment">// namespace core</span></div>
+<div class="ttc" id="aclasscore_1_1TaskTimingLogger_html"><div class="ttname"><a href="classcore_1_1TaskTimingLogger.html">core::TaskTimingLogger</a></div><div class="ttdoc">Instância única que registra, por ciclo, o instante planejado vs real de despertar e o instante de fi...</div><div class="ttdef"><b>Definition</b> TaskTimingLogger.hpp:24</div></div>
+<div class="ttc" id="aclasscore_1_1TaskTimingLogger_html_a15a176f35ffc2646da4f615ed605ae84"><div class="ttname"><a href="classcore_1_1TaskTimingLogger.html#a15a176f35ffc2646da4f615ed605ae84">core::TaskTimingLogger::log</a></div><div class="ttdeci">void log(const Record &amp;r)</div><div class="ttdoc">Registra uma linha de temporização no arquivo CSV.</div><div class="ttdef"><b>Definition</b> TaskTimingLogger.cpp:22</div></div>
+<div class="ttc" id="aclasscore_1_1TaskTimingLogger_html_aad450ff767ed4ba860df1d64538868cb"><div class="ttname"><a href="classcore_1_1TaskTimingLogger.html#aad450ff767ed4ba860df1d64538868cb">core::TaskTimingLogger::toNs</a></div><div class="ttdeci">static uint64_t toNs(TimePoint tp)</div><div class="ttdoc">Converte um ponto de tempo para nanossegundos desde a época do relógio.</div><div class="ttdef"><b>Definition</b> TaskTimingLogger.hpp:63</div></div>
+<div class="ttc" id="aclasscore_1_1TaskTimingLogger_html_ab7ee17c8a2b2bc8b347c59da0daadaf3"><div class="ttname"><a href="classcore_1_1TaskTimingLogger.html#ab7ee17c8a2b2bc8b347c59da0daadaf3">core::TaskTimingLogger::instance</a></div><div class="ttdeci">static TaskTimingLogger &amp; instance()</div><div class="ttdoc">Retorna a instância única do registrador.</div><div class="ttdef"><b>Definition</b> TaskTimingLogger.cpp:9</div></div>
+<div class="ttc" id="aclasscore_1_1TaskTimingLogger_html_aee43997c6b349ef5c9cd94319969e71f"><div class="ttname"><a href="classcore_1_1TaskTimingLogger.html#aee43997c6b349ef5c9cd94319969e71f">core::TaskTimingLogger::open</a></div><div class="ttdeci">void open(const std::string &amp;path)</div><div class="ttdoc">Abre o arquivo CSV de temporização e grava o cabeçalho.</div><div class="ttdef"><b>Definition</b> TaskTimingLogger.cpp:14</div></div>
+<div class="ttc" id="astructcore_1_1TaskTimingLogger_1_1Record_html"><div class="ttname"><a href="structcore_1_1TaskTimingLogger_1_1Record.html">core::TaskTimingLogger::Record</a></div><div class="ttdoc">Registro bruto de temporização de uma execução de tarefa.</div><div class="ttdef"><b>Definition</b> TaskTimingLogger.hpp:29</div></div>
+<div class="ttc" id="astructcore_1_1TaskTimingLogger_1_1Record_html_a0abe5ede85206ebae7715b31d067d37f"><div class="ttname"><a href="structcore_1_1TaskTimingLogger_1_1Record.html#a0abe5ede85206ebae7715b31d067d37f">core::TaskTimingLogger::Record::task</a></div><div class="ttdeci">const char * task</div><div class="ttdef"><b>Definition</b> TaskTimingLogger.hpp:30</div></div>
+<div class="ttc" id="astructcore_1_1TaskTimingLogger_1_1Record_html_aa765f3d21718bfad0de1d5ddbf9ba50c"><div class="ttname"><a href="structcore_1_1TaskTimingLogger_1_1Record.html#aa765f3d21718bfad0de1d5ddbf9ba50c">core::TaskTimingLogger::Record::period_ms</a></div><div class="ttdeci">int period_ms</div><div class="ttdef"><b>Definition</b> TaskTimingLogger.hpp:31</div></div>
+<div class="ttc" id="astructcore_1_1TaskTimingLogger_1_1Record_html_ab1e0b255e299f0741adf7e04b8b89014"><div class="ttname"><a href="structcore_1_1TaskTimingLogger_1_1Record.html#ab1e0b255e299f0741adf7e04b8b89014">core::TaskTimingLogger::Record::exec_end_ns</a></div><div class="ttdeci">uint64_t exec_end_ns</div><div class="ttdef"><b>Definition</b> TaskTimingLogger.hpp:35</div></div>
+<div class="ttc" id="astructcore_1_1TaskTimingLogger_1_1Record_html_ac480e90df8aad280934a069db2c346ed"><div class="ttname"><a href="structcore_1_1TaskTimingLogger_1_1Record.html#ac480e90df8aad280934a069db2c346ed">core::TaskTimingLogger::Record::scheduled_ns</a></div><div class="ttdeci">uint64_t scheduled_ns</div><div class="ttdef"><b>Definition</b> TaskTimingLogger.hpp:33</div></div>
+<div class="ttc" id="astructcore_1_1TaskTimingLogger_1_1Record_html_ad9c6216db3684b7425fb0d7ddbf4c842"><div class="ttname"><a href="structcore_1_1TaskTimingLogger_1_1Record.html#ad9c6216db3684b7425fb0d7ddbf4c842">core::TaskTimingLogger::Record::cycle</a></div><div class="ttdeci">uint64_t cycle</div><div class="ttdef"><b>Definition</b> TaskTimingLogger.hpp:32</div></div>
+<div class="ttc" id="astructcore_1_1TaskTimingLogger_1_1Record_html_ae3f8948134617d0d821e69d5973fafd8"><div class="ttname"><a href="structcore_1_1TaskTimingLogger_1_1Record.html#ae3f8948134617d0d821e69d5973fafd8">core::TaskTimingLogger::Record::actual_ns</a></div><div class="ttdeci">uint64_t actual_ns</div><div class="ttdef"><b>Definition</b> TaskTimingLogger.hpp:34</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->

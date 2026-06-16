@@ -6,9 +6,9 @@
 <area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="597,28,545,49,520,63,499,83,491,96,486,110,483,143,479,139,481,109,486,93,495,79,517,59,543,44,602,27"/>
 <area shape="rect" id="Node000010" title=" " alt="" coords="1129,81,1192,109"/>
 <area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="828,31,961,50,1117,81,1111,81,961,55,828,36"/>
-<area shape="rect" id="Node000011" href="$MqttPublisher_8hpp.html" title="Publisher MQTT leve baseado em um processo mosquitto_pub persistente." alt="" coords="934,81,1105,109"/>
+<area shape="rect" id="Node000011" href="$MqttPublisher_8hpp.html" title="Publicador MQTT leve baseado em um processo mosquitto_pub persistente." alt="" coords="934,81,1105,109"/>
 <area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="769,31,952,77,947,77,769,36"/>
-<area shape="rect" id="Node000014" href="$TaskTimingLogger_8hpp.html" title="Logger de timing por ciclo para provar conformidade de deadlines RTOS." alt="" coords="508,81,707,109"/>
+<area shape="rect" id="Node000014" href="$TaskTimingLogger_8hpp.html" title="Registrador de temporização por ciclo para provar conformidade de prazos RTOS." alt="" coords="508,81,707,109"/>
 <area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="698,32,640,74,638,70,693,35"/>
 <area shape="rect" id="Node000017" href="$TerminalPrinter_8hpp.html" title="Utilitário para impressão padronizada e estilizada no terminal." alt="" coords="731,81,910,109"/>
 <area shape="poly" id="edge19_Node000001_Node000017" title=" " alt="" coords="734,31,792,72,787,72,733,36"/>
@@ -16,7 +16,7 @@
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="223,112,98,154,95,149,225,107"/>
 <area shape="rect" id="Node000004" href="$SharedContext_8hpp.html" title="Contexto compartilhado atuando como Broker de estados e sensores." alt="" coords="106,157,283,184"/>
 <area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="253,108,219,147,215,143,249,111"/>
-<area shape="rect" id="Node000008" href="$Itask_8hpp_source.html" title=" " alt="" coords="307,157,428,184"/>
+<area shape="rect" id="Node000008" href="$Itask_8hpp.html" title="Definição da interface base para todas as tarefas cíclicas." alt="" coords="307,157,428,184"/>
 <area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="283,107,340,148,334,148,282,112"/>
 <area shape="rect" id="Node000005" title=" " alt="" coords="92,232,158,260"/>
 <area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="184,184,149,223,146,219,179,186"/>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['lidar_5fdistance_5fy_0',['lidar_distance_y',['../structcore_1_1SurfaceData.html#a15a13f370ee08fa536839e4331b1e063',1,'core::SurfaceData']]]
+  ['global_5fshutdown_5frequested_0',['global_shutdown_requested',['../main_8cpp.html#a2784916b186329f57a2956e6a9a88b57',1,'main.cpp']]]
 ];

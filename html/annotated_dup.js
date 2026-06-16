@@ -7,7 +7,7 @@ var annotated_dup =
     [ "core", null, [
       [ "NavigationSetpoint", "structcore_1_1NavigationSetpoint.html", "structcore_1_1NavigationSetpoint" ],
       [ "SurfaceData", "structcore_1_1SurfaceData.html", "structcore_1_1SurfaceData" ],
-      [ "MqttPublisher", "classcore_1_1MqttPublisher.html", null ],
+      [ "MqttPublisher", "classcore_1_1MqttPublisher.html", "classcore_1_1MqttPublisher" ],
       [ "SharedContext", "classcore_1_1SharedContext.html", "classcore_1_1SharedContext" ],
       [ "TaskTimingLogger", "classcore_1_1TaskTimingLogger.html", "classcore_1_1TaskTimingLogger" ],
       [ "TerminalPrinter", "classcore_1_1TerminalPrinter.html", "classcore_1_1TerminalPrinter" ],

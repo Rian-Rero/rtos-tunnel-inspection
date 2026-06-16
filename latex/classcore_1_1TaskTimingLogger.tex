@@ -2,7 +2,7 @@
 \hypertarget{classcore_1_1TaskTimingLogger}{}\label{classcore_1_1TaskTimingLogger}\index{core::TaskTimingLogger@{core::TaskTimingLogger}}
 
 
-Singleton que registra, por ciclo, o instante agendado vs real de wakeup e o instante de fim de execução de cada tarefa periódica.  
+Instância única que registra, por ciclo, o instante planejado vs real de despertar e o instante de fim de execução de cada tarefa periódica.  
 
 
 
@@ -13,38 +13,106 @@ Singleton que registra, por ciclo, o instante agendado vs real de wakeup e o ins
 \begin{DoxyCompactItemize}
 \item 
 struct \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record}{Record}}
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Registro bruto de temporização de uma execução de tarefa. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \doxysubsubsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\Hypertarget{classcore_1_1TaskTimingLogger_aee43997c6b349ef5c9cd94319969e71f}\label{classcore_1_1TaskTimingLogger_aee43997c6b349ef5c9cd94319969e71f} 
-void {\bfseries open} (const std\+::string \&path)
-\item 
-\Hypertarget{classcore_1_1TaskTimingLogger_a15a176f35ffc2646da4f615ed605ae84}\label{classcore_1_1TaskTimingLogger_a15a176f35ffc2646da4f615ed605ae84} 
-void {\bfseries log} (const \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record}{Record}} \&r)
-\end{DoxyCompactItemize}
+void \mbox{\hyperlink{classcore_1_1TaskTimingLogger_aee43997c6b349ef5c9cd94319969e71f}{open}} (const std\+::string \&path)
+\begin{DoxyCompactList}\small\item\em Abre o arquivo CSV de temporização e grava o cabeçalho. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classcore_1_1TaskTimingLogger_a15a176f35ffc2646da4f615ed605ae84}{log}} (const \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record}{Record}} \&r)
+\begin{DoxyCompactList}\small\item\em Registra uma linha de temporização no arquivo CSV. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \doxysubsubsection*{Static Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\Hypertarget{classcore_1_1TaskTimingLogger_a942c0f4173aff0aa94f1af385f480b52}\label{classcore_1_1TaskTimingLogger_a942c0f4173aff0aa94f1af385f480b52} 
-static Task\+Timing\+Logger \& {\bfseries instance} ()
-\item 
-\Hypertarget{classcore_1_1TaskTimingLogger_aad450ff767ed4ba860df1d64538868cb}\label{classcore_1_1TaskTimingLogger_aad450ff767ed4ba860df1d64538868cb} 
-{\footnotesize template$<$typename Time\+Point$>$ }\\static uint64\+\_\+t {\bfseries to\+Ns} (Time\+Point tp)
-\end{DoxyCompactItemize}
+static Task\+Timing\+Logger \& \mbox{\hyperlink{classcore_1_1TaskTimingLogger_ab7ee17c8a2b2bc8b347c59da0daadaf3}{instance}} ()
+\begin{DoxyCompactList}\small\item\em Retorna a instância única do registrador. \end{DoxyCompactList}\item 
+{\footnotesize template$<$typename Time\+Point$>$ }\\static uint64\+\_\+t \mbox{\hyperlink{classcore_1_1TaskTimingLogger_aad450ff767ed4ba860df1d64538868cb}{to\+Ns}} (Time\+Point tp)
+\begin{DoxyCompactList}\small\item\em Converte um ponto de tempo para nanossegundos desde a época do relógio. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
-Singleton que registra, por ciclo, o instante agendado vs real de wakeup e o instante de fim de execução de cada tarefa periódica. 
+Instância única que registra, por ciclo, o instante planejado vs real de despertar e o instante de fim de execução de cada tarefa periódica. 
 
 CSV gerado\+: task\+\_\+name, period\+\_\+ms, cycle\+\_\+num, scheduled\+\_\+ns, actual\+\_\+ns, exec\+\_\+end\+\_\+ns
 
 
 \begin{DoxyItemize}
-\item jitter = actual\+\_\+ns -\/ scheduled\+\_\+ns (deve ser \texorpdfstring{$\sim$}{\string~}0 e estável)
-\item exec\+\_\+time = exec\+\_\+end\+\_\+ns -\/ actual\+\_\+ns (deve ser \texorpdfstring{$<$}{<}\texorpdfstring{$<$}{<} period\+\_\+ms \texorpdfstring{$\ast$}{*} 1e6)
-\item slack = (scheduled\+\_\+ns + period\+\_\+ms\texorpdfstring{$\ast$}{*}1e6) -\/ exec\+\_\+end\+\_\+ns (deve ser \texorpdfstring{$>$}{>} 0) 
+\item desvio = actual\+\_\+ns -\/ scheduled\+\_\+ns (deve ser \texorpdfstring{$\sim$}{\string~}0 e estável)
+\item execução = exec\+\_\+end\+\_\+ns -\/ actual\+\_\+ns (deve ser \texorpdfstring{$<$}{<}\texorpdfstring{$<$}{<} period\+\_\+ms \texorpdfstring{$\ast$}{*} 1e6)
+\item folga = (scheduled\+\_\+ns + period\+\_\+ms\texorpdfstring{$\ast$}{*}1e6) -\/ exec\+\_\+end\+\_\+ns (deve ser \texorpdfstring{$>$}{>} 0) 
 \end{DoxyItemize}
+
+\label{doc-func-members}
+\Hypertarget{classcore_1_1TaskTimingLogger_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classcore_1_1TaskTimingLogger_ab7ee17c8a2b2bc8b347c59da0daadaf3}\index{core::TaskTimingLogger@{core::TaskTimingLogger}!instance@{instance}}
+\index{instance@{instance}!core::TaskTimingLogger@{core::TaskTimingLogger}}
+\doxysubsubsection{\texorpdfstring{instance()}{instance()}}
+{\footnotesize\ttfamily \label{classcore_1_1TaskTimingLogger_ab7ee17c8a2b2bc8b347c59da0daadaf3} 
+Task\+Timing\+Logger \& core\+::\+Task\+Timing\+Logger\+::instance (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Retorna a instância única do registrador. 
+
+\begin{DoxyReturn}{Returns}
+Referência para a instância única de \doxylink{classcore_1_1TaskTimingLogger}{Task\+Timing\+Logger}. 
+\end{DoxyReturn}
+\Hypertarget{classcore_1_1TaskTimingLogger_a15a176f35ffc2646da4f615ed605ae84}\index{core::TaskTimingLogger@{core::TaskTimingLogger}!log@{log}}
+\index{log@{log}!core::TaskTimingLogger@{core::TaskTimingLogger}}
+\doxysubsubsection{\texorpdfstring{log()}{log()}}
+{\footnotesize\ttfamily \label{classcore_1_1TaskTimingLogger_a15a176f35ffc2646da4f615ed605ae84} 
+void core\+::\+Task\+Timing\+Logger\+::log (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structcore_1_1TaskTimingLogger_1_1Record}{Record}} \&}]{r}{}\end{DoxyParamCaption})}
+
+
+
+Registra uma linha de temporização no arquivo CSV. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em r} & Registro de temporização a ser persistido. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classcore_1_1TaskTimingLogger_aee43997c6b349ef5c9cd94319969e71f}\index{core::TaskTimingLogger@{core::TaskTimingLogger}!open@{open}}
+\index{open@{open}!core::TaskTimingLogger@{core::TaskTimingLogger}}
+\doxysubsubsection{\texorpdfstring{open()}{open()}}
+{\footnotesize\ttfamily \label{classcore_1_1TaskTimingLogger_aee43997c6b349ef5c9cd94319969e71f} 
+void core\+::\+Task\+Timing\+Logger\+::open (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{path}{}\end{DoxyParamCaption})}
+
+
+
+Abre o arquivo CSV de temporização e grava o cabeçalho. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em path} & Caminho do arquivo CSV de saída. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classcore_1_1TaskTimingLogger_aad450ff767ed4ba860df1d64538868cb}\index{core::TaskTimingLogger@{core::TaskTimingLogger}!toNs@{toNs}}
+\index{toNs@{toNs}!core::TaskTimingLogger@{core::TaskTimingLogger}}
+\doxysubsubsection{\texorpdfstring{toNs()}{toNs()}}
+{\footnotesize\ttfamily \label{classcore_1_1TaskTimingLogger_aad450ff767ed4ba860df1d64538868cb} 
+template$<$typename Time\+Point$>$ \\
+uint64\+\_\+t core\+::\+Task\+Timing\+Logger\+::to\+Ns (\begin{DoxyParamCaption}\item[{Time\+Point}]{tp}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Converte um ponto de tempo para nanossegundos desde a época do relógio. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Time\+Point} & Tipo do ponto de tempo recebido. \\
+\hline
+\end{DoxyTemplParams}
+
+\begin{DoxyParams}{Parameters}
+{\em tp} & Ponto de tempo a ser convertido. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Valor em nanossegundos. 
+\end{DoxyReturn}
+
 
 The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
 \item 

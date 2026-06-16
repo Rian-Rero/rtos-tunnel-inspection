@@ -4,7 +4,7 @@
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,36,85,76,83,72,169,31"/>
 <area shape="rect" id="Node000003" href="$SharedContext_8hpp.html" title="Contexto compartilhado atuando como Broker de estados e sensores." alt="" coords="106,81,283,109"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="196,31,197,66,192,64,193,36"/>
-<area shape="rect" id="Node000007" href="$Itask_8hpp_source.html" title=" " alt="" coords="307,81,428,109"/>
+<area shape="rect" id="Node000007" href="$Itask_8hpp.html" title="Definição da interface base para todas as tarefas cíclicas." alt="" coords="307,81,428,109"/>
 <area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="225,31,326,74,320,76,225,36"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="33,157,99,184"/>
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="174,109,103,151,101,146,169,110"/>

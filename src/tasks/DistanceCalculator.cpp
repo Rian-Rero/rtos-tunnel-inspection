@@ -15,7 +15,6 @@ namespace tasks {
 
 /**
  * @brief Construtor da tarefa DistanceCalculator.
- * @param ctx Ponteiro compartilhado para o contexto global (Broker).
  */
 DistanceCalculator::DistanceCalculator(std::shared_ptr<core::SharedContext> ctx)
     : context_(ctx), total_distance_(0.0), last_encoder_state_(false) {}

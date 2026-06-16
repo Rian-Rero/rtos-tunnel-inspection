@@ -1,5 +1,5 @@
 /**
- * @file ITask.hpp
+ * @file Itask.hpp
  * @brief Definição da interface base para todas as tarefas cíclicas.
  */
 #pragma once
@@ -11,6 +11,9 @@ namespace tasks {
  */
 class ITask {
    public:
+    /**
+     * @brief Destrutor virtual padrão para permitir destruição polimórfica.
+     */
     virtual ~ITask() = default;
 
     /**

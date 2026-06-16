@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['_7edatacollector_0',['~DataCollector',['../classtasks_1_1DataCollector.html#adbe0bf81e6fbbac6b017acd6bdeeadad',1,'tasks::DataCollector']]]
+  ['waitforanomaly_0',['waitForAnomaly',['../classcore_1_1SharedContext.html#a26bd5dc53b1dc039d4754f5c6bc39061',1,'core::SharedContext']]]
 ];

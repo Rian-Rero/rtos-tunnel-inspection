@@ -11,7 +11,7 @@ telemetria no broker.
 | `cmd/mode`      | GUI    | Alterna entre AUTO e MANUAL |
 | `cmd/direction` | GUI    | Direção manual do carrinho  |
 | `cmd/speed_sp`  | GUI    | Setpoint de velocidade      |
-| `cmd/camera`    | C++/GUI | Trigger da inspeção visual via broker |
+| `cmd/camera`    | C++/GUI | Gatilho da inspeção visual via broker |
 
 ## Telemetria
 

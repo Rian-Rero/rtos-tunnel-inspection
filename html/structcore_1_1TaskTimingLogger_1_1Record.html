@@ -91,22 +91,114 @@ $(function(){initNavTree('structcore_1_1TaskTimingLogger_1_1Record.html','','str
   <div class="headertitle"><div class="title">core::TaskTimingLogger::Record Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Registro bruto de temporização de uma execução de tarefa.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="TaskTimingLogger_8hpp_source.html">TaskTimingLogger.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a0abe5ede85206ebae7715b31d067d37f" id="r_a0abe5ede85206ebae7715b31d067d37f"><td class="memItemLeft" align="right" valign="top"><a id="a0abe5ede85206ebae7715b31d067d37f" name="a0abe5ede85206ebae7715b31d067d37f"></a>
-const char *&#160;</td><td class="memItemRight" valign="bottom"><b>task</b></td></tr>
-<tr class="memitem:aa765f3d21718bfad0de1d5ddbf9ba50c" id="r_aa765f3d21718bfad0de1d5ddbf9ba50c"><td class="memItemLeft" align="right" valign="top"><a id="aa765f3d21718bfad0de1d5ddbf9ba50c" name="aa765f3d21718bfad0de1d5ddbf9ba50c"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>period_ms</b></td></tr>
-<tr class="memitem:ad9c6216db3684b7425fb0d7ddbf4c842" id="r_ad9c6216db3684b7425fb0d7ddbf4c842"><td class="memItemLeft" align="right" valign="top"><a id="ad9c6216db3684b7425fb0d7ddbf4c842" name="ad9c6216db3684b7425fb0d7ddbf4c842"></a>
-uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>cycle</b></td></tr>
-<tr class="memitem:ac480e90df8aad280934a069db2c346ed" id="r_ac480e90df8aad280934a069db2c346ed"><td class="memItemLeft" align="right" valign="top"><a id="ac480e90df8aad280934a069db2c346ed" name="ac480e90df8aad280934a069db2c346ed"></a>
-uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>scheduled_ns</b></td></tr>
-<tr class="memitem:ae3f8948134617d0d821e69d5973fafd8" id="r_ae3f8948134617d0d821e69d5973fafd8"><td class="memItemLeft" align="right" valign="top"><a id="ae3f8948134617d0d821e69d5973fafd8" name="ae3f8948134617d0d821e69d5973fafd8"></a>
-uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>actual_ns</b></td></tr>
-<tr class="memitem:ab1e0b255e299f0741adf7e04b8b89014" id="r_ab1e0b255e299f0741adf7e04b8b89014"><td class="memItemLeft" align="right" valign="top"><a id="ab1e0b255e299f0741adf7e04b8b89014" name="ab1e0b255e299f0741adf7e04b8b89014"></a>
-uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>exec_end_ns</b></td></tr>
+<tr class="memitem:a0abe5ede85206ebae7715b31d067d37f" id="r_a0abe5ede85206ebae7715b31d067d37f"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0abe5ede85206ebae7715b31d067d37f">task</a></td></tr>
+<tr class="memitem:aa765f3d21718bfad0de1d5ddbf9ba50c" id="r_aa765f3d21718bfad0de1d5ddbf9ba50c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa765f3d21718bfad0de1d5ddbf9ba50c">period_ms</a></td></tr>
+<tr class="memitem:ad9c6216db3684b7425fb0d7ddbf4c842" id="r_ad9c6216db3684b7425fb0d7ddbf4c842"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad9c6216db3684b7425fb0d7ddbf4c842">cycle</a></td></tr>
+<tr class="memitem:ac480e90df8aad280934a069db2c346ed" id="r_ac480e90df8aad280934a069db2c346ed"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac480e90df8aad280934a069db2c346ed">scheduled_ns</a></td></tr>
+<tr class="memitem:ae3f8948134617d0d821e69d5973fafd8" id="r_ae3f8948134617d0d821e69d5973fafd8"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae3f8948134617d0d821e69d5973fafd8">actual_ns</a></td></tr>
+<tr class="memitem:ab1e0b255e299f0741adf7e04b8b89014" id="r_ab1e0b255e299f0741adf7e04b8b89014"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab1e0b255e299f0741adf7e04b8b89014">exec_end_ns</a></td></tr>
 </table>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Registro bruto de temporização de uma execução de tarefa. </p>
+</div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
+<a id="ae3f8948134617d0d821e69d5973fafd8" name="ae3f8948134617d0d821e69d5973fafd8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3f8948134617d0d821e69d5973fafd8">&#9670;&#160;</a></span>actual_ns</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint64_t core::TaskTimingLogger::Record::actual_ns</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Instante real de início em nanossegundos. </p>
+
+</div>
+</div>
+<a id="ad9c6216db3684b7425fb0d7ddbf4c842" name="ad9c6216db3684b7425fb0d7ddbf4c842"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad9c6216db3684b7425fb0d7ddbf4c842">&#9670;&#160;</a></span>cycle</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint64_t core::TaskTimingLogger::Record::cycle</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Número sequencial do ciclo registrado. </p>
+
+</div>
+</div>
+<a id="ab1e0b255e299f0741adf7e04b8b89014" name="ab1e0b255e299f0741adf7e04b8b89014"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1e0b255e299f0741adf7e04b8b89014">&#9670;&#160;</a></span>exec_end_ns</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint64_t core::TaskTimingLogger::Record::exec_end_ns</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Instante real de fim da execução em nanossegundos. </p>
+
+</div>
+</div>
+<a id="aa765f3d21718bfad0de1d5ddbf9ba50c" name="aa765f3d21718bfad0de1d5ddbf9ba50c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa765f3d21718bfad0de1d5ddbf9ba50c">&#9670;&#160;</a></span>period_ms</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int core::TaskTimingLogger::Record::period_ms</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Período esperado da tarefa em milissegundos. </p>
+
+</div>
+</div>
+<a id="ac480e90df8aad280934a069db2c346ed" name="ac480e90df8aad280934a069db2c346ed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac480e90df8aad280934a069db2c346ed">&#9670;&#160;</a></span>scheduled_ns</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint64_t core::TaskTimingLogger::Record::scheduled_ns</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Instante planejado de despertar em nanossegundos. </p>
+
+</div>
+</div>
+<a id="a0abe5ede85206ebae7715b31d067d37f" name="a0abe5ede85206ebae7715b31d067d37f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0abe5ede85206ebae7715b31d067d37f">&#9670;&#160;</a></span>task</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* core::TaskTimingLogger::Record::task</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Nome curto da tarefa registrada. </p>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li>include/core/<a class="el" href="TaskTimingLogger_8hpp_source.html">TaskTimingLogger.hpp</a></li>
 </ul>

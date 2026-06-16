@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['threadsafequeue_0',['ThreadSafeQueue',['../classcore_1_1ThreadSafeQueue.html#a9182058b14d64dc93556593d2411e567',1,'core::ThreadSafeQueue']]],
-  ['triggeranomaly_1',['triggerAnomaly',['../classcore_1_1SharedContext.html#a5d31c94fe3c4c740ae40b15ee7d1105d',1,'core::SharedContext']]],
-  ['trypop_2',['tryPop',['../classcore_1_1ThreadSafeQueue.html#a7ab4f8e13c28b1af8eb8896b8b3de0ea',1,'core::ThreadSafeQueue']]]
+  ['section_0',['Section',['../classcore_1_1TerminalPrinter.html#a25c97adf2318c85a9c307a9af11693ab',1,'core::TerminalPrinter']]],
+  ['signalhandler_1',['signalHandler',['../main_8cpp.html#a8ee3282bc313e547dbbb8d4f4010db61',1,'main.cpp']]],
+  ['surfacereconstruction_2',['SurfaceReconstruction',['../classtasks_1_1SurfaceReconstruction.html#a34a76b196250af05cca33be36d316173',1,'tasks::SurfaceReconstruction']]]
 ];
