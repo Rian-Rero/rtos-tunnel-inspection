@@ -11,6 +11,8 @@ import logging
 
 import paho.mqtt.client as _paho
 
+from config import MQTT_QOS
+
 __all__ = ["create_client", "MqttComponent"]
 
 logger = logging.getLogger(__name__)
@@ -34,7 +36,7 @@ class MqttComponent:
 
         class MyService(MqttComponent):
             def _on_connect(self, client):
-                client.subscribe("my/topic")
+                client.subscribe("my/topic", qos=MQTT_QOS)
 
             def _on_message(self, topic, payload):
                 print(topic, payload)
@@ -84,7 +86,7 @@ class MqttComponent:
         self._client.loop_forever()
 
     def publish(self, topic: str, payload: str | float | int) -> None:
-        self._client.publish(topic, str(payload))
+        self._client.publish(topic, str(payload), qos=MQTT_QOS)
 
     def disconnect(self) -> None:
         self._client.loop_stop()

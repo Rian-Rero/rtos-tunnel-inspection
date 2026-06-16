@@ -6,10 +6,11 @@ alterar um tópico ou limiar não exija procurar no código de renderização.
 
 from __future__ import annotations
 
-__all__ = ["Topics", "MQTT_BROKER", "MQTT_PORT", "Limits"]
+__all__ = ["Topics", "MQTT_BROKER", "MQTT_PORT", "MQTT_QOS", "Limits"]
 
 MQTT_BROKER: str = "localhost"
 MQTT_PORT: int = 1883
+MQTT_QOS: int = 2
 
 
 class Topics:

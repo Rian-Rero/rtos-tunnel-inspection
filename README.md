@@ -142,6 +142,8 @@ make docs-serve
 
 A GUI, o simulador e o serviço YOLO se comunicam com o núcleo C++ exclusivamente pelo broker MQTT. O serviço YOLO não publica `state/inspection`; esse estado é controlado pelo núcleo C++ para manter a visualização da câmera e do feixe sincronizada.
 
+Todas as publicações e assinaturas MQTT do projeto usam QoS 2 (`exactly once`).
+
 ---
 
 ## 🛑 Encerramento

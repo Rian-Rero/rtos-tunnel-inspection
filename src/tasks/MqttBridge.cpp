@@ -64,7 +64,7 @@ void MqttBridge::run() {
     // Wraps the command so the shell prints its own PID before exec'ing mosquitto_sub.
     // After exec, the PID is reused by mosquitto_sub — gives us a handle to kill it on shutdown.
     const char* command =
-        "sh -c 'echo $$; exec mosquitto_sub -h localhost -v"
+        "sh -c 'echo $$; exec mosquitto_sub -h localhost -q 2 -v"
         " -t cmd/mode -t cmd/speed_sp -t cmd/direction'";
     FILE* pipe = popen(command, "r");
     if (!pipe) {

@@ -15,7 +15,7 @@ import time
 
 import pygame
 
-from config import Topics, Limits, MQTT_BROKER, MQTT_PORT
+from config import Topics, Limits, MQTT_BROKER, MQTT_PORT, MQTT_QOS
 from models import AnomalyMark, InspectionState, RobotTelemetry
 from mqtt import MqttComponent
 from rendering import PygameRobotRenderer, RobotRenderState
@@ -58,9 +58,9 @@ class TunelSimulator(MqttComponent):
     # ── ganchos MQTT ─────────────────────────────────────────────────────────
 
     def _on_connect(self, client) -> None:
-        client.subscribe(Topics.TELEMETRY_ROBOT)
-        client.subscribe(Topics.TELEMETRY_YOLO)
-        client.subscribe(Topics.STATE_INSPECTION)
+        client.subscribe(Topics.TELEMETRY_ROBOT, qos=MQTT_QOS)
+        client.subscribe(Topics.TELEMETRY_YOLO, qos=MQTT_QOS)
+        client.subscribe(Topics.STATE_INSPECTION, qos=MQTT_QOS)
 
     def _on_message(self, topic: str, payload: str) -> None:
         if topic == Topics.TELEMETRY_ROBOT:

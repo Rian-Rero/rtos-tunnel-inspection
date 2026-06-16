@@ -13,7 +13,7 @@ import os
 import time
 from pathlib import Path
 
-from config import Topics, MQTT_BROKER, MQTT_PORT
+from config import Topics, MQTT_BROKER, MQTT_PORT, MQTT_QOS
 from models import YoloResult
 from mqtt import MqttComponent
 
@@ -52,7 +52,7 @@ class YoloInspectionService(MqttComponent):
     # ── ganchos MQTT ─────────────────────────────────────────────────────────
 
     def _on_connect(self, client) -> None:
-        client.subscribe(Topics.CMD_CAMERA)
+        client.subscribe(Topics.CMD_CAMERA, qos=MQTT_QOS)
 
     def _on_message(self, topic: str, payload: str) -> None:
         if topic != Topics.CMD_CAMERA:

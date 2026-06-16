@@ -12,7 +12,7 @@ import logging
 import tkinter as tk
 from tkinter import ttk
 
-from config import Topics, Limits, MQTT_BROKER, MQTT_PORT
+from config import Topics, Limits, MQTT_BROKER, MQTT_PORT, MQTT_QOS
 from models import RobotTelemetry
 from mqtt import MqttComponent
 from .panels import ControlsPanel, TelemetryPanel, PreviewPanel
@@ -172,9 +172,9 @@ class OperatorGUI(MqttComponent):
         self._root.after(
             0, lambda: self._connection_var.set("Conectado ao broker MQTT")
         )
-        client.subscribe("telemetry/#")
-        client.subscribe("sensor/#")
-        client.subscribe(Topics.STATE_INSPECTION)
+        client.subscribe("telemetry/#", qos=MQTT_QOS)
+        client.subscribe("sensor/#", qos=MQTT_QOS)
+        client.subscribe(Topics.STATE_INSPECTION, qos=MQTT_QOS)
 
     def _on_message(self, topic: str, payload: str) -> None:
         dispatch = {

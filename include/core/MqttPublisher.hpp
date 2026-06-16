@@ -29,7 +29,7 @@ class MqttPublisher {
    public:
     explicit MqttPublisher(const std::string& topic) {
         const std::string command =
-            "mosquitto_pub -h localhost -t '" + escapeForShell(topic) + "' -l";
+            "mosquitto_pub -h localhost -q 2 -t '" + escapeForShell(topic) + "' -l";
         pipe_ = popen(command.c_str(), "w");
     }
 

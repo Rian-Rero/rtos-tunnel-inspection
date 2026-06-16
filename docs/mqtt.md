@@ -1,5 +1,9 @@
 # Tópicos MQTT
 
+Todos os publishers e subscribers do projeto usam MQTT QoS 2
+(`exactly once`) para evitar perda ou duplicação lógica de comandos e
+telemetria no broker.
+
 ## Comandos
 
 | Tópico          | Origem | Função                      |
