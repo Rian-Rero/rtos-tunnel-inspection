@@ -32,10 +32,7 @@ class TaskTimingLogger {
         uint64_t exec_end_ns;
     };
 
-    static TaskTimingLogger& instance() {
-        static TaskTimingLogger inst;
-        return inst;
-    }
+    static TaskTimingLogger& instance();
 
     void open(const std::string& path);
     void log(const Record& r);

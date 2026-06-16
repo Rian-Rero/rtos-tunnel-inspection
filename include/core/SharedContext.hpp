@@ -57,35 +57,22 @@ class SharedContext {
     /**
      * @brief Sinaliza a detecção de uma anomalia estrutural (buraco/saliência).
      */
-    void triggerAnomaly() {
-        std::lock_guard<std::mutex> lock(anomaly_mutex_);
-        anomaly_detected_ = true;
-        anomaly_cv_.notify_all();
-    }
+    void triggerAnomaly();
 
     /**
      * @brief Redefine o estado de anomalia para falso após a inspeção.
      */
-    void resetAnomaly() {
-        std::lock_guard<std::mutex> lock(anomaly_mutex_);
-        anomaly_detected_ = false;
-    }
+    void resetAnomaly();
 
     /**
      * @brief Suspende a thread até que uma anomalia seja detectada.
      */
-    void waitForAnomaly() {
-        std::unique_lock<std::mutex> lock(anomaly_mutex_);
-        anomaly_cv_.wait(lock, [this]() { return anomaly_detected_ || !is_running; });
-    }
+    void waitForAnomaly();
 
     /**
      * @brief Verifica ativamente se há uma anomalia ocorrendo neste momento.
      */
-    bool isAnomalyActive() {
-        std::lock_guard<std::mutex> lock(anomaly_mutex_);
-        return anomaly_detected_;
-    }
+    bool isAnomalyActive();
 };
 
 }  // namespace core

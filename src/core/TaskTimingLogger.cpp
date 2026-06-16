@@ -6,6 +6,11 @@
 
 namespace core {
 
+TaskTimingLogger& TaskTimingLogger::instance() {
+    static TaskTimingLogger inst;
+    return inst;
+}
+
 void TaskTimingLogger::open(const std::string& path) {
     std::lock_guard<std::mutex> lock(mutex_);
     file_.open(path, std::ios::out | std::ios::trunc);
