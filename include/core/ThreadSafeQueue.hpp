@@ -1,124 +1,82 @@
 /**
  * @file ThreadSafeQueue.hpp
- * @brief Implementação de uma fila thread-safe genérica.
+ * @brief Fila thread-safe baseada em buffer circular implementado manualmente.
+ *
+ * @details Implementa o padrão Produtor/Consumidor usando um ring buffer de capacidade
+ * fixa. A sincronização é feita com mutex e variáveis de condição POSIX (via std::).
+ * Os corpos dos métodos ficam em ThreadSafeQueue.cpp via explicit template instantiation.
  */
 #pragma once
 #include <condition_variable>
+#include <cstddef>
 #include <mutex>
-#include <queue>
 
 namespace core {
 
 /**
  * @class ThreadSafeQueue
- * @brief Fila sincronizada baseada em mutexes e variáveis de condição.
+ * @brief Fila sincronizada com ring buffer manual (sem std::queue ou std::deque).
  *
- * @details Previne race conditions e deadlocks no modelo Produtor/Consumidor.
- * @tparam T Tipo de dado que será armazenado na fila.
+ * @details Internamente usa um array alocado dinamicamente com head/tail/count para
+ * implementar o buffer circular. A capacidade é definida na construção e é fixa.
+ *
+ * @tparam T Tipo do dado armazenado.
  */
 template <typename T>
 class ThreadSafeQueue {
    private:
-    std::queue<T> queue_;
+    T* data_;
+    size_t head_;
+    size_t tail_;
+    size_t count_;
+    const size_t capacity_;
+    bool closed_;
+
     mutable std::mutex mutex_;
     std::condition_variable cv_;
-    const size_t max_capacity_;
-    bool closed_{false};
 
    public:
     /**
-     * @brief Construtor da fila segura.
-     * @param capacity Capacidade máxima da fila antes de bloquear o produtor. Padrão: 100.
+     * @brief Constrói a fila alocando o ring buffer interno.
+     * @param capacity Número máximo de elementos. Padrão: 100.
      */
-    explicit ThreadSafeQueue(size_t capacity = 100) : max_capacity_(capacity) {}
+    explicit ThreadSafeQueue(size_t capacity = 100);
+
+    /** @brief Destrói a fila e libera o buffer alocado. */
+    ~ThreadSafeQueue();
+
+    // Não copiável nem movível — mutex e ponteiro bruto tornam isso inseguro.
+    ThreadSafeQueue(const ThreadSafeQueue&) = delete;
+    ThreadSafeQueue& operator=(const ThreadSafeQueue&) = delete;
 
     /**
-     * @brief Insere um item na fila de forma segura.
-     *
-     * @details Se a fila estiver cheia, a thread produtora é suspensa até haver espaço.
-     * @param item O elemento a ser inserido.
-     * @return true se inseriu o item; false se a fila foi fechada.
+     * @brief Insere um item no buffer. Bloqueia se estiver cheio.
+     * @return true se inserido; false se a fila foi fechada.
      */
-    bool push(const T& item) {
-        std::unique_lock<std::mutex> lock(mutex_);
-        cv_.wait(lock, [this]() { return closed_ || queue_.size() < max_capacity_; });
-
-        if (closed_) {
-            return false;
-        }
-
-        queue_.push(item);
-        lock.unlock();
-        cv_.notify_one();
-        return true;
-    }
+    bool push(const T& item);
 
     /**
-     * @brief Remove o item mais antigo da fila, aguardando se necessário.
-     *
-     * @details Se a fila estiver vazia, a thread consumidora é suspensa até chegar um novo dado
-     * ou até a fila ser fechada.
-     * @param item Referência que receberá o item removido.
-     * @return true se removeu um item; false se a fila foi fechada e ficou vazia.
+     * @brief Remove o item mais antigo. Bloqueia se estiver vazio.
+     * @param item Referência que recebe o valor removido.
+     * @return true se removido; false se a fila foi fechada e está vazia.
      */
-    bool pop(T& item) {
-        std::unique_lock<std::mutex> lock(mutex_);
-        cv_.wait(lock, [this]() { return closed_ || !queue_.empty(); });
-
-        if (queue_.empty()) {
-            return false;
-        }
-
-        item = queue_.front();
-        queue_.pop();
-        lock.unlock();
-        cv_.notify_all();
-        return true;
-    }
+    bool pop(T& item);
 
     /**
-     * @brief Tenta remover um item da fila sem bloquear.
-     * @param item Referência que receberá o item removido.
-     * @return true se removeu um item; false se a fila estava vazia.
+     * @brief Tenta remover sem bloquear.
+     * @param item Referência que recebe o valor removido.
+     * @return true se havia item; false se vazio.
      */
-    bool tryPop(T& item) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (queue_.empty()) {
-            return false;
-        }
+    bool tryPop(T& item);
 
-        item = queue_.front();
-        queue_.pop();
-        cv_.notify_all();
-        return true;
-    }
+    /** @brief Fecha a fila e libera todas as threads bloqueadas. */
+    void close();
 
-    /**
-     * @brief Fecha a fila e libera todas as threads bloqueadas.
-     */
-    void close() {
-        std::lock_guard<std::mutex> lock(mutex_);
-        closed_ = true;
-        cv_.notify_all();
-    }
+    /** @brief Retorna true se o buffer não contém nenhum elemento. */
+    bool empty() const;
 
-    /**
-     * @brief Verifica se a fila está vazia (de forma segura).
-     * @return true se vazia, false caso contrário.
-     */
-    bool empty() const {
-        std::lock_guard<std::mutex> lock(mutex_);
-        return queue_.empty();
-    }
-
-    /**
-     * @brief Verifica se a fila foi fechada.
-     * @return true se fechada, false caso contrário.
-     */
-    bool isClosed() const {
-        std::lock_guard<std::mutex> lock(mutex_);
-        return closed_;
-    }
+    /** @brief Retorna true se a fila foi fechada. */
+    bool isClosed() const;
 };
 
 }  // namespace core
