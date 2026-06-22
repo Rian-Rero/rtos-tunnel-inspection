@@ -119,8 +119,14 @@ class OperatorGUI(MqttComponent):
         style.configure(
             "Accent.TButton", font=("Helvetica", 11, "bold"), padding=(16, 10)
         )
+        style.configure(
+            "Compact.TButton", font=("Helvetica", 11, "bold"), padding=(6, 10)
+        )
         style.map(
             "Accent.TButton", relief=[("pressed", "sunken"), ("!pressed", "raised")]
+        )
+        style.map(
+            "Compact.TButton", relief=[("pressed", "sunken"), ("!pressed", "raised")]
         )
 
     def _build_ui(self) -> None:
@@ -213,6 +219,7 @@ class OperatorGUI(MqttComponent):
         self._telemetry = RobotTelemetry.from_payload(data, self._telemetry)
         self._history.append(self._telemetry)
         self._history = self._history[-Limits.OPERATOR_HISTORY_MAX :]
+        self._controls.sync_telemetry(self._telemetry)
         self._telemetry_panel.update(self._telemetry, self._yolo_state)
         self._preview.update(self._telemetry, self._history, self._yolo_state)
 

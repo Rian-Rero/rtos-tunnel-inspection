@@ -51,6 +51,8 @@ class RobotTelemetry:
     distance_m: float = 0.0
     ## Velocidade atual simulada do robô.
     velocidade: float = 0.0
+    ## Setpoint efetivo de velocidade publicado pelo controle.
+    speed_setpoint: int = 0
     ## Inclinação local medida pela IMU, em graus.
     imu: float = 0.0
     ## Distância vertical medida pelo LIDAR, em metros.
@@ -79,6 +81,7 @@ class RobotTelemetry:
             velocidade=float(
                 data.get("current_speed", data.get("velocidade", prev.velocidade))
             ),
+            speed_setpoint=int(data.get("speed_setpoint", prev.speed_setpoint)),
             imu=float(data.get("imu", prev.imu)),
             lidar=float(data.get("lidar_distance_y", data.get("lidar", prev.lidar))),
             encoder=int(data.get("encoder", prev.encoder)),

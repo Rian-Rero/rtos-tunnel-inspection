@@ -4,3 +4,14 @@ sudo apt install -y rt-tests
 stress-ng --cpu $(nproc) --vm 2 --vm-bytes 70% &
 sudo cyclictest --mlockall --smp --priority=99 --interval=200 --distance=0 --duration=30
 kill %1
+
+
+command_buffer
+    recebe/guarda: NavigationSetpoint
+    produtor: NavigationCommand
+    consumidor: NavigationControl
+
+surface_buffer
+    recebe/guarda: SurfaceData
+    produtor: SurfaceReconstruction
+    consumidor: DataCollector

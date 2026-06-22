@@ -38,6 +38,12 @@ class ControlsPanel:
         self._speed_var = tk.StringVar(value="0 %")
         ## Flag que evita publicar enquanto o valor é sincronizado pela GUI.
         self._updating_speed = False
+        ## Último setpoint efetivo recebido enquanto o robô estava em AUTO.
+        self._auto_speed_setpoint: int | None = None
+        ## Última direção efetiva recebida enquanto o robô estava em AUTO.
+        self._auto_direction = "STOP"
+        ## Modo mais recente recebido por telemetria.
+        self._telemetry_mode = "MANUAL"
         ## Controle deslizante de velocidade.
         self.speed_slider: ttk.Scale
         self._build(parent)
@@ -70,10 +76,11 @@ class ControlsPanel:
         ).pack(side="left", expand=True, fill="x", padx=(0, 4))
         ttk.Button(
             dirs,
-            text="⏹ STOP",
-            style="Accent.TButton",
+            text="⏹",
+            width=2,
+            style="Compact.TButton",
             command=lambda: self._set_direction("STOP"),
-        ).pack(side="left", expand=True, fill="x", padx=4)
+        ).pack(side="left", fill="x", padx=4)
         ttk.Button(
             dirs,
             text="▶",
@@ -112,10 +119,20 @@ class ControlsPanel:
         self._cmd(Topics.CMD_MODE, "AUTO")
 
     def _set_manual(self) -> None:
-        """Envia comando para modo manual e zera o movimento."""
+        """Entra no modo manual preservando o último setpoint automático."""
+        speed = self._auto_speed_setpoint if self._telemetry_mode == "AUTO" else None
+        if speed is None:
+            speed = int(round(float(self.speed_slider.get())))
+        speed = max(Limits.SPEED_MIN, min(Limits.SPEED_MAX, speed))
+        direction = self._auto_direction
+
+        # Setpoint e direção chegam primeiro para que a troca de modo nunca
+        # reutilize valores manuais antigos entre os comandos MQTT.
+        self._cmd(Topics.CMD_SPEED, speed)
+        self._cmd(Topics.CMD_DIRECTION, direction)
         self._cmd(Topics.CMD_MODE, "MANUAL")
-        self._cmd(Topics.CMD_DIRECTION, "STOP")
-        self.set_speed(0)
+        self._telemetry_mode = "MANUAL"
+        self._set_speed_display(speed)
 
     def _set_direction(self, direction: str) -> None:
         """Envia direção manual e aplica velocidade padrão quando necessário."""
@@ -142,13 +159,30 @@ class ControlsPanel:
     def set_speed(self, speed: int) -> None:
         """Sincroniza o controle visual de velocidade e publica o valor limitado."""
         speed = max(Limits.SPEED_MIN, min(Limits.SPEED_MAX, speed))
+        self._set_speed_display(speed)
+        self._cmd(Topics.CMD_SPEED, speed)
+
+    def sync_telemetry(self, telemetry: RobotTelemetry) -> None:
+        """Sincroniza silenciosamente o controle com o setpoint do modo AUTO."""
+        self._telemetry_mode = telemetry.mode
+        if telemetry.mode != "AUTO":
+            return
+        speed = max(
+            Limits.SPEED_MIN,
+            min(Limits.SPEED_MAX, abs(int(telemetry.speed_setpoint))),
+        )
+        self._auto_speed_setpoint = speed
+        self._auto_direction = telemetry.direction
+        self._set_speed_display(speed)
+
+    def _set_speed_display(self, speed: int) -> None:
+        """Atualiza slider e texto sem publicar um comando MQTT."""
         self._updating_speed = True
         try:
             self.speed_slider.set(speed)
         finally:
             self._updating_speed = False
         self._speed_var.set(f"{speed} %")
-        self._cmd(Topics.CMD_SPEED, speed)
 
 
 class TelemetryPanel:

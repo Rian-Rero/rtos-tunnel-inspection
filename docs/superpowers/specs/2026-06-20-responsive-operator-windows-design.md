@@ -17,7 +17,7 @@ Exibir a GUI de operação e o simulador lado a lado, sem sobreposição, manten
 
 - O modelo Python passa a ler `speed_setpoint` da mensagem `telemetry/robot` já publicada pelo núcleo C++.
 - Enquanto o robô está em AUTO, o painel de comandos memoriza e apresenta o módulo desse setpoint sem republicá-lo.
-- Ao selecionar MANUAL, a GUI publica primeiro o setpoint memorizado e depois o comando de mudança de modo. A direção continua em STOP até uma direção manual ser escolhida, evitando movimento inesperado.
+- Ao selecionar MANUAL, a GUI publica primeiro o setpoint e a direção memorizados e depois o comando de mudança de modo. Assim, o movimento mantém o mesmo estado instantâneo observado no modo AUTO.
 - Na ausência de telemetria automática válida, aplica-se o setpoint manual já mostrado no controle, limitado ao intervalo configurado de 0 a 100%.
 
 ## Componentes afetados

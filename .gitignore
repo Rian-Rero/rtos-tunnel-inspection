@@ -82,3 +82,5 @@ __pycache__/
 .claude/
 
 inspection_log.csv
+
+docs/superpowers/
